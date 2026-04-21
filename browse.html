@@ -199,6 +199,47 @@
             animation: fadeInUp 0.7s ease-out 0.7s both;
         }
 
+        /* Border Beam Animation */
+        .border-beam-btn {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            background: #fff;
+            padding: 1px; /* The border width */
+        }
+
+        .border-beam-btn::before {
+            content: "";
+            position: absolute;
+            z-index: -2;
+            left: 50%;
+            top: 50%;
+            width: 200%;
+            height: 200%;
+            background-color: transparent;
+            background-repeat: no-repeat;
+            background-size: 50% 50%, 50% 50%;
+            background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+            background-image: conic-gradient(from 0deg, transparent 0% 80%, #a73a00 90%, transparent 100%);
+            animation: rotate-beam 4s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        .border-beam-btn::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            inset: 1px;
+            background: white;
+            border-radius: 9999px;
+        }
+
+        @keyframes rotate-beam {
+            100% {
+                transform: translate(-50%, -50%) rotate(1turn);
+            }
+        }
+
         div.bg-surface-container-lowest:not(.col-span-2):nth-child(6) {
             animation: fadeInUp 0.7s ease-out 0.8s both;
         }
@@ -345,7 +386,6 @@
                                 <a class="nav-active text-orange-700 dark:text-orange-500 font-semibold border-b-2 border-orange-700 transition-all" href="#">Explore</a>
 <a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="pricing.html">Pricing</a>
                                 <a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="docs.html" id="docsLink">Documents</a>
-                                <a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="dashboard.html">Dashboard</a>
 </nav>
 <div class="flex items-center gap-4">
 <div class="hidden md:block relative">
@@ -451,9 +491,9 @@ Advanced code generation agent with multi-language support. Generates production
 <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">fork_right</span> 3.2k</div>
 <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> 1h ago</div>
 </div>
-<button class="flex items-center gap-2 text-primary font-bold text-sm group/btn hover:underline underline-offset-4">
+<button class="bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2">
 Buy Key
-<span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
 </button>
 </div>
 </div>
@@ -468,7 +508,10 @@ Autonomous data analysis and visualization agent. Processes complex datasets, ge
 </p>
 <div class="mt-auto pt-4 flex items-center justify-between">
 <div class="text-[10px] font-mono text-on-surface-variant/60">SQL / PYTHON / PLOTLY</div>
-<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+<button class="bg-primary text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2">
+Buy Key
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
 </div>
 </div>
 <!-- Agent Card 3 -->
@@ -482,7 +525,10 @@ Intelligent API orchestration agent that manages, routes, and optimizes API call
 </p>
 <div class="mt-auto pt-4 flex items-center justify-between">
 <div class="text-[10px] font-mono text-on-surface-variant/60">REST / GRAPHQL / GRPC</div>
-<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+<button class="bg-primary text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2">
+Buy Key
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
 </div>
 </div>
 <!-- Agent Card 4 -->
@@ -496,7 +542,10 @@ Comprehensive NLP agent for text processing, sentiment analysis, entity recognit
 </p>
 <div class="mt-auto pt-4 flex items-center justify-between">
 <div class="text-[10px] font-mono text-on-surface-variant/60">TRANSFORMERS / SPACY / NLTK</div>
-<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+<button class="bg-primary text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2">
+Buy Key
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
 </div>
 </div>
 <!-- Agent Card 5 -->
@@ -510,7 +559,10 @@ Advanced computer vision agent for object detection, image classification, and r
 </p>
 <div class="mt-auto pt-4 flex items-center justify-between">
 <div class="text-[10px] font-mono text-on-surface-variant/60">YOLO / OPENCV / TENSORFLOW</div>
-<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+<button class="bg-primary text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2">
+Buy Key
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
 </div>
 </div>
 <!-- Agent Card 6 -->
@@ -524,14 +576,19 @@ Intelligent workflow automation agent that learns patterns and automates repetit
 </p>
 <div class="mt-auto pt-4 flex items-center justify-between">
 <div class="text-[10px] font-mono text-on-surface-variant/60">ZAPIER / MAKE / N8N</div>
-<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+<button class="bg-primary text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2">
+Buy Key
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
 </div>
 </div>
 <!-- Pagination/Load More -->
 <div class="col-span-2 pt-8 flex justify-center">
-<button class="group flex items-center gap-3 px-8 py-4 bg-white border border-outline-variant/20 rounded-full font-bold text-on-surface hover:border-primary transition-all shadow-sm">
+<button class="border-beam-btn group flex items-center gap-3 px-8 py-4 rounded-full font-bold text-on-surface hover:text-primary transition-all shadow-sm">
+<span class="relative z-10 flex items-center gap-3">
 Load More Agents
 <span class="material-symbols-outlined group-hover:rotate-180 transition-transform duration-500">sync</span>
+</span>
 </button>
 </div>
 </div>
@@ -885,13 +942,8 @@ Load More Agents
 
                 const openButton = document.createElement('button');
                 openButton.type = 'button';
-                openButton.className = 'flex items-center gap-2 text-primary font-bold text-sm group/btn hover:underline underline-offset-4';
-                openButton.textContent = 'Buy Key';
-
-                const icon = document.createElement('span');
-                icon.className = 'material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform';
-                icon.textContent = 'arrow_forward';
-                openButton.appendChild(icon);
+                openButton.className = 'bg-primary text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-all flex items-center gap-2';
+                openButton.innerHTML = 'Buy Key <span class="material-symbols-outlined text-[14px]">arrow_forward</span>';
 
                 openButton.addEventListener('click', function () {
                     if (!item.keyUrl) {

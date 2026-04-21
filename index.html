@@ -1445,17 +1445,32 @@ const saveStoredUsers = function (users) {
   localStorage.setItem(SETTINGS_KEYS.userCredentials, JSON.stringify(users));
 };
 
+const syncUserNavState = function () {
+  const dashboardLink = document.getElementById('navDashboardLink');
+  const isUserLoggedIn = localStorage.getItem(SETTINGS_KEYS.userSession) === 'true';
+
+  if (dashboardLink) {
+    dashboardLink.style.display = isUserLoggedIn ? 'inline-block' : 'none';
+  }
+};
+
 applyDocsLink();
+syncUserNavState();
 
 window.addEventListener('storage', function (event) {
   if (event.key === SETTINGS_KEYS.configVersion) {
     applyDocsLink();
+  }
+
+  if (event.key === SETTINGS_KEYS.userSession) {
+    syncUserNavState();
   }
 });
 
 document.addEventListener('visibilitychange', function () {
   if (!document.hidden) {
     applyDocsLink();
+    syncUserNavState();
   }
 });
 
@@ -1568,7 +1583,7 @@ if (authTrigger && authModal && authClose && authCard) {
         }
       }
 
-      const isValid = loginId === storedCredentials.loginId && password === storedCredentials.password;
+      const isValid = !!storedCredentials && loginId === storedCredentials.loginId && password === storedCredentials.password;
 
       if (isValid) {
         localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
@@ -1653,6 +1668,8 @@ if (authTrigger && authModal && authClose && authCard) {
       showPane('login');
     });
   }
+
+  syncUserNavState();
 }
 </script>
 <script src="footer.js"></script>
