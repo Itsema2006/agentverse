@@ -536,65 +536,12 @@ path="index.html"
     <a href="browse.html">Explore</a>
     <a href="pricing.html">Pricing</a>
     <a href="docs.html" id="docsLink">Docs</a>
-    <a href="login.html" class="nav-auth" id="authTrigger">Login / Register</a>
-    <a href="browse.html" class="nav-cta">Launch App</a>
+    <a href="login.html" class="nav-auth">Sign In</a>
+    <a href="register.html" class="nav-cta">Register</a>
   </div>
 </nav>
 
-<!-- AUTH MODAL -->
-<div class="auth-modal" id="authModal" aria-hidden="true">
-  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authCardTitle">
-    <div class="auth-head">
-      <div class="auth-title" id="authCardTitle">Welcome to AgentVerse</div>
-      <button type="button" class="auth-close" id="authClose" aria-label="Close">x</button>
-    </div>
-
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab active" data-auth-tab="login">Login</button>
-      <button type="button" class="auth-tab" data-auth-tab="register">Register</button>
-    </div>
-
-    <div class="auth-pane active" data-auth-pane="login">
-      <form class="auth-form" id="loginForm" action="#" method="post">
-        <div>
-          <label for="loginId">Login ID</label>
-          <input id="loginId" type="text" placeholder="Enter login ID" required>
-        </div>
-        <div>
-          <label for="loginPassword">Password</label>
-          <input id="loginPassword" type="password" placeholder="Enter your password" required>
-        </div>
-        <button type="submit" class="auth-submit">Login</button>
-      </form>
-      <p class="auth-hint">Use your login ID and password to continue.</p>
-      <p class="auth-hint" id="loginStatus" aria-live="polite"></p>
-    </div>
-
-    <div class="auth-pane" data-auth-pane="register">
-      <form class="auth-form" id="registerForm" action="#" method="post">
-        <div>
-          <label for="registerName">Full Name</label>
-          <input id="registerName" type="text" placeholder="Your full name" required>
-        </div>
-        <div>
-          <label for="registerEmail">Email</label>
-          <input id="registerEmail" type="email" placeholder="you@example.com" required>
-        </div>
-        <div>
-          <label for="registerPassword">Password</label>
-          <input id="registerPassword" type="password" placeholder="Create a password" required>
-        </div>
-        <div>
-          <label for="registerConfirmPassword">Confirm Password</label>
-          <input id="registerConfirmPassword" type="password" placeholder="Re-enter your password" required>
-        </div>
-        <button type="submit" class="auth-submit">Create Account</button>
-      </form>
-      <p class="auth-hint">Create your account and start exploring AI agents.</p>
-      <p class="auth-hint" id="registerStatus" aria-live="polite"></p>
-    </div>
-  </div>
-</div>
+<!-- REDUNDANT AUTH MODAL REMOVED -->
 
 <!-- HERO -->
 <section id="hero">
@@ -615,13 +562,12 @@ path="index.html"
       The open marketplace for production-ready AI agents. Browse, compare, and deploy intelligent agents that work together to automate your workflows.
     </p>
     <div class="hero-actions">
-      <a href="browse.html" class="btn-primary">
-        Explore Agents
+      <a href="register.html" class="btn-primary">
+        Get Started Free
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10m-4-4 4 4-4 4"/></svg>
       </a>
-      <a href="#" class="btn-secondary">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="6,3 14,8 6,13"/></svg>
-        Watch Demo
+      <a href="browse.html" class="btn-secondary">
+        Browse Marketplace
       </a>
     </div>
     <div class="hero-stats">
@@ -1470,207 +1416,8 @@ window.addEventListener('storage', function (event) {
 document.addEventListener('visibilitychange', function () {
   if (!document.hidden) {
     applyDocsLink();
-    syncUserNavState();
   }
 });
-
-if (authTrigger && authModal && authClose && authCard) {
-  let authHighlightTimer = null;
-
-  const highlightAuthCard = function () {
-    if (authHighlightTimer) {
-      clearTimeout(authHighlightTimer);
-    }
-
-    authCard.classList.remove('highlighted');
-    void authCard.offsetWidth;
-    authCard.classList.add('highlighted');
-
-    authHighlightTimer = setTimeout(function () {
-      authCard.classList.remove('highlighted');
-    }, 1400);
-  };
-
-  const openAuth = function () {
-    authModal.classList.add('is-open');
-    authModal.setAttribute('aria-hidden', 'false');
-    highlightAuthCard();
-  };
-
-  const closeAuth = function () {
-    authModal.classList.remove('is-open');
-    authModal.setAttribute('aria-hidden', 'true');
-  };
-
-  const showPane = function (name) {
-    authTabs.forEach(function (tab) {
-      tab.classList.toggle('active', tab.dataset.authTab === name);
-    });
-    authPanes.forEach(function (pane) {
-      pane.classList.toggle('active', pane.dataset.authPane === name);
-    });
-  };
-
-  authTrigger.addEventListener('click', function (event) {
-    event.preventDefault();
-    window.location.href = 'login.html';
-  });
-
-  authClose.addEventListener('click', closeAuth);
-
-  authModal.addEventListener('click', function (event) {
-    if (event.target === authModal) {
-      closeAuth();
-    }
-  });
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && authModal.classList.contains('is-open')) {
-      closeAuth();
-    }
-  });
-
-  authTabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      showPane(tab.dataset.authTab || 'login');
-    });
-  });
-
-  if (loginForm) {
-    loginForm.addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      const loginIdInput = document.getElementById('loginId');
-      const passwordInput = document.getElementById('loginPassword');
-      const loginId = (loginIdInput && loginIdInput.value || '').trim();
-      const normalizedLoginId = loginId.toLowerCase();
-      const password = (passwordInput && passwordInput.value || '').trim();
-
-      if (!loginId || !password) {
-        if (loginStatus) {
-          loginStatus.textContent = 'Login ID and password are required.';
-        }
-        return;
-      }
-
-      const users = getStoredUsers();
-      const matchedUser = users.find(function (user) {
-        return user && String(user.loginId || '').toLowerCase() === normalizedLoginId && user.password === password;
-      });
-
-      if (matchedUser) {
-        localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
-        localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
-          loginId: matchedUser.loginId,
-          name: matchedUser.name || '',
-          loggedInAt: new Date().toISOString()
-        }));
-        window.location.href = 'dashboard.html';
-        return;
-      }
-
-      const storedCredentials = getStoredAdminCredentials();
-      if (!storedCredentials) {
-        if (normalizedLoginId.indexOf('@') === -1) {
-          localStorage.setItem(SETTINGS_KEYS.adminCredentials, JSON.stringify({
-            loginId: loginId,
-            password: password,
-            createdAt: new Date().toISOString()
-          }));
-          localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
-          window.location.href = 'admin.html';
-          return;
-        }
-      }
-
-      const isValid = !!storedCredentials && loginId === storedCredentials.loginId && password === storedCredentials.password;
-
-      if (isValid) {
-        localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
-        window.location.href = 'admin.html';
-        return;
-      }
-
-      if (normalizedLoginId.indexOf('@') !== -1) {
-        users.unshift({
-          name: normalizedLoginId.split('@')[0],
-          email: normalizedLoginId,
-          loginId: normalizedLoginId,
-          password: password,
-          createdAt: new Date().toISOString()
-        });
-        saveStoredUsers(users);
-        localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
-        localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
-          loginId: normalizedLoginId,
-          name: normalizedLoginId.split('@')[0],
-          loggedInAt: new Date().toISOString()
-        }));
-        window.location.href = 'dashboard.html';
-        return;
-      }
-
-      if (loginStatus) {
-        loginStatus.textContent = 'Invalid login credentials. Register first or use admin credentials.';
-      }
-    });
-  }
-
-  if (registerForm) {
-    registerForm.addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      const name = (document.getElementById('registerName').value || '').trim();
-      const email = (document.getElementById('registerEmail').value || '').trim().toLowerCase();
-
-      const password = (document.getElementById('registerPassword').value || '').trim();
-      const confirmPassword = (document.getElementById('registerConfirmPassword').value || '').trim();
-
-      if (!name || !email) {
-        if (registerStatus) {
-          registerStatus.textContent = 'Name and email are required.';
-        }
-        return;
-      }
-
-      if (!password || password !== confirmPassword) {
-        if (registerStatus) {
-          registerStatus.textContent = 'Passwords do not match.';
-        }
-        return;
-      }
-
-      const users = getStoredUsers();
-      const exists = users.some(function (user) {
-        return user && String(user.loginId || '').toLowerCase() === email;
-      });
-
-      if (exists) {
-        if (registerStatus) {
-          registerStatus.textContent = 'Account already exists. Use login with your email.';
-        }
-        return;
-      }
-
-      users.unshift({
-        name: name,
-        email: email,
-        loginId: email,
-        password: password,
-        createdAt: new Date().toISOString()
-      });
-      saveStoredUsers(users);
-
-      if (registerStatus) {
-        registerStatus.textContent = 'Registration successful. Use your email as Login ID.';
-      }
-
-      showPane('login');
-    });
-  }
-
-  syncUserNavState();
-}
 </script>
 <script src="footer.js"></script>
 </body>

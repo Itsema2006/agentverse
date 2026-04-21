@@ -1,399 +1,900 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgentVerse | Register</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #fff8f3;
-      --card: #ffffff;
-      --ink: #1f2328;
-      --muted: #667085;
-      --line: #f2d7c8;
-      --orange: #ea580c;
-      --orange-deep: #c2410c;
-      --shadow: 0 22px 70px rgba(194, 65, 12, 0.14);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentVerse | Login & Register</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    body {
-      min-height: 100vh;
-      font-family: "Inter", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 82% 8%, rgba(251, 146, 60, 0.22), transparent 34%),
-        radial-gradient(circle at 12% 14%, rgba(249, 115, 22, 0.14), transparent 32%),
-        linear-gradient(180deg, #fffaf6 0%, #fff8f3 55%, #fffdfb 100%);
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #ff6a00 0%, #fff5ee 50%, #ffffff 100%);
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-    .shell {
-      width: min(980px, 100%);
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 18px;
-      align-items: stretch;
-    }
+  #bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
 
-    .hero,
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
+  .container {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 600px;
+    position: relative;
+    z-index: 1;
+  }
 
-    .hero {
-      padding: 28px;
-      display: flex;
+  .left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 50px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .left-panel h1 {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .left-panel h1 span {
+    display: block;
+    color: #ff6a00;
+  }
+
+  .left-panel p {
+    font-size: 14px;
+    color: #7a5a45;
+    max-width: 300px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .back-home {
+    position: absolute;
+    top: 40px;
+    left: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a05030;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s;
+    z-index: 10;
+  }
+
+  .back-home:hover {
+    color: #ff6a00;
+  }
+
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    padding: 6px 14px;
+    border: 1px solid #ffb380;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #cc4f00;
+    background: rgba(255,255,255,0.5);
+  }
+
+  .right-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .form-card {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 140, 60, 0.3);
+    border-radius: 16px;
+    padding: 40px 36px;
+    width: 380px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .form-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 32px;
+    background: #ffe8d6;
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .form-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: #b06040;
+    border: none;
+    background: none;
+  }
+
+  .form-tab.active {
+    background: #ff6a00;
+    color: #ffffff;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #a05030;
+    margin-bottom: 8px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    background: #fff7f2;
+    border: 1px solid #ffcba0;
+    border-radius: 10px;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-group input:focus {
+    border-color: #ff6a00;
+  }
+
+  .form-group input::placeholder {
+    color: #cca080;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #ff6a00;
+    border: none;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 6px;
+  }
+
+  .submit-btn:hover {
+    background: #ff8c33;
+    transform: translateY(-1px);
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0;
+  }
+
+  .divider span {
+    font-size: 11px;
+    color: #b06040;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ffcba0;
+  }
+
+  .social-btns {
+    display: flex;
+    gap: 10px;
+  }
+
+  .social-btn {
+    flex: 1;
+    padding: 12px;
+    background: #fff7f2;
+    border: 1px solid #ffcba0;
+    border-radius: 10px;
+    color: #cc5500;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .social-btn:hover {
+    border-color: #ff6a00;
+    color: #ff6a00;
+  }
+
+  .form-section {
+    display: none;
+  }
+
+  .form-section.active {
+    display: block;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .forgot-link {
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 18px;
+  }
+
+  .forgot-link a {
+    font-size: 11px;
+    color: #ff6a00;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  @media (max-width: 900px) {
+    .container {
       flex-direction: column;
-      justify-content: space-between;
-      min-height: 540px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75)),
-        radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.18), transparent 45%);
-    }
-
-    .brand {
-      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      color: var(--orange);
-      text-decoration: none;
-      font-family: "Manrope", sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+      padding: 20px;
     }
-
-    .brand svg { width: 28px; height: 28px; flex-shrink: 0; }
-
-    h1 {
-      font-family: "Manrope", sans-serif;
-      font-size: clamp(34px, 4vw, 54px);
-      line-height: 1.02;
-      letter-spacing: -0.04em;
-      margin-top: 20px;
-      max-width: 12ch;
-    }
-
-    .hero p {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.7;
-      max-width: 54ch;
-    }
-
-    .points {
-      margin-top: 24px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .point {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255, 247, 237, 0.92);
-      border: 1px solid #fed7aa;
-    }
-
-    .bullet {
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--orange), var(--orange-deep));
-      margin-top: 5px;
-      flex: none;
-    }
-
-    .point strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 3px;
-    }
-
-    .point span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .card {
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .eyebrow {
-      display: inline-flex;
+    .left-panel {
+      padding: 30px 20px;
+      text-align: center;
       align-items: center;
-      gap: 8px;
-      width: fit-content;
-      padding: 6px 11px;
-      border-radius: 999px;
-      border: 1px solid #fdba74;
-      background: #fff7ed;
-      color: #9a3412;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
     }
-
-    .card h2 {
-      margin-top: 14px;
-      font-family: "Manrope", sans-serif;
-      font-size: 30px;
-      letter-spacing: -0.03em;
-    }
-
-    .card p.sub {
-      margin-top: 8px;
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 14px;
-    }
-
-    .notice {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid #fed7aa;
-      background: #fff7ed;
-      color: #9a3412;
-      font-size: 13px;
-      font-weight: 700;
-      display: none;
-    }
-
-    .notice.visible { display: block; }
-
-    form {
-      margin-top: 18px;
-      display: grid;
-      gap: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 7px;
-    }
-
-    input {
-      width: 100%;
-      border: 1px solid #e7d3c7;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 14px;
-      color: var(--ink);
-      background: #fff;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: rgba(249, 115, 22, 0.55);
-      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
-      transform: translateY(-1px);
-    }
-
-    .submit {
-      border: 0;
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-size: 14px;
-      font-weight: 800;
-      color: #fff;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--orange), var(--orange-deep));
-      transition: transform 160ms ease, box-shadow 160ms ease;
-    }
-
-    .submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(194, 65, 12, 0.25);
-    }
-
-    .links {
-      margin-top: 14px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .links a {
-      color: var(--orange-deep);
-      font-weight: 800;
-      text-decoration: none;
-    }
-
-    .links a:hover { text-decoration: underline; }
-
-    @media (max-width: 880px) {
-      .shell { grid-template-columns: 1fr; }
-      .hero { min-height: auto; }
-    }
-
-    @media (max-width: 520px) {
-      body { padding: 14px; }
-      .hero, .card { padding: 20px; border-radius: 20px; }
-      h1 { max-width: none; }
-    }
-  </style>
+    .left-panel h1 { font-size: 36px; }
+    .left-panel p { text-align: center; }
+    .right-panel { width: 100%; }
+    .form-card { width: 100%; max-width: 400px; }
+  }
+</style>
 </head>
 <body>
-  <main class="shell">
-    <section class="hero">
-      <a class="brand" href="index.html" aria-label="AgentVerse home">
-        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <rect width="28" height="28" rx="7" fill="url(#registerLogoGradient)"></rect>
-          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
-          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
-          <defs>
-            <linearGradient id="registerLogoGradient" x1="0" y1="0" x2="28" y2="28">
-              <stop stop-color="#F97316"></stop>
-              <stop offset="1" stop-color="#EA580C"></stop>
-            </linearGradient>
-          </defs>
-        </svg>
-        AgentVerse
-      </a>
 
-      <div>
-        <h1>Create your AgentVerse account.</h1>
-        <p>
-          Register once to unlock the dashboard, saved purchases, and access to your marketplace account.
-          After creating your account, you will be sent to the login screen.
-        </p>
+<a href="index.html" class="back-home">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to Home
+</a>
 
-        <div class="points">
-          <div class="point"><span class="bullet"></span><div><strong>One-time setup</strong><span>Create a user profile with your name and email.</span></div></div>
-          <div class="point"><span class="bullet"></span><div><strong>Secure credentials</strong><span>Your email becomes the login ID for future sign-ins.</span></div></div>
-          <div class="point"><span class="bullet"></span><div><strong>Separate flow</strong><span>Registration and login are handled on different screens.</span></div></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="container">
+  <div class="left-panel">
+    <h1>
+      AGENT
+      <span>VERSE.</span>
+    </h1>
+    <p>Discover & deploy autonomous AI agents. The infrastructure for production-ready automation workflows.</p>
+    <div class="tag-row">
+      <div class="tag">Marketplace</div>
+      <div class="tag">AI Agents</div>
+      <div class="tag">Deploy</div>
+      <div class="tag">Orchestrate</div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="form-card">
+      <div class="form-tabs">
+        <button class="form-tab" data-tab="login">Sign In</button>
+        <button class="form-tab active" data-tab="register">Register</button>
+      </div>
+
+      <!-- Error/Success Notice -->
+      <div id="notice" style="display: none; padding: 12px; margin-bottom: 16px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-size: 13px; font-weight: 600; text-align: center;"></div>
+
+      <div class="form-section" id="login-form">
+        <form id="loginForm">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="text" id="loginId" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required />
+          </div>
+          <div class="forgot-link">
+            <a href="#">Forgot password?</a>
+          </div>
+          <button type="submit" class="submit-btn" id="loginBtn">Sign In</button>
+        </form>
+        <div class="divider"><span>or continue with</span></div>
+        <div class="social-btns">
+          <button class="social-btn">G</button>
+          <button class="social-btn">𝕏</button>
+          <button class="social-btn">◆</button>
         </div>
       </div>
-    </section>
 
-    <section class="card" aria-labelledby="registerTitle">
-      <span class="eyebrow">Register</span>
-      <h2 id="registerTitle">Create a new account</h2>
-      <p class="sub">Fill in the details below to get started.</p>
-
-      <div class="notice" id="notice"></div>
-
-      <form id="registerForm" autocomplete="on">
-        <div>
-          <label for="registerName">Full Name</label>
-          <input id="registerName" name="registerName" type="text" placeholder="Your full name" required />
+      <div class="form-section active" id="register-form">
+        <form id="registerForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="regName" placeholder="John Doe" required />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="regEmail" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="regPassword" placeholder="••••••••" required />
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="regConfirmPassword" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="submit-btn" id="regBtn">Create Account</button>
+        </form>
+        <div class="divider"><span>or continue with</span></div>
+        <div class="social-btns">
+          <button class="social-btn">G</button>
+          <button class="social-btn">𝕏</button>
+          <button class="social-btn">◆</button>
         </div>
-        <div>
-          <label for="registerEmail">Email</label>
-          <input id="registerEmail" name="registerEmail" type="email" placeholder="you@example.com" required />
-        </div>
-        <div>
-          <label for="registerPassword">Password</label>
-          <input id="registerPassword" name="registerPassword" type="password" placeholder="Create a password" required />
-        </div>
-        <div>
-          <label for="registerConfirmPassword">Confirm Password</label>
-          <input id="registerConfirmPassword" name="registerConfirmPassword" type="password" placeholder="Re-enter your password" required />
-        </div>
-        <button class="submit" type="submit">Create Account</button>
-      </form>
+      </div>
+    </div>
+  </div>
+</div>
 
-      <p class="links">Already have an account? <a href="login.html">Login here</a>.</p>
-      <p class="links"><a href="index.html">Back to home</a></p>
-    </section>
-  </main>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.module.js';
 
-  <script>
-    (function () {
-      const SETTINGS_KEYS = {
+// Tab switching with URL persistence
+const tabs = document.querySelectorAll('.form-tab');
+const sections = document.querySelectorAll('.form-section');
+
+function switchTab(tabId) {
+  tabs.forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tabId);
+  });
+  sections.forEach(s => {
+    s.classList.toggle('active', s.id === tabId + '-form');
+  });
+}
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    switchTab(tab.dataset.tab);
+  });
+});
+
+// Check URL for direct tab access (default to register in register.html if no param)
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab') || 'register';
+  if (tab === 'register' || tab === 'login') {
+    switchTab(tab);
+  }
+});
+
+// ─── Full-screen 3D Background ───
+const canvas = document.getElementById('bg-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xfff5ee);
+scene.fog = new THREE.FogExp2(0xfff5ee, 0.025);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 2, 18);
+camera.lookAt(0, 0, 0);
+
+// ─── Lights ───
+const ambientLight = new THREE.AmbientLight(0xfff0e0, 1.2);
+ambientLight.name = 'bgAmbient';
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xff8c33, 2.5);
+sunLight.name = 'bgSun';
+sunLight.position.set(8, 12, 6);
+scene.add(sunLight);
+
+const rimLight = new THREE.PointLight(0xff6a00, 30, 40);
+rimLight.name = 'bgRim';
+rimLight.position.set(-6, 5, 8);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0xffffff, 15, 40);
+fillLight.name = 'bgFill';
+fillLight.position.set(5, -3, 10);
+scene.add(fillLight);
+
+// ─── Floating Geometric Shapes (Instanced for performance) ───
+const shapeDefs = [
+  { geo: new THREE.IcosahedronGeometry(1, 0), count: 18 },
+  { geo: new THREE.OctahedronGeometry(0.8, 0), count: 14 },
+  { geo: new THREE.TorusGeometry(0.6, 0.25, 16, 32), count: 12 },
+  { geo: new THREE.TetrahedronGeometry(0.7, 0), count: 10 },
+  { geo: new THREE.TorusKnotGeometry(0.5, 0.18, 64, 16, 2, 3), count: 8 },
+  { geo: new THREE.DodecahedronGeometry(0.65, 0), count: 10 },
+];
+
+const orangePalette = [
+  0xff6a00, 0xff8c33, 0xffaa55, 0xffcc88, 0xffffff,
+  0xff5500, 0xff9944, 0xffe0c0, 0xffbb66, 0xcc4400,
+];
+
+const allInstances = [];
+const dummy = new THREE.Object3D();
+
+shapeDefs.forEach((def, si) => {
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.15,
+    metalness: 0.3,
+    transparent: true,
+    opacity: 0.85,
+  });
+  const instMesh = new THREE.InstancedMesh(def.geo, mat, def.count);
+  instMesh.name = `shapeInst_${si}`;
+
+  const instanceData = [];
+  for (let i = 0; i < def.count; i++) {
+    const spread = 35;
+    const x = (Math.random() - 0.5) * spread;
+    const y = (Math.random() - 0.5) * 20;
+    const z = (Math.random() - 0.5) * 30 - 5;
+    const scale = Math.random() * 0.6 + 0.3;
+    const speedMul = Math.random() * 0.6 + 0.4;
+    const phase = Math.random() * Math.PI * 2;
+    const rotSpeed = (Math.random() - 0.5) * 2;
+    const bobAmp = Math.random() * 1.5 + 0.5;
+    const driftSpeed = Math.random() * 0.3 + 0.1;
+
+    const col = new THREE.Color(orangePalette[Math.floor(Math.random() * orangePalette.length)]);
+    instMesh.setColorAt(i, col);
+
+    dummy.position.set(x, y, z);
+    dummy.scale.setScalar(scale);
+    dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    dummy.updateMatrix();
+    instMesh.setMatrixAt(i, dummy.matrix);
+
+    instanceData.push({ x, y, z, scale, speedMul, phase, rotSpeed, bobAmp, driftSpeed, rx: dummy.rotation.x, ry: dummy.rotation.y, rz: dummy.rotation.z });
+  }
+  instMesh.instanceMatrix.needsUpdate = true;
+  if (instMesh.instanceColor) instMesh.instanceColor.needsUpdate = true;
+  scene.add(instMesh);
+  allInstances.push({ mesh: instMesh, data: instanceData });
+});
+
+// ─── Floating Ring Orbits ───
+const ringGroup = new THREE.Group();
+ringGroup.name = 'ringGroup';
+scene.add(ringGroup);
+
+const ringData = [];
+for (let i = 0; i < 5; i++) {
+  const radius = 3 + i * 2.2;
+  const tubeRadius = 0.02 + Math.random() * 0.04;
+  const ringGeo = new THREE.TorusGeometry(radius, tubeRadius, 8, 120);
+  const ringMat = new THREE.MeshStandardMaterial({
+    color: orangePalette[i % orangePalette.length],
+    roughness: 0.1,
+    metalness: 0.6,
+    transparent: true,
+    opacity: 0.35,
+    emissive: 0xff6a00,
+    emissiveIntensity: 0.15,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.name = `orbitRing_${i}`;
+  ring.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.8;
+  ring.rotation.y = (Math.random() - 0.5) * 0.5;
+  ring.position.set((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 3, -2);
+  ringGroup.add(ring);
+  ringData.push({ speed: (Math.random() - 0.5) * 0.3, tilt: Math.random() * 0.2 });
+}
+
+// ─── Central Glowing Orb ───
+const orbGeo = new THREE.SphereGeometry(1.8, 64, 64);
+const orbMat = new THREE.MeshStandardMaterial({
+  color: 0xff6a00,
+  emissive: 0xff4400,
+  emissiveIntensity: 0.6,
+  roughness: 0.05,
+  metalness: 0.5,
+  transparent: true,
+  opacity: 0.5,
+});
+const orb = new THREE.Mesh(orbGeo, orbMat);
+orb.name = 'centralOrb';
+orb.position.set(0, 0, -5);
+scene.add(orb);
+
+// Orb glow
+const glowGeo = new THREE.SphereGeometry(2.8, 32, 32);
+const glowMat = new THREE.MeshBasicMaterial({
+  color: 0xff8833,
+  transparent: true,
+  opacity: 0.08,
+  side: THREE.BackSide,
+});
+const glow = new THREE.Mesh(glowGeo, glowMat);
+glow.name = 'orbGlow';
+orb.add(glow);
+
+// ─── Particle Field ───
+const particleCount = 500;
+const pGeo = new THREE.BufferGeometry();
+const pPositions = new Float32Array(particleCount * 3);
+const pVelocities = new Float32Array(particleCount * 3);
+const pColors = new Float32Array(particleCount * 3);
+
+for (let i = 0; i < particleCount; i++) {
+  pPositions[i * 3] = (Math.random() - 0.5) * 60;
+  pPositions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+  pPositions[i * 3 + 2] = (Math.random() - 0.5) * 40 - 5;
+  pVelocities[i * 3] = (Math.random() - 0.5) * 0.01;
+  pVelocities[i * 3 + 1] = Math.random() * 0.015 + 0.005;
+  pVelocities[i * 3 + 2] = (Math.random() - 0.5) * 0.005;
+  const c = new THREE.Color(orangePalette[Math.floor(Math.random() * orangePalette.length)]);
+  pColors[i * 3] = c.r;
+  pColors[i * 3 + 1] = c.g;
+  pColors[i * 3 + 2] = c.b;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+
+const pMat = new THREE.PointsMaterial({
+  size: 0.08,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.8,
+  blending: THREE.AdditiveBlending,
+  sizeAttenuation: true,
+});
+const particleField = new THREE.Points(pGeo, pMat);
+particleField.name = 'particleField';
+scene.add(particleField);
+
+// ─── Floating Wireframe Spheres ───
+const wireGroup = new THREE.Group();
+wireGroup.name = 'wireframeGroup';
+scene.add(wireGroup);
+
+const wireData = [];
+for (let i = 0; i < 6; i++) {
+  const r = Math.random() * 1.5 + 0.5;
+  const wGeo = new THREE.IcosahedronGeometry(r, 1);
+  const wMat = new THREE.MeshBasicMaterial({
+    color: orangePalette[Math.floor(Math.random() * orangePalette.length)],
+    wireframe: true,
+    transparent: true,
+    opacity: 0.15,
+  });
+  const wMesh = new THREE.Mesh(wGeo, wMat);
+  wMesh.name = `wireSphere_${i}`;
+  wMesh.position.set(
+    (Math.random() - 0.5) * 30,
+    (Math.random() - 0.5) * 20,
+    (Math.random() - 0.5) * 20 - 5
+  );
+  wireGroup.add(wMesh);
+  wireData.push({ rotX: (Math.random() - 0.5) * 0.5, rotY: (Math.random() - 0.5) * 0.5, bob: Math.random() * Math.PI * 2 });
+}
+
+// ─── Light Beams (Cone Geometry) ───
+for (let i = 0; i < 4; i++) {
+  const beamGeo = new THREE.ConeGeometry(0.8 + Math.random() * 0.5, 15 + Math.random() * 10, 8, 1, true);
+  const beamMat = new THREE.MeshBasicMaterial({
+    color: i % 2 === 0 ? 0xff6a00 : 0xffaa55,
+    transparent: true,
+    opacity: 0.03,
+    side: THREE.DoubleSide,
+  });
+  const beam = new THREE.Mesh(beamGeo, beamMat);
+  beam.name = `lightBeam_${i}`;
+  beam.position.set((Math.random() - 0.5) * 20, 8, -10 + Math.random() * 5);
+  beam.rotation.z = (Math.random() - 0.5) * 0.6;
+  beam.rotation.x = Math.PI + (Math.random() - 0.5) * 0.3;
+  scene.add(beam);
+}
+
+// ─── Mouse tracking ───
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', (e) => {
+  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+// ─── Animation Loop ───
+const clock = new THREE.Clock();
+
+function animate() {
+  const t = clock.getElapsedTime();
+  const dt = clock.getDelta();
+
+  // Camera gentle sway following mouse
+  camera.position.x = THREE.MathUtils.lerp(camera.position.x, mouseX * 3, 0.02);
+  camera.position.y = THREE.MathUtils.lerp(camera.position.y, 2 + mouseY * 2, 0.02);
+  camera.lookAt(0, 0, -2);
+
+  // Animate instanced shapes
+  allInstances.forEach(({ mesh, data }) => {
+    for (let i = 0; i < data.length; i++) {
+      const d = data[i];
+      const bobY = Math.sin(t * d.speedMul + d.phase) * d.bobAmp;
+      const driftX = Math.sin(t * d.driftSpeed + d.phase) * 1.5;
+
+      dummy.position.set(d.x + driftX, d.y + bobY, d.z);
+      dummy.scale.setScalar(d.scale + Math.sin(t * 0.8 + d.phase) * 0.08);
+      dummy.rotation.set(
+        d.rx + t * d.rotSpeed * 0.4,
+        d.ry + t * d.rotSpeed * 0.3,
+        d.rz + t * d.rotSpeed * 0.2
+      );
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  });
+
+  // Rings rotate
+  ringGroup.children.forEach((ring, i) => {
+    ring.rotation.z += ringData[i].speed * 0.01;
+    ring.rotation.x += ringData[i].tilt * 0.003;
+  });
+
+  // Central orb pulse
+  const orbScale = 1 + Math.sin(t * 1.2) * 0.12;
+  orb.scale.setScalar(orbScale);
+  orbMat.emissiveIntensity = 0.6 + Math.sin(t * 2) * 0.25;
+  glowMat.opacity = 0.06 + Math.sin(t * 1.5) * 0.03;
+  orb.rotation.y = t * 0.15;
+
+  // Particles drift upward
+  const pArr = particleField.geometry.attributes.position.array;
+  for (let i = 0; i < particleCount; i++) {
+    pArr[i * 3] += pVelocities[i * 3];
+    pArr[i * 3 + 1] += pVelocities[i * 3 + 1];
+    pArr[i * 3 + 2] += pVelocities[i * 3 + 2];
+    // Reset if too high
+    if (pArr[i * 3 + 1] > 20) {
+      pArr[i * 3 + 1] = -20;
+      pArr[i * 3] = (Math.random() - 0.5) * 60;
+      pArr[i * 3 + 2] = (Math.random() - 0.5) * 40 - 5;
+    }
+  }
+  particleField.geometry.attributes.position.needsUpdate = true;
+  particleField.rotation.y = t * 0.02;
+
+  // Wireframe spheres
+  wireGroup.children.forEach((w, i) => {
+    w.rotation.x += wireData[i].rotX * 0.005;
+    w.rotation.y += wireData[i].rotY * 0.005;
+    w.position.y += Math.sin(t * 0.5 + wireData[i].bob) * 0.005;
+  });
+
+  // Lights pulse
+  rimLight.intensity = 30 + Math.sin(t * 1.5) * 10;
+  fillLight.intensity = 15 + Math.sin(t * 2 + 1) * 5;
+
+  renderer.render(scene, camera);
+}
+
+renderer.setAnimationLoop(animate);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── AUTH LOGIC ───
+(function () {
+    const SETTINGS_KEYS = {
+        adminCredentials: 'agentverseAdminCredentials',
+        adminSession: 'agentverseAdminSession',
         userCredentials: 'agentverseUserCredentials',
         userSession: 'agentverseUserSession',
         activeUser: 'agentverseActiveUser'
-      };
+    };
 
-      const notice = document.getElementById('notice');
-      const registerForm = document.getElementById('registerForm');
+    const notice = document.getElementById('notice');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginIdInput = document.getElementById('loginId');
+    
+    // Prefill logic
+    const storedNotice = sessionStorage.getItem('agentverseAuthNotice');
+    const storedLoginId = sessionStorage.getItem('agentversePrefillLoginId');
 
-      function getStoredUsers() {
+    if (storedNotice && notice) {
+        showNotice(storedNotice, 'success');
+        sessionStorage.removeItem('agentverseAuthNotice');
+    }
+
+    if (storedLoginId && loginIdInput) {
+        loginIdInput.value = storedLoginId;
+        sessionStorage.removeItem('agentversePrefillLoginId');
+    }
+
+    function showNotice(msg, type = 'error') {
+        if (!notice) return;
+        notice.textContent = msg;
+        notice.style.display = 'block';
+        notice.style.background = type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+        notice.style.borderColor = type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+        notice.style.color = type === 'success' ? '#10b981' : '#ef4444';
+    }
+
+    function getStoredUsers() {
         try {
-          const raw = localStorage.getItem(SETTINGS_KEYS.userCredentials);
-          const parsed = raw ? JSON.parse(raw) : [];
-          return Array.isArray(parsed) ? parsed : [];
-        } catch (error) {
-          return [];
-        }
-      }
+            const raw = localStorage.getItem(SETTINGS_KEYS.userCredentials);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) { return []; }
+    }
 
-      if (registerForm) {
-        registerForm.addEventListener('submit', function (event) {
-          event.preventDefault();
+    function getStoredAdminCredentials() {
+        try {
+            const raw = localStorage.getItem(SETTINGS_KEYS.adminCredentials);
+            const parsed = raw ? JSON.parse(raw) : null;
+            return (parsed && parsed.loginId && parsed.password) ? parsed : null;
+        } catch (error) { return null; }
+    }
 
-          const name = (document.getElementById('registerName').value || '').trim();
-          const email = (document.getElementById('registerEmail').value || '').trim().toLowerCase();
-          const password = (document.getElementById('registerPassword').value || '').trim();
-          const confirmPassword = (document.getElementById('registerConfirmPassword').value || '').trim();
+    // LOGIN HANDLER
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const loginId = (loginIdInput && loginIdInput.value || '').trim();
+            const passwordInput = document.getElementById('loginPassword');
+            const password = (passwordInput && passwordInput.value || '').trim();
+            const normalizedLoginId = loginId.toLowerCase();
 
-          if (!name || !email) {
-            if (notice) {
-              notice.textContent = 'Name and email are required.';
-              notice.classList.add('visible');
+            if (!loginId || !password) {
+                showNotice('Login ID and password are required.');
+                return;
             }
-            return;
-          }
 
-          if (!password || password !== confirmPassword) {
-            if (notice) {
-              notice.textContent = 'Passwords do not match.';
-              notice.classList.add('visible');
+            const users = getStoredUsers();
+            const matchedUser = users.find(u => u && String(u.loginId || '').toLowerCase() === normalizedLoginId && u.password === password);
+
+            if (matchedUser) {
+                localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
+                localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
+                    loginId: matchedUser.loginId,
+                    name: matchedUser.name || '',
+                    loggedInAt: new Date().toISOString()
+                }));
+                window.location.href = 'dashboard.html';
+                return;
             }
-            return;
-          }
 
-          const users = getStoredUsers();
-          const exists = users.some(function (user) {
-            return user && String(user.loginId || '').toLowerCase() === email;
-          });
-
-          if (exists) {
-            if (notice) {
-              notice.textContent = 'Account already exists. Please login instead.';
-              notice.classList.add('visible');
+            const storedAdmin = getStoredAdminCredentials();
+            if (!storedAdmin && normalizedLoginId.indexOf('@') === -1) {
+                localStorage.setItem(SETTINGS_KEYS.adminCredentials, JSON.stringify({
+                    loginId: loginId,
+                    password: password,
+                    createdAt: new Date().toISOString()
+                }));
+                localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+                window.location.href = 'admin.html';
+                return;
             }
-            return;
-          }
 
-          users.unshift({
-            name: name,
-            email: email,
-            loginId: email,
-            password: password,
-            createdAt: new Date().toISOString()
-          });
-          localStorage.setItem(SETTINGS_KEYS.userCredentials, JSON.stringify(users));
-          sessionStorage.setItem('agentverseAuthNotice', 'Registration successful. Please log in.');
-          sessionStorage.setItem('agentversePrefillLoginId', email);
-          window.location.href = 'login.html';
+            if (storedAdmin && loginId === storedAdmin.loginId && password === storedAdmin.password) {
+                localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            showNotice('Invalid credentials. Register first or use admin login.');
         });
-      }
-    })();
-  </script>
+    }
+
+    // REGISTER HANDLER
+    if (registerForm) {
+        registerForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const confirm = document.getElementById('regConfirmPassword').value.trim();
+
+            if (!name || !email || !password) {
+                showNotice('All fields are required.');
+                return;
+            }
+
+            if (password !== confirm) {
+                showNotice('Passwords do not match.');
+                return;
+            }
+
+            const users = getStoredUsers();
+            if (users.some(u => String(u.loginId).toLowerCase() === email.toLowerCase())) {
+                showNotice('User with this email already exists.');
+                return;
+            }
+
+            users.push({
+                name: name,
+                loginId: email,
+                password: password,
+                createdAt: new Date().toISOString()
+            });
+
+            localStorage.setItem(SETTINGS_KEYS.userCredentials, JSON.stringify(users));
+            showNotice('Registration successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+                sessionStorage.setItem('agentversePrefillLoginId', email);
+                sessionStorage.setItem('agentverseAuthNotice', 'Registration successful! Please log in.');
+                window.location.reload();
+            }, 1500);
+        });
+    }
+})();
+</script>
+
 </body>
 </html>
