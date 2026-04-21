@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentVerse | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #fff8f3;
+            --card: #ffffff;
+            --ink: #1f2328;
+            --muted: #667085;
+            --line: #f2d7c8;
+            --orange: #ea580c;
+            --orange-deep: #c2410c;
+            --shadow: 0 22px 70px rgba(194, 65, 12, 0.14);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 82% 8%, rgba(251, 146, 60, 0.22), transparent 34%),
+                radial-gradient(circle at 12% 14%, rgba(249, 115, 22, 0.14), transparent 32%),
+                linear-gradient(180deg, #fffaf6 0%, #fff8f3 55%, #fffdfb 100%);
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        .shell {
+            width: min(980px, 100%);
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .hero,
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+        }
+
+        .hero {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 540px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75)),
+                radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.18), transparent 45%);
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--orange);
+            text-decoration: none;
+            font-family: "Manrope", sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+
+        h1 {
+            font-family: "Manrope", sans-serif;
+            font-size: clamp(34px, 4vw, 54px);
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+            margin-top: 20px;
+            max-width: 12ch;
+        }
+
+        .hero p {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+            max-width: 54ch;
+        }
+
+        .points {
+            margin-top: 24px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .point {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(255, 247, 237, 0.92);
+            border: 1px solid #fed7aa;
+        }
+
+        .bullet {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+            margin-top: 5px;
+            flex: none;
+        }
+
+        .point strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .point span {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .card {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            padding: 6px 11px;
+            border-radius: 999px;
+            border: 1px solid #fdba74;
+            background: #fff7ed;
+            color: #9a3412;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .card h2 {
+            margin-top: 14px;
+            font-family: "Manrope", sans-serif;
+            font-size: 30px;
+            letter-spacing: -0.03em;
+        }
+
+        .card p.sub {
+            margin-top: 8px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .notice {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid #fed7aa;
+            background: #fff7ed;
+            color: #9a3412;
+            font-size: 13px;
+            font-weight: 700;
+            display: none;
+        }
+
+        .notice.visible { display: block; }
+
+        form {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid #e7d3c7;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: var(--ink);
+            background: #fff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(249, 115, 22, 0.55);
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .submit {
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 14px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+            transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px rgba(194, 65, 12, 0.25);
+        }
+
+        .links {
+            margin-top: 14px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .links a {
+            color: var(--orange-deep);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .links a:hover { text-decoration: underline; }
+
+        @media (max-width: 880px) {
+            .shell { grid-template-columns: 1fr; }
+            .hero { min-height: auto; }
+        }
+
+        @media (max-width: 520px) {
+            body { padding: 14px; }
+            .hero, .card { padding: 20px; border-radius: 20px; }
+            h1 { max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <section class="hero">
+            <a class="brand" href="index.html" aria-label="AgentVerse home">
+                <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <rect width="28" height="28" rx="7" fill="url(#loginLogoGradient)"></rect>
+                    <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
+                    <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+                    <defs>
+                        <linearGradient id="loginLogoGradient" x1="0" y1="0" x2="28" y2="28">
+                            <stop stop-color="#F97316"></stop>
+                            <stop offset="1" stop-color="#EA580C"></stop>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                AgentVerse
+            </a>
+
+            <div>
+                <h1>Welcome back to AgentVerse.</h1>
+                <p>
+                    Sign in to access your dashboard, purchase history, and saved API keys.
+                    If you do not have an account yet, use the register screen to create one first.
+                </p>
+
+                <div class="points">
+                    <div class="point"><span class="bullet"></span><div><strong>Secure access</strong><span>Use your login ID and password to continue.</span></div></div>
+                    <div class="point"><span class="bullet"></span><div><strong>Dashboard ready</strong><span>Successful login redirects you straight to your workspace.</span></div></div>
+                    <div class="point"><span class="bullet"></span><div><strong>Simple account flow</strong><span>New here? Create an account from the register screen.</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="loginTitle">
+            <span class="eyebrow">Login</span>
+            <h2 id="loginTitle">Sign in to your account</h2>
+            <p class="sub">Enter your credentials below to continue to AgentVerse.</p>
+
+            <div class="notice" id="notice"></div>
+
+            <form id="loginForm" autocomplete="on">
+                <div>
+                    <label for="loginId">Login ID</label>
+                    <input id="loginId" name="loginId" type="text" placeholder="Enter your email or login ID" required />
+                </div>
+                <div>
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" name="loginPassword" type="password" placeholder="Enter your password" required />
+                </div>
+                <button class="submit" type="submit">Login</button>
+            </form>
+
+            <p class="links">Need an account? <a href="register.html">Create one here</a>.</p>
+            <p class="links"><a href="index.html">Back to home</a></p>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            const SETTINGS_KEYS = {
+                adminCredentials: 'agentverseAdminCredentials',
+                adminSession: 'agentverseAdminSession',
+                userCredentials: 'agentverseUserCredentials',
+                userSession: 'agentverseUserSession',
+                activeUser: 'agentverseActiveUser'
+            };
+
+            const notice = document.getElementById('notice');
+            const loginForm = document.getElementById('loginForm');
+            const loginIdInput = document.getElementById('loginId');
+            const storedNotice = sessionStorage.getItem('agentverseAuthNotice');
+            const storedLoginId = sessionStorage.getItem('agentversePrefillLoginId');
+
+            if (storedNotice && notice) {
+                notice.textContent = storedNotice;
+                notice.classList.add('visible');
+                sessionStorage.removeItem('agentverseAuthNotice');
+            }
+
+            if (storedLoginId && loginIdInput) {
+                loginIdInput.value = storedLoginId;
+                sessionStorage.removeItem('agentversePrefillLoginId');
+            }
+
+            function getStoredUsers() {
+                try {
+                    const raw = localStorage.getItem(SETTINGS_KEYS.userCredentials);
+                    const parsed = raw ? JSON.parse(raw) : [];
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            function getStoredAdminCredentials() {
+                try {
+                    const raw = localStorage.getItem(SETTINGS_KEYS.adminCredentials);
+                    const parsed = raw ? JSON.parse(raw) : null;
+                    if (parsed && parsed.loginId && parsed.password) {
+                        return parsed;
+                    }
+                } catch (error) {
+                    return null;
+                }
+                return null;
+            }
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const loginId = (loginIdInput && loginIdInput.value || '').trim();
+                    const passwordInput = document.getElementById('loginPassword');
+                    const password = (passwordInput && passwordInput.value || '').trim();
+                    const normalizedLoginId = loginId.toLowerCase();
+
+                    if (!loginId || !password) {
+                        if (notice) {
+                            notice.textContent = 'Login ID and password are required.';
+                            notice.classList.add('visible');
+                        }
+                        return;
+                    }
+
+                    const users = getStoredUsers();
+                    const matchedUser = users.find(function (user) {
+                        return user && String(user.loginId || '').toLowerCase() === normalizedLoginId && user.password === password;
+                    });
+
+                    if (matchedUser) {
+                        localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
+                        localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
+                            loginId: matchedUser.loginId,
+                            name: matchedUser.name || '',
+                            loggedInAt: new Date().toISOString()
+                        }));
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+
+                    const storedCredentials = getStoredAdminCredentials();
+                    if (!storedCredentials && normalizedLoginId.indexOf('@') === -1) {
+                        localStorage.setItem(SETTINGS_KEYS.adminCredentials, JSON.stringify({
+                            loginId: loginId,
+                            password: password,
+                            createdAt: new Date().toISOString()
+                        }));
+                        localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+                        window.location.href = 'admin.html';
+                        return;
+                    }
+
+                    const isValidAdmin = !!storedCredentials && loginId === storedCredentials.loginId && password === storedCredentials.password;
+                    if (isValidAdmin) {
+                        localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+                        window.location.href = 'admin.html';
+                        return;
+                    }
+
+                    if (notice) {
+                        notice.textContent = 'Invalid credentials. Register first or use admin credentials.';
+                        notice.classList.add('visible');
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <div>
+        Login Page
+    </div>
+</body>
+</html>

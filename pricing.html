@@ -328,71 +328,6 @@
       margin-bottom: 12px;
     }
 
-    .snapshot-inline {
-      border: 1px solid rgba(194, 65, 12, 0.15);
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(16px);
-      padding: 24px;
-      margin: 32px 0;
-      box-shadow: 0 8px 32px rgba(100, 109, 121, 0.05);
-    }
-
-    .snapshot-inline .snapshot-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .snapshot-inline .snapshot-head h3 {
-      font-family: "Manrope", sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--orange-deep);
-    }
-
-    .snapshot-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .snapshot-item {
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 16px;
-      display: grid;
-      gap: 8px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .snapshot-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-
-    .snapshot-item:first-of-type {
-      grid-column-start: 2;
-    }
-
-    .snapshot-item strong {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--ink);
-      font-family: "Manrope", sans-serif;
-    }
-
-    .snapshot-item div {
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -517,19 +452,6 @@
         font-size: 34px;
       }
 
-      .snapshot-inline {
-        padding: 14px;
-        margin: 20px 0;
-      }
-
-      .snapshot-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .snapshot-item:first-of-type {
-        grid-column-start: auto;
-      }
-
       table {
         display: block;
         overflow-x: auto;
@@ -625,28 +547,6 @@
     <section class="compare">
       <h2>Plan Comparison</h2>
       <p>Everything you need to compare rollout readiness across all plans.</p>
-      <div class="snapshot-inline" aria-label="Active pricing snapshot">
-        <div class="snapshot-head">
-          <h3>Active Pricing</h3>
-        </div>
-        <div class="snapshot-grid">
-          <div class="snapshot-item">
-            <strong>Starter</strong>
-            <div><span>Monthly</span><span>$<span data-snapshot-price="starter-month">29</span></span></div>
-            <div><span>Yearly</span><span>$<span data-snapshot-price="starter-year">23</span></span></div>
-          </div>
-          <div class="snapshot-item">
-            <strong>Growth</strong>
-            <div><span>Monthly</span><span>$<span data-snapshot-price="growth-month">99</span></span></div>
-            <div><span>Yearly</span><span>$<span data-snapshot-price="growth-year">79</span></span></div>
-          </div>
-          <div class="snapshot-item">
-            <strong>Enterprise</strong>
-            <div><span>Monthly</span><span>$<span data-snapshot-price="enterprise-month">299</span></span></div>
-            <div><span>Yearly</span><span>$<span data-snapshot-price="enterprise-year">239</span></span></div>
-          </div>
-        </div>
-      </div>
       <table aria-label="Plan comparison table">
         <thead>
           <tr>
@@ -701,14 +601,6 @@
       var yearlyBtn = document.getElementById("yearlyBtn");
       var plans = Array.from(document.querySelectorAll(".plan"));
       var docsLink = document.getElementById('docsLink');
-      var pricingSnapshot = {
-        starterMonth: document.querySelector('[data-snapshot-price="starter-month"]'),
-        starterYear: document.querySelector('[data-snapshot-price="starter-year"]'),
-        growthMonth: document.querySelector('[data-snapshot-price="growth-month"]'),
-        growthYear: document.querySelector('[data-snapshot-price="growth-year"]'),
-        enterpriseMonth: document.querySelector('[data-snapshot-price="enterprise-month"]'),
-        enterpriseYear: document.querySelector('[data-snapshot-price="enterprise-year"]')
-      };
       var currentMode = 'monthly';
 
       function applyDocsConfig() {
@@ -759,24 +651,6 @@
             }
           });
 
-          if (pricingSnapshot.starterMonth) {
-            pricingSnapshot.starterMonth.textContent = plans[0] ? plans[0].dataset.month : '29';
-          }
-          if (pricingSnapshot.starterYear) {
-            pricingSnapshot.starterYear.textContent = plans[0] ? plans[0].dataset.year : '23';
-          }
-          if (pricingSnapshot.growthMonth) {
-            pricingSnapshot.growthMonth.textContent = plans[1] ? plans[1].dataset.month : '99';
-          }
-          if (pricingSnapshot.growthYear) {
-            pricingSnapshot.growthYear.textContent = plans[1] ? plans[1].dataset.year : '79';
-          }
-          if (pricingSnapshot.enterpriseMonth) {
-            pricingSnapshot.enterpriseMonth.textContent = plans[2] ? plans[2].dataset.month : '299';
-          }
-          if (pricingSnapshot.enterpriseYear) {
-            pricingSnapshot.enterpriseYear.textContent = plans[2] ? plans[2].dataset.year : '239';
-          }
         } catch (error) {
           console.warn('Unable to load pricing config.', error);
         }

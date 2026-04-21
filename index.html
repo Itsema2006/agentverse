@@ -536,7 +536,7 @@ path="index.html"
     <a href="browse.html">Explore</a>
     <a href="pricing.html">Pricing</a>
     <a href="docs.html" id="docsLink">Docs</a>
-    <a href="#" class="nav-auth" id="authTrigger">Login / Register</a>
+    <a href="login.html" class="nav-auth" id="authTrigger">Login / Register</a>
     <a href="browse.html" class="nav-cta">Launch App</a>
   </div>
 </nav>
@@ -1513,7 +1513,7 @@ if (authTrigger && authModal && authClose && authCard) {
 
   authTrigger.addEventListener('click', function (event) {
     event.preventDefault();
-    openAuth();
+    window.location.href = 'login.html';
   });
 
   authClose.addEventListener('click', closeAuth);
