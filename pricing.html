@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentVerse | Pricing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="checkout.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #fff8f3;
+      --paper: #ffffff;
+      --ink: #1f2328;
+      --muted: #646d79;
+      --line: #f2d7c8;
+      --orange: #ea580c;
+      --orange-deep: #c2410c;
+      --orange-soft: #ffedd5;
+      --mint: #0f766e;
+      --blue: #1d4ed8;
+      --shadow: 0 14px 40px rgba(194, 65, 12, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 4%, rgba(251, 146, 60, 0.2), transparent 40%),
+        radial-gradient(circle at 7% 22%, rgba(249, 115, 22, 0.13), transparent 36%),
+        linear-gradient(180deg, #fffaf6 0%, #fff8f3 50%, #fffefc 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+    }
+
+    .nav {
+      width: min(1120px, 94vw);
+      margin: 16px auto 0;
+      position: sticky;
+      top: 12px;
+      z-index: 40;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--orange);
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+    }
+
+    .brand svg {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 160ms ease, transform 160ms ease;
+    }
+
+    .links a:hover {
+      color: var(--orange);
+      transform: translateY(-1px);
+    }
+
+    .links a.active {
+      color: var(--orange);
+      border-bottom: 2px solid var(--orange);
+      padding-bottom: 2px;
+    }
+
+    .cta {
+      border: 1px solid rgba(234, 88, 12, 0.28);
+      background: #ffffff;
+      color: var(--orange-deep);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(234, 88, 12, 0.2);
+    }
+
+    .hero {
+      padding: 60px 0 24px;
+      text-align: center;
+    }
+
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #9a3412;
+      background: #ffedd5;
+      border: 1px solid #fdba74;
+      border-radius: 999px;
+      padding: 6px 11px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      font-family: "Manrope", sans-serif;
+      font-size: clamp(32px, 5vw, 52px);
+      letter-spacing: -0.03em;
+      line-height: 1.06;
+      margin-bottom: 14px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 68ch;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .billing {
+      margin-top: 18px;
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      padding: 4px;
+      gap: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .billing button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .billing button.active {
+      background: linear-gradient(140deg, #f97316, #c2410c);
+      color: white;
+    }
+
+    .grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .plan {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      animation: rise 420ms ease both;
+    }
+
+    .plan.popular {
+      border-color: #fb923c;
+      box-shadow: 0 16px 46px rgba(194, 65, 12, 0.2);
+      transform: translateY(-6px);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -11px;
+      right: 16px;
+      background: linear-gradient(140deg, #f97316, #c2410c);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    .plan h3 {
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+      min-height: 40px;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .price strong {
+      font-family: "Manrope", sans-serif;
+      font-size: 40px;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .price span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .features {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #7c2d12;
+      font-weight: 600;
+    }
+
+    .features li {
+      border: 1px solid #ffe4d0;
+      border-radius: 10px;
+      background: #fffaf6;
+      padding: 8px 10px;
+    }
+
+    .action {
+      border: 0;
+      width: 100%;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(140deg, #f97316, #c2410c);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .action.alt {
+      color: #9a3412;
+      border: 1px solid #fdba74;
+      background: #fff7ed;
+    }
+
+    .action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(194, 65, 12, 0.27);
+    }
+
+    .compare {
+      margin-top: 20px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .compare h2 {
+      font-family: "Manrope", sans-serif;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .compare p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .snapshot-inline {
+      border: 1px solid rgba(194, 65, 12, 0.15);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px);
+      padding: 24px;
+      margin: 32px 0;
+      box-shadow: 0 8px 32px rgba(100, 109, 121, 0.05);
+    }
+
+    .snapshot-inline .snapshot-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .snapshot-inline .snapshot-head h3 {
+      font-family: "Manrope", sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--orange-deep);
+    }
+
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .snapshot-item {
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .snapshot-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .snapshot-item:first-of-type {
+      grid-column-start: 2;
+    }
+
+    .snapshot-item strong {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+      font-family: "Manrope", sans-serif;
+    }
+
+    .snapshot-item div {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid #ffe4d0;
+      border-radius: 12px;
+      background: #fffdfb;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ffecdf;
+      font-size: 13px;
+    }
+
+    th {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      color: #9a3412;
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .yes {
+      color: var(--mint);
+      font-weight: 800;
+    }
+
+    .maybe {
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+
+    /* Shared Footer styles now in footer.css */
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .plan.popular {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 740px) {
+      .nav {
+        border-radius: 14px;
+      }
+
+      .links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="7" fill="url(#priceLogoGradient)"></rect>
+        <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
+        <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+        <defs>
+          <linearGradient id="priceLogoGradient" x1="0" y1="0" x2="28" y2="28">
+            <stop stop-color="#F97316"></stop>
+            <stop offset="1" stop-color="#EA580C"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+      AgentVerse
+    </a>
+
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="browse.html">Explore</a>
+      <a class="active" href="pricing.html">Pricing</a>
+      <a href="docs.html" id="docsLink">Docs</a>
+    </nav>
+
+    <button class="cta">Start Free Trial</button>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="badge">Simple Plans</span>
+      <h1>Pricing That Scales With Your Agent Traffic.</h1>
+      <p>
+        Launch fast on free credits, then upgrade to higher throughput and enterprise-grade controls.
+        Every plan includes observability, secured keys, and model routing.
+      </p>
+
+      <div class="billing" aria-label="Billing mode">
+        <button id="monthlyBtn" class="active" type="button">Monthly</button>
+        <button id="yearlyBtn" type="button">Yearly (save 20%)</button>
+      </div>
+    </section>
+
+    <section class="grid" aria-label="Pricing plans">
+      <article class="plan" data-plan="starter" data-month="29" data-year="23">
+        <h3>Starter</h3>
+        <p class="sub">Perfect for solo builders and prototypes.</p>
+        <div class="price"><strong>$<span class="value">29</span></strong><span>/ month</span></div>
+        <ul class="features">
+          <li>200k API calls / month</li>
+          <li>3 active API keys</li>
+          <li>Community support</li>
+          <li>Standard rate limits</li>
+        </ul>
+        <button class="action alt" type="button">Choose Starter</button>
+      </article>
+
+      <article class="plan popular" data-plan="growth" data-month="99" data-year="79">
+        <span class="popular-badge">Most Popular</span>
+        <h3>Growth</h3>
+        <p class="sub">For teams shipping customer-facing features.</p>
+        <div class="price"><strong>$<span class="value">99</span></strong><span>/ month</span></div>
+        <ul class="features">
+          <li>2.5M API calls / month</li>
+          <li>15 active API keys</li>
+          <li>Priority support + SLA</li>
+          <li>Advanced analytics</li>
+        </ul>
+        <button class="action" type="button">Choose Growth</button>
+      </article>
+
+      <article class="plan" data-plan="enterprise" data-month="299" data-year="239">
+        <h3>Enterprise</h3>
+        <p class="sub">High-scale orgs with strict compliance needs.</p>
+        <div class="price"><strong>$<span class="value">299</span></strong><span>/ month</span></div>
+        <ul class="features">
+          <li>Custom API volume</li>
+          <li>Unlimited keys + RBAC</li>
+          <li>Dedicated success manager</li>
+          <li>Private networking options</li>
+        </ul>
+        <button class="action" type="button">Talk to Sales</button>
+      </article>
+    </section>
+
+    <section class="compare">
+      <h2>Plan Comparison</h2>
+      <p>Everything you need to compare rollout readiness across all plans.</p>
+      <div class="snapshot-inline" aria-label="Active pricing snapshot">
+        <div class="snapshot-head">
+          <h3>Active Pricing</h3>
+        </div>
+        <div class="snapshot-grid">
+          <div class="snapshot-item">
+            <strong>Starter</strong>
+            <div><span>Monthly</span><span>$<span data-snapshot-price="starter-month">29</span></span></div>
+            <div><span>Yearly</span><span>$<span data-snapshot-price="starter-year">23</span></span></div>
+          </div>
+          <div class="snapshot-item">
+            <strong>Growth</strong>
+            <div><span>Monthly</span><span>$<span data-snapshot-price="growth-month">99</span></span></div>
+            <div><span>Yearly</span><span>$<span data-snapshot-price="growth-year">79</span></span></div>
+          </div>
+          <div class="snapshot-item">
+            <strong>Enterprise</strong>
+            <div><span>Monthly</span><span>$<span data-snapshot-price="enterprise-month">299</span></span></div>
+            <div><span>Yearly</span><span>$<span data-snapshot-price="enterprise-year">239</span></span></div>
+          </div>
+        </div>
+      </div>
+      <table aria-label="Plan comparison table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Starter</th>
+            <th>Growth</th>
+            <th>Enterprise</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Uptime SLA</td>
+            <td class="maybe">99.5%</td>
+            <td class="yes">99.9%</td>
+            <td class="yes">99.95%</td>
+          </tr>
+          <tr>
+            <td>Webhook retries</td>
+            <td>3 attempts</td>
+            <td>10 attempts</td>
+            <td>Custom policy</td>
+          </tr>
+          <tr>
+            <td>Audit logs</td>
+            <td>-</td>
+            <td class="yes">Included</td>
+            <td class="yes">Included + export</td>
+          </tr>
+          <tr>
+            <td>Private support channel</td>
+            <td>-</td>
+            <td class="maybe">Shared Slack</td>
+            <td class="yes">Dedicated channel</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+  </main>
+
+  <script>
+    (function () {
+      var SETTINGS_KEYS = {
+        pricing: 'agentversePricingConfig',
+        docs: 'agentverseDocsConfig',
+        configVersion: 'agentverseConfigVersion'
+      };
+
+      var monthlyBtn = document.getElementById("monthlyBtn");
+      var yearlyBtn = document.getElementById("yearlyBtn");
+      var plans = Array.from(document.querySelectorAll(".plan"));
+      var docsLink = document.getElementById('docsLink');
+      var pricingSnapshot = {
+        starterMonth: document.querySelector('[data-snapshot-price="starter-month"]'),
+        starterYear: document.querySelector('[data-snapshot-price="starter-year"]'),
+        growthMonth: document.querySelector('[data-snapshot-price="growth-month"]'),
+        growthYear: document.querySelector('[data-snapshot-price="growth-year"]'),
+        enterpriseMonth: document.querySelector('[data-snapshot-price="enterprise-month"]'),
+        enterpriseYear: document.querySelector('[data-snapshot-price="enterprise-year"]')
+      };
+      var currentMode = 'monthly';
+
+      function applyDocsConfig() {
+        if (!docsLink) {
+          return;
+        }
+
+        try {
+          var raw = localStorage.getItem(SETTINGS_KEYS.docs);
+          if (!raw) {
+            return;
+          }
+
+          var config = JSON.parse(raw);
+          if (config && typeof config.label === 'string' && config.label.trim() !== '') {
+            docsLink.textContent = config.label.trim();
+          }
+        } catch (error) {
+          console.warn('Unable to load docs config.', error);
+        }
+      }
+
+      function applyPricingConfig() {
+        try {
+          var raw = localStorage.getItem(SETTINGS_KEYS.pricing);
+          if (!raw) {
+            return;
+          }
+
+          var config = JSON.parse(raw);
+          if (!config) {
+            return;
+          }
+
+          plans.forEach(function (plan) {
+            var planName = plan.dataset.plan;
+            if (!planName || !config[planName]) {
+              return;
+            }
+
+            var month = Number(config[planName].month);
+            var year = Number(config[planName].year);
+            if (month > 0) {
+              plan.dataset.month = String(Math.round(month));
+            }
+            if (year > 0) {
+              plan.dataset.year = String(Math.round(year));
+            }
+          });
+
+          if (pricingSnapshot.starterMonth) {
+            pricingSnapshot.starterMonth.textContent = plans[0] ? plans[0].dataset.month : '29';
+          }
+          if (pricingSnapshot.starterYear) {
+            pricingSnapshot.starterYear.textContent = plans[0] ? plans[0].dataset.year : '23';
+          }
+          if (pricingSnapshot.growthMonth) {
+            pricingSnapshot.growthMonth.textContent = plans[1] ? plans[1].dataset.month : '99';
+          }
+          if (pricingSnapshot.growthYear) {
+            pricingSnapshot.growthYear.textContent = plans[1] ? plans[1].dataset.year : '79';
+          }
+          if (pricingSnapshot.enterpriseMonth) {
+            pricingSnapshot.enterpriseMonth.textContent = plans[2] ? plans[2].dataset.month : '299';
+          }
+          if (pricingSnapshot.enterpriseYear) {
+            pricingSnapshot.enterpriseYear.textContent = plans[2] ? plans[2].dataset.year : '239';
+          }
+        } catch (error) {
+          console.warn('Unable to load pricing config.', error);
+        }
+      }
+
+      function setMode(mode) {
+        currentMode = mode;
+        var isYearly = mode === "yearly";
+        monthlyBtn.classList.toggle("active", !isYearly);
+        yearlyBtn.classList.toggle("active", isYearly);
+
+        plans.forEach(function (plan) {
+          var valueEl = plan.querySelector(".value");
+          if (!valueEl) {
+            return;
+          }
+          valueEl.textContent = isYearly ? plan.dataset.year : plan.dataset.month;
+        });
+      }
+
+      function refreshFromStorage() {
+        applyDocsConfig();
+        applyPricingConfig();
+        setMode(currentMode);
+      }
+
+      // Initialize
+      refreshFromStorage();
+
+      // Checkout Listeners
+      document.querySelectorAll('.action').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const plan = this.closest('.plan');
+          const name = plan ? plan.querySelector('h3').textContent : 'AgentVerse Plan';
+          const price = plan ? plan.querySelector('.price strong').textContent + plan.querySelector('.price span').textContent : '';
+          
+          Checkout.open({
+            name: name,
+            price: price
+          });
+        });
+      });
+
+      monthlyBtn.addEventListener("click", function () { setMode("monthly"); });
+      yearlyBtn.addEventListener("click", function () { setMode("yearly"); });
+
+      window.addEventListener('storage', function (event) {
+        if (event.key === SETTINGS_KEYS.configVersion) {
+          refreshFromStorage();
+        }
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+          refreshFromStorage();
+        }
+      });
+    })();
+  </script>
+<script src="footer.js"></script>
+<script src="checkout.js"></script>
+</body>
+</html>

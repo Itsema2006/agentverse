@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentVerse | User Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="footer.css">
+  <style>
+    :root {
+      --bg: #fff8f3;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #f4d8c7;
+      --accent: #ea580c;
+      --accent-strong: #c2410c;
+      --shadow: 0 14px 42px rgba(194, 65, 12, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 3%, rgba(251, 146, 60, 0.2), transparent 38%),
+        radial-gradient(circle at 5% 20%, rgba(249, 115, 22, 0.12), transparent 35%),
+        linear-gradient(180deg, #fffaf6 0%, #fff8f3 55%, #fffcf9 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1160px, 92vw);
+      margin: 0 auto;
+      padding-bottom: 30px;
+    }
+
+    .top {
+      margin-top: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(100, 116, 139, 0.15);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--accent);
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand svg { width: 28px; height: 28px; }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .nav a.active { color: var(--accent); }
+
+    .logout-btn {
+      border: none;
+      border-radius: 10px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fdba74;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .hero {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .hero h1 {
+      font-family: "Manrope", sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      max-width: 74ch;
+    }
+
+    .stats {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat-card {
+      border: 1px solid #ffe4d2;
+      border-radius: 12px;
+      background: #fffaf6;
+      padding: 12px;
+    }
+
+    .stat-card h3 {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .stat-card p {
+      font-family: "Manrope", sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #9a3412;
+    }
+
+    .grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .panel h2 {
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .panel p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .list li {
+      border: 1px solid #ffe4d2;
+      border-radius: 12px;
+      background: #fffaf6;
+      padding: 10px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .list li strong {
+      font-size: 14px;
+      color: #7c2d12;
+    }
+
+    .list li span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      border: 1px solid #fdba74;
+      background: #fff7ed;
+      color: #9a3412;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .empty {
+      border: 1px dashed #fdba74;
+      border-radius: 12px;
+      color: #9a3412;
+      background: #fff7ed;
+      padding: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .stats,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+      /* FOOTER - REMOVED - IN footer.css */
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="url(#dashLogoGradient)"></rect>
+          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
+          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+          <defs>
+            <linearGradient id="dashLogoGradient" x1="0" y1="0" x2="28" y2="28">
+              <stop stop-color="#F97316"></stop>
+              <stop offset="1" stop-color="#EA580C"></stop>
+            </linearGradient>
+          </defs>
+        </svg>
+        AgentVerse Dashboard
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="browse.html">Explore</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="docs.html">Docs</a>
+        <a class="active" href="dashboard.html">Dashboard</a>
+        <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>User Dashboard</h1>
+      <p>Track your purchases, quickly revisit recent searches, and view available API keys from one place.</p>
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Total Purchases</h3>
+          <p id="totalPurchases">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Recent Searches</h3>
+          <p id="totalSearches">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>API Keys</h3>
+          <p id="totalApiKeys">0</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Purchase History</h2>
+        <p>Latest purchase attempts and successful key accesses.</p>
+        <ul id="purchaseList" class="list"></ul>
+      </article>
+
+      <article class="panel">
+        <h2>Recent Search</h2>
+        <p>Your latest marketplace search terms.</p>
+        <div id="searchTags" class="tag-list"></div>
+      </article>
+
+      <article class="panel" style="grid-column: 1 / -1;">
+        <h2>API Keys</h2>
+        <p>All available key options currently configured in the platform.</p>
+        <ul id="apiKeyList" class="list"></ul>
+      </article>
+    </section>
+
+    <div id="footer-placeholder"></div>
+  </div>
+
+  <script>
+    (function () {
+      var AUTH_KEYS = {
+        userSession: 'agentverseUserSession',
+        activeUser: 'agentverseActiveUser'
+      };
+
+      if (localStorage.getItem(AUTH_KEYS.userSession) !== 'true') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      var STORAGE_KEYS = {
+        purchases: 'agentversePurchaseHistory',
+        searches: 'agentverseRecentSearches',
+        apiKeys: 'agentverseApiKeys'
+      };
+
+      var logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+          localStorage.removeItem(AUTH_KEYS.userSession);
+          localStorage.removeItem(AUTH_KEYS.activeUser);
+          window.location.href = 'index.html';
+        });
+      }
+
+      function readArray(key) {
+        try {
+          var raw = localStorage.getItem(key);
+          var parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function setStat(id, value) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.textContent = String(value);
+        }
+      }
+
+      function renderPurchases(items) {
+        var list = document.getElementById('purchaseList');
+        if (!list) {
+          return;
+        }
+
+        list.innerHTML = '';
+
+        if (!items.length) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No purchases yet. Buy a key from Explore to see history.';
+          list.appendChild(empty);
+          return;
+        }
+
+        items.slice(0, 12).forEach(function (item) {
+          var row = document.createElement('li');
+
+          var title = document.createElement('strong');
+          title.textContent = item.itemName || 'Purchase Item';
+
+          var details = document.createElement('span');
+          var amountText = item.amount ? '$' + item.amount : 'Amount pending';
+          details.textContent = amountText + ' · ' + (item.paymentMethod || 'N/A') + ' · ' + (item.source || 'Marketplace');
+
+          var time = document.createElement('span');
+          var parsedDate = item.purchasedAt ? new Date(item.purchasedAt) : null;
+          time.textContent = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate.toLocaleString() : 'Unknown time';
+
+          row.appendChild(title);
+          row.appendChild(details);
+          row.appendChild(time);
+          list.appendChild(row);
+        });
+      }
+
+      function renderSearches(items) {
+        var tags = document.getElementById('searchTags');
+        if (!tags) {
+          return;
+        }
+
+        tags.innerHTML = '';
+
+        if (!items.length) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No searches yet. Search in Explore to build this list.';
+          tags.appendChild(empty);
+          return;
+        }
+
+        items.slice(0, 16).forEach(function (term) {
+          var tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = String(term);
+          tags.appendChild(tag);
+        });
+      }
+
+      function renderApiKeys(items) {
+        var list = document.getElementById('apiKeyList');
+        if (!list) {
+          return;
+        }
+
+        list.innerHTML = '';
+
+        if (!items.length) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No API keys available yet.';
+          list.appendChild(empty);
+          return;
+        }
+
+        items.forEach(function (item) {
+          var row = document.createElement('li');
+
+          var title = document.createElement('strong');
+          title.textContent = item.keyName || 'Unnamed Key';
+
+          var details = document.createElement('span');
+          details.textContent = (item.keyFunction || 'No function') + ' · ' + (item.agentKind || 'General') + ' · ' + (item.category || 'General');
+
+          var pricing = document.createElement('span');
+          pricing.textContent = '$' + (item.price || 0) + ' · ' + (item.paymentMethod || 'N/A');
+
+          row.appendChild(title);
+          row.appendChild(details);
+          row.appendChild(pricing);
+          list.appendChild(row);
+        });
+      }
+
+      function renderAll() {
+        var purchases = readArray(STORAGE_KEYS.purchases);
+        var searches = readArray(STORAGE_KEYS.searches);
+        var apiKeys = readArray(STORAGE_KEYS.apiKeys);
+
+        setStat('totalPurchases', purchases.length);
+        setStat('totalSearches', searches.length);
+        setStat('totalApiKeys', apiKeys.length);
+
+        renderPurchases(purchases);
+        renderSearches(searches);
+        renderApiKeys(apiKeys);
+      }
+
+      renderAll();
+
+      window.addEventListener('storage', function () {
+        renderAll();
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+          renderAll();
+        }
+      });
+    })();
+  </script>
+<script src="footer.js"></script>
+</body>
+</html>

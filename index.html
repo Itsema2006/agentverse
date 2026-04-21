@@ -1,0 +1,1660 @@
+path="index.html"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentVerse — AI Agent Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="footer.css">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --purple: #8B5CF6;
+    --blue: #3B82F6;
+    --pink: #EC4899;
+    --cyan: #06B6D4;
+    --dark: #F97316;
+    --darker: #FFFFFF;
+  }
+
+  html { scroll-behavior: smooth; }
+  
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+    color: #111;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* THREE.JS CANVAS */
+  #three-canvas {
+    position: fixed;
+    top: 0; right: 0;
+    width: 100vw; height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 16px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(249,115,22,0.2);
+    transition: background 0.3s;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+  }
+  .nav-logo svg { width: 28px; height: 28px; }
+  .nav-logo span { background: linear-gradient(135deg, #F97316, #EA580C); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    color: rgba(17,17,17,0.7); text-decoration: none;
+    font-size: 13.5px; font-weight: 600; letter-spacing: 0.01em;
+    transition: color 0.25s;
+  }
+  .nav-links a:hover { color: #F97316; }
+  .nav-auth {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(249,115,22,0.25);
+    background: rgba(255,255,255,0.5);
+    color: rgba(17,17,17,0.8) !important;
+    transition: all 0.25s !important;
+  }
+  .nav-auth:hover {
+    background: rgba(249,115,22,0.08);
+    border-color: rgba(249,115,22,0.45);
+    color: #EA580C !important;
+  }
+
+  /* AUTH MODAL */
+  .auth-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(circle at 20% 20%, rgba(249,115,22,0.22), rgba(17,17,17,0.55) 45%), rgba(17, 17, 17, 0.42);
+    backdrop-filter: blur(5px);
+    z-index: 300;
+    overflow: hidden;
+  }
+  .auth-modal.is-open {
+    display: flex;
+    animation: authOverlayIn 0.28s ease;
+  }
+  .auth-modal::before {
+    content: "";
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(249,115,22,0.32) 0%, rgba(249,115,22,0.03) 70%);
+    top: -140px;
+    right: -120px;
+    filter: blur(8px);
+    pointer-events: none;
+    animation: authGlowDrift 5.5s ease-in-out infinite;
+  }
+  .auth-card {
+    position: relative;
+    isolation: isolate;
+    width: min(460px, 100%);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(249,115,22,0.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: authCardPop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .auth-card::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    pointer-events: none;
+    opacity: 0;
+    background: conic-gradient(from 180deg, rgba(249,115,22,0.05), rgba(249,115,22,0.5), rgba(251,146,60,0.7), rgba(249,115,22,0.05));
+    z-index: -1;
+  }
+  .auth-card.highlighted {
+    box-shadow: 0 0 0 2px rgba(249,115,22,0.28), 0 24px 70px rgba(0,0,0,0.22), 0 0 45px rgba(249,115,22,0.35);
+    animation: authCardPop 0.3s cubic-bezier(0.22, 1, 0.36, 1), authHighlightPulse 1.35s ease;
+  }
+  .auth-card.highlighted::after {
+    opacity: 1;
+    animation: authBorderSweep 1.35s linear;
+  }
+  .auth-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(249,115,22,0.95), transparent);
+    animation: authShine 2.8s linear infinite;
+    z-index: 2;
+  }
+  .auth-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(249,115,22,0.16);
+  }
+  .auth-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #111;
+    background: linear-gradient(135deg, #111, #EA580C);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .auth-close {
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(17,17,17,0.06);
+    color: rgba(17,17,17,0.7);
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .auth-close:hover {
+    color: #111;
+    background: rgba(17,17,17,0.11);
+    transform: rotate(90deg) scale(1.06);
+  }
+  .auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px 14px 0;
+  }
+  .auth-tab {
+    border: 1px solid rgba(249,115,22,0.2);
+    background: rgba(249,115,22,0.08);
+    color: rgba(17,17,17,0.75);
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .auth-tab:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(249,115,22,0.16);
+  }
+  .auth-tab.active {
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 10px 26px rgba(234,88,12,0.28);
+  }
+  .auth-pane { display: none; padding: 16px 16px 18px; }
+  .auth-pane.active {
+    display: block;
+    animation: authPaneIn 0.24s ease;
+  }
+  .auth-form { display: grid; gap: 10px; }
+  .auth-form label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(17,17,17,0.7);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .auth-form input {
+    width: 100%;
+    border: 1px solid rgba(17,17,17,0.16);
+    border-radius: 10px;
+    padding: 11px 12px;
+    background: #fff;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .auth-form input:focus {
+    outline: none;
+    border-color: rgba(249,115,22,0.55);
+    box-shadow: 0 0 0 4px rgba(249,115,22,0.14);
+    transform: translateY(-1px);
+  }
+  .auth-submit {
+    position: relative;
+    overflow: hidden;
+    margin-top: 6px;
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 14px;
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .auth-submit::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -140%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%);
+    transition: left 0.45s ease;
+  }
+  .auth-submit:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(234,88,12,0.3);
+  }
+  .auth-submit:hover::before { left: 130%; }
+  .auth-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(17,17,17,0.62);
+  }
+  .nav-cta {
+    padding: 8px 20px; border-radius: 8px;
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.3);
+    color: #EA580C !important; font-weight: 600 !important;
+    transition: all 0.25s !important;
+  }
+  .nav-cta:hover {
+    background: rgba(249,115,22,0.2) !important;
+    border-color: rgba(249,115,22,0.5) !important;
+    color: #111 !important;
+  }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* Gradient overlays */
+  .hero-gradient-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 200px;
+    background: linear-gradient(to bottom, var(--darker), transparent);
+    z-index: 2; pointer-events: none;
+  }
+  .hero-gradient-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 300px;
+    background: linear-gradient(to top, var(--darker), transparent);
+    z-index: 2; pointer-events: none;
+  }
+  .hero-gradient-left {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 35%;
+    background: linear-gradient(to right, var(--darker) 20%, transparent);
+    z-index: 2; pointer-events: none;
+  }
+
+  /* Hero Content */
+  .hero-content {
+    position: relative; z-index: 10;
+    max-width: 620px;
+    padding: 0 60px;
+    padding-top: 80px;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px 6px 8px;
+    border-radius: 100px;
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.2);
+    font-size: 12.5px; font-weight: 600; color: #111;
+    margin-bottom: 28px;
+    animation: fadeInUp 0.8s ease both;
+  }
+  .hero-badge .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--dark);
+    animation: pulse-dot 2s ease infinite;
+  }
+
+  .hero-title {
+    font-size: clamp(36px, 5vw, 62px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 22px;
+    animation: fadeInUp 0.8s ease 0.1s both;
+  }
+  .hero-title .gradient-text {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 40%, #C2410C 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(15px, 1.3vw, 17.5px);
+    line-height: 1.7;
+    color: rgba(17,17,17,0.7);
+    font-weight: 500;
+    margin-bottom: 36px;
+    max-width: 500px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.3s both;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 30px; border-radius: 12px;
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    color: #fff; font-weight: 600; font-size: 14.5px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(249,115,22,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(249,115,22,0.45);
+  }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 30px; border-radius: 12px;
+    background: rgba(17,17,17,0.05);
+    border: 1px solid rgba(17,17,17,0.1);
+    color: rgba(17,17,17,0.8); font-weight: 600; font-size: 14.5px;
+    text-decoration: none; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover {
+    background: rgba(17,17,17,0.1);
+    border-color: rgba(17,17,17,0.25);
+    color: #111;
+  }
+
+  .hero-stats {
+    display: flex; gap: 40px; margin-top: 48px;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+  .stat-value {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #111, rgba(17,17,17,0.7));
+    background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label {
+    font-size: 12.5px; color: rgba(17,17,17,0.6);
+    font-weight: 500; margin-top: 4px;
+  }
+
+  /* FEATURES SECTION */
+  #features {
+    position: relative; z-index: 10;
+    padding: 120px 60px 100px;
+    background: var(--darker);
+  }
+  .section-header { text-align: center; max-width: 600px; margin: 0 auto 64px; }
+  .section-label {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--dark); font-weight: 700; margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(28px, 3vw, 40px); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 16px;
+    color: #111;
+  }
+  .section-desc {
+    font-size: 15px; color: rgba(17,17,17,0.7); line-height: 1.7;
+    font-weight: 500;
+  }
+
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; max-width: 1100px; margin: 0 auto;
+  }
+  .feature-card {
+    padding: 36px 30px; border-radius: 16px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(249,115,22,0.15);
+    transition: all 0.4s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  }
+  .feature-card:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(249,115,22,0.4);
+    transform: translateY(-4px);
+  }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(249,115,22,0.15);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; font-size: 20px;
+  }
+  .feature-card h3 {
+    font-size: 16px; font-weight: 700; margin-bottom: 10px;
+    letter-spacing: -0.01em; color: #111;
+  }
+  .feature-card p {
+    font-size: 13.5px; color: rgba(17,17,17,0.7);
+    line-height: 1.65; font-weight: 500;
+  }
+
+
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+  @keyframes authOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes authCardPop {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes authPaneIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes authShine {
+    from { left: -120%; }
+    to { left: 120%; }
+  }
+  @keyframes authGlowDrift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-22px, 16px) scale(1.05); }
+  }
+  @keyframes authHighlightPulse {
+    0% { transform: scale(0.985); }
+    35% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+  }
+  @keyframes authBorderSweep {
+    from { transform: rotate(0deg); opacity: 0.95; }
+    to { transform: rotate(360deg); opacity: 0; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 14px 24px; }
+    .nav-links { display: none; }
+    .hero-content { padding: 0 28px; padding-top: 100px; max-width: 100%; }
+    .hero-stats { gap: 28px; }
+    #features { padding: 80px 24px; }
+    /* footer { padding: 30px 24px; flex-direction: column; gap: 12px; } */
+  }
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .hero-stats { flex-wrap: wrap; gap: 20px; }
+    .hero-actions { flex-direction: column; }
+    .hero-actions a { text-align: center; justify-content: center; }
+  }
+  
+
+/* FOOTER CSS REMOVED - NOW IN footer.css */
+</style>
+</head>
+<body>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="three-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="7" fill="url(#lg)"/>
+      <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"/>
+      <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/>
+      <defs><linearGradient id="lg" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#F97316"/><stop offset="1" stop-color="#EA580C"/></linearGradient></defs>
+    </svg>
+    <span>AgentVerse</span>
+  </div>
+  <div class="nav-links">
+    <a href="browse.html">Explore</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="docs.html" id="docsLink">Docs</a>
+    <a href="#" class="nav-auth" id="authTrigger">Login / Register</a>
+    <a href="browse.html" class="nav-cta">Launch App</a>
+  </div>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="auth-modal" id="authModal" aria-hidden="true">
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authCardTitle">
+    <div class="auth-head">
+      <div class="auth-title" id="authCardTitle">Welcome to AgentVerse</div>
+      <button type="button" class="auth-close" id="authClose" aria-label="Close">x</button>
+    </div>
+
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-auth-tab="login">Login</button>
+      <button type="button" class="auth-tab" data-auth-tab="register">Register</button>
+    </div>
+
+    <div class="auth-pane active" data-auth-pane="login">
+      <form class="auth-form" id="loginForm" action="#" method="post">
+        <div>
+          <label for="loginId">Login ID</label>
+          <input id="loginId" type="text" placeholder="Enter login ID" required>
+        </div>
+        <div>
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="auth-submit">Login</button>
+      </form>
+      <p class="auth-hint">Use your login ID and password to continue.</p>
+      <p class="auth-hint" id="loginStatus" aria-live="polite"></p>
+    </div>
+
+    <div class="auth-pane" data-auth-pane="register">
+      <form class="auth-form" id="registerForm" action="#" method="post">
+        <div>
+          <label for="registerName">Full Name</label>
+          <input id="registerName" type="text" placeholder="Your full name" required>
+        </div>
+        <div>
+          <label for="registerEmail">Email</label>
+          <input id="registerEmail" type="email" placeholder="you@example.com" required>
+        </div>
+        <div>
+          <label for="registerPassword">Password</label>
+          <input id="registerPassword" type="password" placeholder="Create a password" required>
+        </div>
+        <div>
+          <label for="registerConfirmPassword">Confirm Password</label>
+          <input id="registerConfirmPassword" type="password" placeholder="Re-enter your password" required>
+        </div>
+        <button type="submit" class="auth-submit">Create Account</button>
+      </form>
+      <p class="auth-hint">Create your account and start exploring AI agents.</p>
+      <p class="auth-hint" id="registerStatus" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-gradient-top"></div>
+  <div class="hero-gradient-bottom"></div>
+  <div class="hero-gradient-left"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      <span>Now in Public Beta — 1,200+ Agents Live</span>
+    </div>
+    <h1 class="hero-title">
+      Discover &amp; Deploy<br>
+      <span class="gradient-text">Autonomous AI Agents</span>
+    </h1>
+    <p class="hero-subtitle">
+      The open marketplace for production-ready AI agents. Browse, compare, and deploy intelligent agents that work together to automate your workflows.
+    </p>
+    <div class="hero-actions">
+      <a href="browse.html" class="btn-primary">
+        Explore Agents
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10m-4-4 4 4-4 4"/></svg>
+      </a>
+      <a href="#" class="btn-secondary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="6,3 14,8 6,13"/></svg>
+        Watch Demo
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-value">1,247</div>
+        <div class="stat-label">Active Agents</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">18M+</div>
+        <div class="stat-label">Tasks Completed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">4.9/5</div>
+        <div class="stat-label">Avg Rating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-header">
+    <div class="section-label">Why AgentVerse</div>
+    <h2 class="section-title">The infrastructure for<br>autonomous AI</h2>
+    <p class="section-desc">Everything you need to discover, deploy, and orchestrate AI agents at scale.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Smart Discovery</h3>
+      <p>Find the perfect agent for any task with semantic search and AI-powered recommendations.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>One-Click Deploy</h3>
+      <p>Deploy agents instantly to your infrastructure with zero configuration required.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3>Agent Orchestration</h3>
+      <p>Chain multiple agents together into powerful workflows with our visual builder.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Enterprise Security</h3>
+      <p>SOC2 compliant with role-based access, audit logs, and encrypted communications.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Real-time Analytics</h3>
+      <p>Monitor agent performance, costs, and outcomes with detailed dashboards.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Open Ecosystem</h3>
+      <p>Publish your own agents and earn revenue from the global marketplace.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div id="footer-placeholder"></div>
+
+<!-- THREE.JS 3D BOT -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.183.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.183.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ——— SETUP ———
+const canvas = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 0, 18);
+
+// ——— MOUSE TRACKING ———
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+window.addEventListener('mousemove', (e) => {
+  mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+// ——— SCROLL TRACKING ———
+let scrollProgress = 0;
+window.addEventListener('scroll', () => {
+  const heroEl = document.getElementById('hero');
+  scrollProgress = Math.min(1, window.scrollY / (heroEl.offsetHeight * 0.8));
+});
+
+// ——— LIGHTING ———
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+keyLight.position.set(5, 8, 10);
+scene.add(keyLight);
+
+const orangeLight = new THREE.PointLight(0xF97316, 4, 30);
+orangeLight.position.set(-4, 4, 8);
+scene.add(orangeLight);
+
+const blueLight = new THREE.PointLight(0x3B82F6, 2, 25);
+blueLight.position.set(5, -3, 6);
+scene.add(blueLight);
+
+const cyanLight = new THREE.PointLight(0x06B6D4, 1.5, 20);
+cyanLight.position.set(0, 5, 10);
+scene.add(cyanLight);
+
+const rimLight = new THREE.PointLight(0xEC4899, 1.5, 20);
+rimLight.position.set(-3, -2, -5);
+scene.add(rimLight);
+
+// ——— BOT GROUP ———
+const botGroup = new THREE.Group();
+botGroup.position.set(9, 0.3, 0);
+scene.add(botGroup);
+
+// Materials
+const bodyMat = new THREE.MeshStandardMaterial({
+  color: 0xffffff,
+  metalness: 0.1,
+  roughness: 0.15,
+  envMapIntensity: 0.5,
+});
+
+const darkMat = new THREE.MeshStandardMaterial({
+  color: 0x1a1a2e,
+  metalness: 0.6,
+  roughness: 0.2,
+});
+
+const orangeGlowMat = new THREE.MeshStandardMaterial({
+  color: 0xF97316,
+  emissive: 0xF97316,
+  emissiveIntensity: 0.8,
+  metalness: 0.3,
+  roughness: 0.1,
+});
+
+const cyanGlowMat = new THREE.MeshStandardMaterial({
+  color: 0x06B6D4,
+  emissive: 0x06B6D4,
+  emissiveIntensity: 0.6,
+  metalness: 0.3,
+  roughness: 0.1,
+});
+
+const glassMat = new THREE.MeshStandardMaterial({
+  color: 0x1a1a3e,
+  metalness: 0.9,
+  roughness: 0.05,
+  transparent: true,
+  opacity: 0.85,
+});
+
+// ——— HEAD (rounded cube) ———
+const headGroup = new THREE.Group();
+headGroup.position.y = 1.8;
+botGroup.add(headGroup);
+
+const headGeo = new THREE.BoxGeometry(2.2, 1.8, 2, 8, 8, 8);
+// Round the cube vertices
+const headPos = headGeo.attributes.position;
+const headVec = new THREE.Vector3();
+for (let i = 0; i < headPos.count; i++) {
+  headVec.set(headPos.getX(i), headPos.getY(i), headPos.getZ(i));
+  const len = headVec.length();
+  const scale = 1 + (1.45 / len - 1) * 0.35;
+  headVec.multiplyScalar(Math.min(scale, 1.08));
+  headPos.setXYZ(i, headVec.x, headVec.y, headVec.z);
+}
+headGeo.computeVertexNormals();
+
+const headMesh = new THREE.Mesh(headGeo, bodyMat);
+headGroup.add(headMesh);
+
+// Face screen (visor)
+const visorGeo = new THREE.BoxGeometry(1.8, 1.0, 0.15, 4, 4, 1);
+const visorPos = visorGeo.attributes.position;
+for (let i = 0; i < visorPos.count; i++) {
+  headVec.set(visorPos.getX(i), visorPos.getY(i), visorPos.getZ(i));
+  const lx = Math.abs(headVec.x) / 0.9;
+  const ly = Math.abs(headVec.y) / 0.5;
+  const edge = Math.max(lx, ly);
+  if (edge > 0.8) {
+    const s = 0.92;
+    headVec.x *= s;
+    headVec.y *= s;
+  }
+}
+visorGeo.computeVertexNormals();
+
+const visorMesh = new THREE.Mesh(visorGeo, glassMat);
+visorMesh.position.set(0, 0.05, 1.0);
+headGroup.add(visorMesh);
+
+// Eyes
+const eyeGeo = new THREE.SphereGeometry(0.14, 16, 16);
+const leftEye = new THREE.Mesh(eyeGeo, orangeGlowMat);
+leftEye.position.set(-0.38, 0.12, 1.1);
+leftEye.scale.set(1, 1.2, 0.5);
+headGroup.add(leftEye);
+
+const rightEye = new THREE.Mesh(eyeGeo, orangeGlowMat);
+rightEye.position.set(0.38, 0.12, 1.1);
+rightEye.scale.set(1, 1.2, 0.5);
+headGroup.add(rightEye);
+
+// Eye glow point lights
+const leftEyeLight = new THREE.PointLight(0xF97316, 0.5, 3);
+leftEyeLight.position.copy(leftEye.position);
+headGroup.add(leftEyeLight);
+
+const rightEyeLight = new THREE.PointLight(0xF97316, 0.5, 3);
+rightEyeLight.position.copy(rightEye.position);
+headGroup.add(rightEyeLight);
+
+// Antenna
+const antennaGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
+const antenna = new THREE.Mesh(antennaGeo, darkMat);
+antenna.position.set(0, 1.2, 0);
+headGroup.add(antenna);
+
+const antennaTipGeo = new THREE.SphereGeometry(0.1, 16, 16);
+const antennaTip = new THREE.Mesh(antennaTipGeo, orangeGlowMat);
+antennaTip.position.set(0, 1.55, 0);
+headGroup.add(antennaTip);
+
+const antennaTipLight = new THREE.PointLight(0xF97316, 1, 4);
+antennaTipLight.position.set(0, 1.65, 0);
+headGroup.add(antennaTipLight);
+
+// Ear panels
+const earGeo = new THREE.BoxGeometry(0.15, 0.6, 0.6, 2, 2, 2);
+const leftEar = new THREE.Mesh(earGeo, darkMat);
+leftEar.position.set(-1.2, 0.05, 0);
+headGroup.add(leftEar);
+
+const rightEar = leftEar.clone();
+rightEar.position.set(1.2, 0.05, 0);
+headGroup.add(rightEar);
+
+const earGlowGeo = new THREE.BoxGeometry(0.16, 0.3, 0.3);
+const leftEarGlow = new THREE.Mesh(earGlowGeo, cyanGlowMat);
+leftEarGlow.position.set(-1.28, 0.05, 0);
+headGroup.add(leftEarGlow);
+
+const rightEarGlow = new THREE.Mesh(earGlowGeo, cyanGlowMat);
+rightEarGlow.position.set(1.28, 0.05, 0);
+headGroup.add(rightEarGlow);
+
+// ——— NECK ———
+const neckGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.4, 12);
+const neck = new THREE.Mesh(neckGeo, darkMat);
+neck.position.set(0, 0.65, 0);
+botGroup.add(neck);
+
+// ——— BODY (torso) ———
+const bodyGroup = new THREE.Group();
+botGroup.add(bodyGroup);
+
+const torsoGeo = new THREE.BoxGeometry(2.4, 2.2, 1.8, 6, 6, 6);
+const torsoPos = torsoGeo.attributes.position;
+for (let i = 0; i < torsoPos.count; i++) {
+  headVec.set(torsoPos.getX(i), torsoPos.getY(i), torsoPos.getZ(i));
+  const len = headVec.length();
+  const scale = 1 + (1.85 / len - 1) * 0.3;
+  headVec.multiplyScalar(Math.min(scale, 1.06));
+  torsoPos.setXYZ(i, headVec.x, headVec.y, headVec.z);
+}
+torsoGeo.computeVertexNormals();
+
+const torsoMesh = new THREE.Mesh(torsoGeo, bodyMat);
+torsoMesh.position.y = -0.6;
+bodyGroup.add(torsoMesh);
+
+// Chest panel (core)
+const chestPanelGeo = new THREE.BoxGeometry(1.2, 0.8, 0.15, 3, 3, 1);
+const chestPanel = new THREE.Mesh(chestPanelGeo, darkMat);
+chestPanel.position.set(0, -0.3, 0.93);
+bodyGroup.add(chestPanel);
+
+// Core energy circle
+const coreGeo = new THREE.TorusGeometry(0.25, 0.06, 16, 32);
+const coreMesh = new THREE.Mesh(coreGeo, orangeGlowMat);
+coreMesh.position.set(0, -0.3, 1.02);
+bodyGroup.add(coreMesh);
+
+const coreInnerGeo = new THREE.SphereGeometry(0.15, 16, 16);
+const coreInner = new THREE.Mesh(coreInnerGeo, orangeGlowMat);
+coreInner.position.set(0, -0.3, 1.02);
+bodyGroup.add(coreInner);
+
+const coreLight = new THREE.PointLight(0xF97316, 2, 5);
+coreLight.position.set(0, -0.3, 1.5);
+bodyGroup.add(coreLight);
+
+// Belly accent lines
+for (let i = 0; i < 3; i++) {
+  const lineGeo = new THREE.BoxGeometry(0.8 - i * 0.15, 0.04, 0.12);
+  const lineMesh = new THREE.Mesh(lineGeo, cyanGlowMat.clone());
+  lineMesh.material.emissiveIntensity = 0.4;
+  lineMesh.position.set(0, -0.85 - i * 0.18, 0.93);
+  bodyGroup.add(lineMesh);
+}
+
+// ——— ARMS ———
+function createArm(side) {
+  const armGroup = new THREE.Group();
+  
+  // Shoulder joint
+  const shoulderGeo = new THREE.SphereGeometry(0.28, 16, 16);
+  const shoulder = new THREE.Mesh(shoulderGeo, darkMat);
+  armGroup.add(shoulder);
+  
+  // Upper arm
+  const upperGeo = new THREE.CylinderGeometry(0.18, 0.15, 1.0, 10);
+  const upper = new THREE.Mesh(upperGeo, bodyMat);
+  upper.position.y = -0.6;
+  armGroup.add(upper);
+  
+  // Elbow joint
+  const elbowGeo = new THREE.SphereGeometry(0.18, 12, 12);
+  const elbow = new THREE.Mesh(elbowGeo, darkMat);
+  elbow.position.y = -1.15;
+  armGroup.add(elbow);
+  
+  // Forearm
+  const foreGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.85, 10);
+  const fore = new THREE.Mesh(foreGeo, bodyMat);
+  fore.position.y = -1.65;
+  armGroup.add(fore);
+  
+  // Hand
+  const handGeo = new THREE.SphereGeometry(0.18, 12, 12);
+  const hand = new THREE.Mesh(handGeo, darkMat);
+  hand.position.y = -2.15;
+  hand.scale.set(1, 0.7, 0.8);
+  armGroup.add(hand);
+  
+  // Glow accent on shoulder
+  const accentGeo = new THREE.TorusGeometry(0.25, 0.03, 8, 16);
+  const accent = new THREE.Mesh(accentGeo, side === 1 ? orangeGlowMat : cyanGlowMat);
+  accent.rotation.x = Math.PI / 2;
+  accent.position.y = -0.1;
+  armGroup.add(accent);
+  
+  armGroup.position.set(side * 1.55, -0.1, 0);
+  return armGroup;
+}
+
+const leftArm = createArm(-1);
+bodyGroup.add(leftArm);
+const rightArm = createArm(1);
+bodyGroup.add(rightArm);
+
+// ——— FLOATING ORBITAL RINGS ———
+const orbitGroup = new THREE.Group();
+botGroup.add(orbitGroup);
+
+const orbitalRings = [];
+for (let i = 0; i < 3; i++) {
+  const radius = 3.2 + i * 0.8;
+  const ringGeo = new THREE.TorusGeometry(radius, 0.015, 8, 120);
+  const color = [0xF97316, 0x06B6D4, 0xEC4899][i];
+  const ringMat = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.25 - i * 0.05,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI / (2.5 + i * 0.5);
+  ring.rotation.z = i * 0.4;
+  orbitGroup.add(ring);
+  orbitalRings.push(ring);
+}
+
+// ——— FLOATING DATA NODES on orbits ———
+const dataNodes = [];
+for (let i = 0; i < 8; i++) {
+  const nodeGeo = new THREE.OctahedronGeometry(0.12, 0);
+  const color = [0xF97316, 0x06B6D4, 0xEC4899, 0x8B5CF6][i % 4];
+  const nodeMat = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: 0.8,
+    metalness: 0.5,
+    roughness: 0.1,
+  });
+  const node = new THREE.Mesh(nodeGeo, nodeMat);
+  node.userData = {
+    angle: (i / 8) * Math.PI * 2,
+    radius: 3.2 + (i % 3) * 0.8,
+    speed: 0.3 + Math.random() * 0.2,
+    yOff: (Math.random() - 0.5) * 0.5,
+    tiltX: Math.PI / (2.5 + (i % 3) * 0.5),
+    tiltZ: (i % 3) * 0.4,
+  };
+  
+  // Node glow
+  const glowGeo = new THREE.SphereGeometry(0.2, 8, 8);
+  const glowMat = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.15,
+  });
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  node.add(glow);
+  
+  orbitGroup.add(node);
+  dataNodes.push(node);
+}
+
+// ——— CONNECTING LINES from nodes to bot ———
+const connectionLines = [];
+dataNodes.forEach((node, i) => {
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(6);
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const color = [0xF97316, 0x06B6D4, 0xEC4899, 0x8B5CF6][i % 4];
+  const mat = new THREE.LineBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.08,
+  });
+  const line = new THREE.Line(geo, mat);
+  orbitGroup.add(line);
+  connectionLines.push(line);
+});
+
+// ——— FLOATING AGENT CARDS ———
+const agentCards = [];
+const cardData = [
+  { icon: '🤖', title: 'CodePilot', cat: 'Development', color: 0xF97316 },
+  { icon: '📊', title: 'DataMind', cat: 'Analytics', color: 0x3B82F6 },
+  { icon: '🎨', title: 'DesignAI', cat: 'Creative', color: 0xEC4899 },
+  { icon: '🔐', title: 'SecureBot', cat: 'Security', color: 0x06B6D4 },
+];
+
+function createCardTexture(data) {
+  const cv = document.createElement('canvas');
+  cv.width = 240; cv.height = 120;
+  const ctx = cv.getContext('2d');
+  
+  ctx.fillStyle = 'rgba(15, 15, 25, 0.9)';
+  const r = 14;
+  ctx.beginPath();
+  ctx.moveTo(r, 0); ctx.lineTo(cv.width - r, 0);
+  ctx.quadraticCurveTo(cv.width, 0, cv.width, r);
+  ctx.lineTo(cv.width, cv.height - r);
+  ctx.quadraticCurveTo(cv.width, cv.height, cv.width - r, cv.height);
+  ctx.lineTo(r, cv.height);
+  ctx.quadraticCurveTo(0, cv.height, 0, cv.height - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath(); ctx.fill();
+
+  const cr = (data.color >> 16) & 255;
+  const cg = (data.color >> 8) & 255;
+  const cb = data.color & 255;
+  ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, 0.5)`;
+  ctx.lineWidth = 1.5; ctx.stroke();
+  
+  const grad = ctx.createLinearGradient(0, 0, cv.width, 0);
+  grad.addColorStop(0, 'transparent');
+  grad.addColorStop(0.5, `rgba(${cr}, ${cg}, ${cb}, 0.6)`);
+  grad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = grad; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(20, 1); ctx.lineTo(cv.width - 20, 1); ctx.stroke();
+  
+  ctx.font = '28px serif'; ctx.fillText(data.icon, 16, 44);
+  ctx.fillStyle = '#ffffff'; ctx.font = '600 14px Inter, sans-serif'; ctx.fillText(data.title, 16, 72);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '400 11px Inter, sans-serif'; ctx.fillText(data.cat, 16, 92);
+  
+  ctx.fillStyle = '#22C55E'; ctx.beginPath(); ctx.arc(16, 108, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '400 10px Inter, sans-serif'; ctx.fillText('Active', 24, 112);
+
+  const tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  return tex;
+}
+
+cardData.forEach((data, i) => {
+  const tex = createCardTexture(data);
+  const aspect = 240 / 120;
+  const cardH = 1.1;
+  const cardW = cardH * aspect;
+  const geo = new THREE.PlaneGeometry(cardW, cardH);
+  const mat = new THREE.MeshBasicMaterial({
+    map: tex, transparent: true, opacity: 0.85,
+    side: THREE.DoubleSide, depthWrite: false,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  
+  const angle = (i / cardData.length) * Math.PI * 2 + Math.PI * 0.25;
+  mesh.userData = {
+    angle,
+    radius: 5.5,
+    speed: 0.12 + Math.random() * 0.05,
+    bobSpeed: 0.5 + Math.random() * 0.3,
+    bobAmount: 0.2,
+    yOffset: (i - 1.5) * 1.2,
+  };
+  
+  orbitGroup.add(mesh);
+  agentCards.push(mesh);
+});
+
+
+// ——— BACKGROUND PARTICLES ———
+const particleCount = 500;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(particleCount * 3);
+const pVel = new Float32Array(particleCount * 3);
+
+for (let i = 0; i < particleCount; i++) {
+  pPos[i * 3] = (Math.random() - 0.5) * 50;
+  pPos[i * 3 + 1] = (Math.random() - 0.5) * 30;
+  pPos[i * 3 + 2] = (Math.random() - 0.5) * 30 - 5;
+  pVel[i * 3] = (Math.random() - 0.5) * 0.003;
+  pVel[i * 3 + 1] = (Math.random() - 0.5) * 0.003;
+  pVel[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+
+const pMat = new THREE.PointsMaterial({
+  color: 0xF97316, size: 0.05, transparent: true, opacity: 0.3,
+  sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const particles = new THREE.Points(pGeo, pMat);
+scene.add(particles);
+
+const p2Geo = pGeo.clone();
+const p2Mat = new THREE.PointsMaterial({
+  color: 0x06B6D4, size: 0.035, transparent: true, opacity: 0.25,
+  sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const particles2 = new THREE.Points(p2Geo, p2Mat);
+particles2.position.z = -3;
+scene.add(particles2);
+
+
+// ——— ORB PARTICLES around bot ———
+const orbPCount = 150;
+const orbPGeo = new THREE.BufferGeometry();
+const orbPPos = new Float32Array(orbPCount * 3);
+const orbPData = [];
+
+for (let i = 0; i < orbPCount; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  const r = 2 + Math.random() * 2.5;
+  orbPPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+  orbPPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+  orbPPos[i * 3 + 2] = r * Math.cos(phi);
+  orbPData.push({ theta, phi, r, speed: 0.08 + Math.random() * 0.15 });
+}
+orbPGeo.setAttribute('position', new THREE.BufferAttribute(orbPPos, 3));
+
+const orbPMat = new THREE.PointsMaterial({
+  color: 0xFDBA74, size: 0.04, transparent: true, opacity: 0.6,
+  blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+});
+const orbParticles = new THREE.Points(orbPGeo, orbPMat);
+botGroup.add(orbParticles);
+
+
+// ——— ANIMATION LOOP ———
+const clock = new THREE.Clock();
+
+function animate() {
+  const t = clock.getElapsedTime();
+  
+  // Smooth mouse
+  mouse.x += (mouse.tx - mouse.x) * 0.04;
+  mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+  // Camera
+  camera.position.x = mouse.x * 1.5;
+  camera.position.y = mouse.y * 0.8 + 0.5;
+  const scrollZoom = 18 - scrollProgress * 5;
+  camera.position.z += (scrollZoom - camera.position.z) * 0.05;
+  camera.lookAt(9, 0.3, 0);
+
+  // ——— BOT HEAD ANIMATION ———
+  // Head looks toward mouse
+  const headTargetY = mouse.x * 0.3;
+  const headTargetX = -mouse.y * 0.15;
+  headGroup.rotation.y += (headTargetY - headGroup.rotation.y) * 0.05;
+  headGroup.rotation.x += (headTargetX - headGroup.rotation.x) * 0.05;
+  
+  // Subtle idle bob
+  headGroup.position.y = 1.8 + Math.sin(t * 1.5) * 0.05;
+
+  // Eye pulsing
+  const eyePulse = 0.6 + Math.sin(t * 3) * 0.3;
+  leftEye.material.emissiveIntensity = eyePulse;
+  rightEye.material.emissiveIntensity = eyePulse;
+  leftEyeLight.intensity = 0.3 + Math.sin(t * 3) * 0.2;
+  rightEyeLight.intensity = 0.3 + Math.sin(t * 3) * 0.2;
+  
+  // Antenna tip pulse
+  antennaTip.material.emissiveIntensity = 0.5 + Math.sin(t * 4) * 0.5;
+  antennaTipLight.intensity = 0.5 + Math.sin(t * 4) * 0.5;
+
+  // ——— BODY BREATHING ———
+  const breathe = Math.sin(t * 1.2) * 0.015;
+  torsoMesh.scale.set(1, 1 + breathe, 1);
+  
+  // Core pulse
+  const corePulse = 0.5 + Math.sin(t * 2) * 0.4;
+  coreInner.material.emissiveIntensity = corePulse;
+  coreMesh.material.emissiveIntensity = corePulse * 0.8;
+  coreLight.intensity = 1 + Math.sin(t * 2) * 1;
+  coreMesh.rotation.z = t * 0.5;
+
+  // ——— ARM ANIMATION ———
+  leftArm.rotation.z = Math.sin(t * 0.8) * 0.08 + 0.05;
+  leftArm.rotation.x = Math.sin(t * 0.6 + 1) * 0.06;
+  rightArm.rotation.z = Math.sin(t * 0.8 + Math.PI) * 0.08 - 0.05;
+  rightArm.rotation.x = Math.sin(t * 0.6 + Math.PI + 1) * 0.06;
+
+  // ——— ORBITAL RINGS ———
+  orbitalRings.forEach((ring, i) => {
+    ring.rotation.z += (0.003 + i * 0.001) * (i % 2 === 0 ? 1 : -1);
+    ring.material.opacity = (0.2 - i * 0.04) + Math.sin(t * 0.5 + i) * 0.05;
+  });
+
+  // ——— DATA NODES ———
+  dataNodes.forEach((node, i) => {
+    const ud = node.userData;
+    ud.angle += ud.speed * 0.008;
+    
+    const cosT = Math.cos(ud.tiltX);
+    const sinT = Math.sin(ud.tiltX);
+    const x = Math.cos(ud.angle) * ud.radius;
+    const rawY = Math.sin(ud.angle) * ud.radius;
+    const y = rawY * cosT + ud.yOff;
+    const z = rawY * sinT;
+    
+    node.position.set(
+      x * Math.cos(ud.tiltZ) - z * Math.sin(ud.tiltZ),
+      y + Math.sin(t * 0.8 + i) * 0.1,
+      x * Math.sin(ud.tiltZ) + z * Math.cos(ud.tiltZ)
+    );
+    
+    node.rotation.x = t * 2 + i;
+    node.rotation.y = t * 1.5 + i;
+    
+    // Update connection line
+    const line = connectionLines[i];
+    const lp = line.geometry.attributes.position.array;
+    lp[0] = 0; lp[1] = 0; lp[2] = 0;
+    lp[3] = node.position.x;
+    lp[4] = node.position.y;
+    lp[5] = node.position.z;
+    line.geometry.attributes.position.needsUpdate = true;
+    line.material.opacity = 0.04 + Math.sin(t * 0.8 + i * 0.5) * 0.04;
+  });
+
+  // ——— AGENT CARDS ———
+  agentCards.forEach((card, i) => {
+    const ud = card.userData;
+    ud.angle += ud.speed * 0.006;
+    const x = Math.cos(ud.angle) * ud.radius;
+    const z = Math.sin(ud.angle) * ud.radius * 0.4;
+    const y = ud.yOffset + Math.sin(t * ud.bobSpeed + i) * ud.bobAmount;
+    card.position.set(x, y, z);
+    card.lookAt(camera.position.x - 9, camera.position.y - 0.3, camera.position.z);
+    const depth = (z + ud.radius) / (ud.radius * 2);
+    card.material.opacity = 0.3 + depth * 0.55;
+  });
+
+  // ——— BACKGROUND PARTICLES ———
+  const pp = particles.geometry.attributes.position.array;
+  for (let i = 0; i < particleCount; i++) {
+    pp[i * 3] += pVel[i * 3];
+    pp[i * 3 + 1] += pVel[i * 3 + 1] + Math.sin(t * 0.5 + i * 0.1) * 0.0003;
+    if (pp[i * 3] > 25) pp[i * 3] = -25;
+    if (pp[i * 3] < -25) pp[i * 3] = 25;
+    if (pp[i * 3 + 1] > 15) pp[i * 3 + 1] = -15;
+    if (pp[i * 3 + 1] < -15) pp[i * 3 + 1] = 15;
+  }
+  particles.geometry.attributes.position.needsUpdate = true;
+  particles2.rotation.y = t * 0.01;
+
+  // ——— ORB PARTICLES ———
+  const op = orbParticles.geometry.attributes.position.array;
+  for (let i = 0; i < orbPCount; i++) {
+    const d = orbPData[i];
+    d.theta += d.speed * 0.01;
+    const r = d.r + Math.sin(t * 0.5 + i) * 0.1;
+    op[i * 3] = r * Math.sin(d.phi) * Math.cos(d.theta);
+    op[i * 3 + 1] = r * Math.sin(d.phi) * Math.sin(d.theta);
+    op[i * 3 + 2] = r * Math.cos(d.phi);
+  }
+  orbParticles.geometry.attributes.position.needsUpdate = true;
+
+  // ——— BOT GROUP mouse response ———
+  botGroup.rotation.y += (mouse.x * 0.12 - botGroup.rotation.y + Math.PI * 0.02) * 0.03;
+  botGroup.rotation.x += (mouse.y * 0.06 - botGroup.rotation.x) * 0.03;
+  
+  // Floating bob
+  botGroup.position.y = 0.3 + Math.sin(t * 0.8) * 0.15;
+
+  // ——— LIGHTS DRIFT ———
+  orangeLight.position.x = -4 + Math.sin(t * 0.3) * 2;
+  orangeLight.position.y = 4 + Math.cos(t * 0.2) * 1;
+  blueLight.position.x = 5 + Math.cos(t * 0.25) * 2;
+  cyanLight.position.y = 5 + Math.sin(t * 0.35) * 2;
+
+  // Ear glow pulse
+  leftEarGlow.material.emissiveIntensity = 0.4 + Math.sin(t * 2.5) * 0.3;
+  rightEarGlow.material.emissiveIntensity = 0.4 + Math.sin(t * 2.5 + Math.PI) * 0.3;
+
+  renderer.render(scene, camera);
+}
+
+renderer.setAnimationLoop(animate);
+
+// ——— RESIZE ———
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+
+// ——— SCROLL-BASED CONTENT FADE ———
+const heroContent = document.querySelector('.hero-content');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  const heroH = document.getElementById('hero').offsetHeight;
+  const progress = Math.min(1, y / (heroH * 0.5));
+  heroContent.style.opacity = 1 - progress * 1.2;
+  heroContent.style.transform = `translateY(${progress * -40}px)`;
+});
+</script>
+<script>
+const authTrigger = document.getElementById('authTrigger');
+const authModal = document.getElementById('authModal');
+const authClose = document.getElementById('authClose');
+const authCard = document.querySelector('.auth-card');
+const authTabs = Array.from(document.querySelectorAll('[data-auth-tab]'));
+const authPanes = Array.from(document.querySelectorAll('[data-auth-pane]'));
+const loginForm = document.getElementById('loginForm');
+const loginStatus = document.getElementById('loginStatus');
+const registerForm = document.getElementById('registerForm');
+const registerStatus = document.getElementById('registerStatus');
+
+const SETTINGS_KEYS = {
+  docs: 'agentverseDocsConfig',
+  adminCredentials: 'agentverseAdminCredentials',
+  adminSession: 'agentverseAdminSession',
+  userCredentials: 'agentverseUserCredentials',
+  userSession: 'agentverseUserSession',
+  activeUser: 'agentverseActiveUser',
+  configVersion: 'agentverseConfigVersion'
+};
+
+const applyDocsLink = function () {
+  const docsLink = document.getElementById('docsLink');
+  if (!docsLink) {
+    return;
+  }
+
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEYS.docs);
+    if (!raw) {
+      return;
+    }
+
+    const config = JSON.parse(raw);
+    if (config && typeof config.label === 'string' && config.label.trim() !== '') {
+      docsLink.textContent = config.label.trim();
+    }
+  } catch (error) {
+    console.warn('Unable to apply docs link config.', error);
+  }
+};
+
+const getStoredAdminCredentials = function () {
+  try {
+    const existing = localStorage.getItem(SETTINGS_KEYS.adminCredentials);
+    if (existing) {
+      const parsed = JSON.parse(existing);
+      if (parsed && parsed.loginId && parsed.password) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.warn('Unable to parse admin credentials.', error);
+  }
+  return null;
+};
+
+const getStoredUsers = function () {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEYS.userCredentials);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn('Unable to parse user credentials.', error);
+    return [];
+  }
+};
+
+const saveStoredUsers = function (users) {
+  localStorage.setItem(SETTINGS_KEYS.userCredentials, JSON.stringify(users));
+};
+
+applyDocsLink();
+
+window.addEventListener('storage', function (event) {
+  if (event.key === SETTINGS_KEYS.configVersion) {
+    applyDocsLink();
+  }
+});
+
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) {
+    applyDocsLink();
+  }
+});
+
+if (authTrigger && authModal && authClose && authCard) {
+  let authHighlightTimer = null;
+
+  const highlightAuthCard = function () {
+    if (authHighlightTimer) {
+      clearTimeout(authHighlightTimer);
+    }
+
+    authCard.classList.remove('highlighted');
+    void authCard.offsetWidth;
+    authCard.classList.add('highlighted');
+
+    authHighlightTimer = setTimeout(function () {
+      authCard.classList.remove('highlighted');
+    }, 1400);
+  };
+
+  const openAuth = function () {
+    authModal.classList.add('is-open');
+    authModal.setAttribute('aria-hidden', 'false');
+    highlightAuthCard();
+  };
+
+  const closeAuth = function () {
+    authModal.classList.remove('is-open');
+    authModal.setAttribute('aria-hidden', 'true');
+  };
+
+  const showPane = function (name) {
+    authTabs.forEach(function (tab) {
+      tab.classList.toggle('active', tab.dataset.authTab === name);
+    });
+    authPanes.forEach(function (pane) {
+      pane.classList.toggle('active', pane.dataset.authPane === name);
+    });
+  };
+
+  authTrigger.addEventListener('click', function (event) {
+    event.preventDefault();
+    openAuth();
+  });
+
+  authClose.addEventListener('click', closeAuth);
+
+  authModal.addEventListener('click', function (event) {
+    if (event.target === authModal) {
+      closeAuth();
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && authModal.classList.contains('is-open')) {
+      closeAuth();
+    }
+  });
+
+  authTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      showPane(tab.dataset.authTab || 'login');
+    });
+  });
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const loginIdInput = document.getElementById('loginId');
+      const passwordInput = document.getElementById('loginPassword');
+      const loginId = (loginIdInput && loginIdInput.value || '').trim();
+      const normalizedLoginId = loginId.toLowerCase();
+      const password = (passwordInput && passwordInput.value || '').trim();
+
+      if (!loginId || !password) {
+        if (loginStatus) {
+          loginStatus.textContent = 'Login ID and password are required.';
+        }
+        return;
+      }
+
+      const users = getStoredUsers();
+      const matchedUser = users.find(function (user) {
+        return user && String(user.loginId || '').toLowerCase() === normalizedLoginId && user.password === password;
+      });
+
+      if (matchedUser) {
+        localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
+        localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
+          loginId: matchedUser.loginId,
+          name: matchedUser.name || '',
+          loggedInAt: new Date().toISOString()
+        }));
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      const storedCredentials = getStoredAdminCredentials();
+      if (!storedCredentials) {
+        if (normalizedLoginId.indexOf('@') === -1) {
+          localStorage.setItem(SETTINGS_KEYS.adminCredentials, JSON.stringify({
+            loginId: loginId,
+            password: password,
+            createdAt: new Date().toISOString()
+          }));
+          localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+          window.location.href = 'admin.html';
+          return;
+        }
+      }
+
+      const isValid = loginId === storedCredentials.loginId && password === storedCredentials.password;
+
+      if (isValid) {
+        localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      if (normalizedLoginId.indexOf('@') !== -1) {
+        users.unshift({
+          name: normalizedLoginId.split('@')[0],
+          email: normalizedLoginId,
+          loginId: normalizedLoginId,
+          password: password,
+          createdAt: new Date().toISOString()
+        });
+        saveStoredUsers(users);
+        localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
+        localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
+          loginId: normalizedLoginId,
+          name: normalizedLoginId.split('@')[0],
+          loggedInAt: new Date().toISOString()
+        }));
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      if (loginStatus) {
+        loginStatus.textContent = 'Invalid login credentials. Register first or use admin credentials.';
+      }
+    });
+  }
+
+  if (registerForm) {
+    registerForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const name = (document.getElementById('registerName').value || '').trim();
+      const email = (document.getElementById('registerEmail').value || '').trim().toLowerCase();
+
+      const password = (document.getElementById('registerPassword').value || '').trim();
+      const confirmPassword = (document.getElementById('registerConfirmPassword').value || '').trim();
+
+      if (!name || !email) {
+        if (registerStatus) {
+          registerStatus.textContent = 'Name and email are required.';
+        }
+        return;
+      }
+
+      if (!password || password !== confirmPassword) {
+        if (registerStatus) {
+          registerStatus.textContent = 'Passwords do not match.';
+        }
+        return;
+      }
+
+      const users = getStoredUsers();
+      const exists = users.some(function (user) {
+        return user && String(user.loginId || '').toLowerCase() === email;
+      });
+
+      if (exists) {
+        if (registerStatus) {
+          registerStatus.textContent = 'Account already exists. Use login with your email.';
+        }
+        return;
+      }
+
+      users.unshift({
+        name: name,
+        email: email,
+        loginId: email,
+        password: password,
+        createdAt: new Date().toISOString()
+      });
+      saveStoredUsers(users);
+
+      if (registerStatus) {
+        registerStatus.textContent = 'Registration successful. Use your email as Login ID.';
+      }
+
+      showPane('login');
+    });
+  }
+}
+</script>
+<script src="footer.js"></script>
+</body>
+</html>

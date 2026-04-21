@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><title>Project Hub | AgentVerse</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="footer.css">
+<link rel="stylesheet" href="checkout.css">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed-dim": "#ffb59a",
+                    "on-tertiary-fixed": "#001c37",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e6e8ea",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#eff1f3",
+                    "tertiary-fixed": "#d2e4ff",
+                    "surface-bright": "#f7f9fb",
+                    "on-background": "#191c1e",
+                    "background": "#f7f9fb",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-surface": "#191c1e",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#370e00",
+                    "on-primary-fixed-variant": "#802a00",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#ffb59a",
+                    "on-tertiary-container": "#002d51",
+                    "tertiary-fixed-dim": "#a0c9ff",
+                    "surface-variant": "#e0e3e5",
+                    "on-tertiary-fixed-variant": "#00497f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "on-secondary-container": "#742500",
+                    "on-primary-fixed": "#370e00",
+                    "primary": "#a73a00",
+                    "primary-container": "#ff5c00",
+                    "on-surface-variant": "#5b4137",
+                    "secondary": "#9d431b",
+                    "on-secondary-fixed-variant": "#7e2c04",
+                    "on-primary-container": "#521800",
+                    "inverse-surface": "#2d3133",
+                    "outline-variant": "#e4beb1",
+                    "outline": "#8f7065",
+                    "surface": "#f7f9fb",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#a73a00",
+                    "secondary-container": "#fe8c5f",
+                    "primary-fixed": "#ffdbce",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#d8dadc",
+                    "tertiary": "#0061a6",
+                    "tertiary-container": "#0096fd",
+                    "inverse-primary": "#ffb59a",
+                    "secondary-fixed": "#ffdbce"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(167, 58, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(167, 58, 0, 0.5);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Apply animations to elements */
+        header {
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        aside {
+            animation: slideInLeft 0.6s ease-out 0.1s both;
+        }
+
+        section {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .col-span-2 {
+            animation: fadeInUp 0.7s ease-out 0.3s both;
+        }
+
+        .bg-surface-container-lowest {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .bg-surface-container-lowest:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: rgba(167, 58, 0, 0.3) !important;
+        }
+
+        /* Stagger animation for cards */
+        .col-span-2:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        div.bg-surface-container-lowest:not(.col-span-2):nth-child(2) {
+            animation: fadeInUp 0.7s ease-out 0.4s both;
+        }
+
+        div.bg-surface-container-lowest:not(.col-span-2):nth-child(3) {
+            animation: fadeInUp 0.7s ease-out 0.5s both;
+        }
+
+        div.bg-surface-container-lowest:not(.col-span-2):nth-child(4) {
+            animation: fadeInUp 0.7s ease-out 0.6s both;
+        }
+
+        div.bg-surface-container-lowest:not(.col-span-2):nth-child(5) {
+            animation: fadeInUp 0.7s ease-out 0.7s both;
+        }
+
+        div.bg-surface-container-lowest:not(.col-span-2):nth-child(6) {
+            animation: fadeInUp 0.7s ease-out 0.8s both;
+        }
+
+        div.bg-surface-container-lowest:not(.col-span-2):nth-child(7) {
+            animation: fadeInUp 0.7s ease-out 0.9s both;
+        }
+
+        /* Button animations */
+        button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .bg-gradient-to-br {
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .bg-gradient-to-br:hover {
+            animation: none;
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(167, 58, 0, 0.4);
+        }
+
+        /* Featured card glow effect */
+        .col-span-2:hover {
+            animation: glow 2s ease-in-out 1;
+        }
+
+        /* Text transitions */
+        h1, h2, h3 {
+            transition: color 0.3s ease;
+        }
+
+        /* Input animations */
+        input {
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            transform: scale(1.02);
+        }
+
+        /* Nav link hover effect */
+        nav a {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        nav a:not(.nav-active):hover {
+            transform: translateY(-2px);
+        }
+
+        /* Load More button animation */
+        .group:hover {
+            animation: none;
+        }
+
+        .material-symbols-outlined {
+            transition: transform 0.3s ease;
+        }
+
+        .group:hover .material-symbols-outlined {
+            transform: scale(1.1);
+        }
+
+        /* Tech Stack Badge Animations */
+        .flex-wrap span {
+            animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .flex-wrap span:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .flex-wrap span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .flex-wrap span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .flex-wrap span:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .flex-wrap span:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        /* Tech Stack Badge Hover Animation */
+        .px-3.py-1 {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .px-3.py-1:hover {
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 8px 20px rgba(167, 58, 0, 0.25);
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        /* Category Sidebar Animation */
+        .sticky.top-28 > div > div:first-child {
+            animation: slideInLeft 0.6s ease-out 0.15s both;
+        }
+
+        .sticky.top-28 > div > div:nth-child(3) {
+            animation: slideInLeft 0.6s ease-out 0.2s both;
+        }
+
+        .sticky.top-28 > div > div:last-child {
+            animation: slideInLeft 0.6s ease-out 0.25s both;
+        }
+
+
+
+        /* Shared Footer styles now in footer.css */
+    </style>
+</head>
+<body class="bg-surface text-on-background min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-full mt-4 mx-auto max-w-5xl sticky top-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] z-50 flex items-center justify-between px-6 py-3 font-['Manrope'] tracking-tight">
+<a href="index.html" class="flex items-center gap-3 text-orange-600 transition-all hover:opacity-90">
+<svg class="w-7 h-7" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+<rect width="28" height="28" rx="7" fill="url(#browseLogoGradient)"></rect>
+<path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
+<path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+<defs>
+<linearGradient id="browseLogoGradient" x1="0" y1="0" x2="28" y2="28">
+<stop stop-color="#F97316"></stop>
+<stop offset="1" stop-color="#EA580C"></stop>
+</linearGradient>
+</defs>
+</svg>
+<span class="text-2xl font-extrabold tracking-tight text-orange-600">AgentVerse</span>
+</a>
+<nav class="hidden md:flex items-center gap-8">
+                                <a class="nav-active text-orange-700 dark:text-orange-500 font-semibold border-b-2 border-orange-700 transition-all" href="#">Explore</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="pricing.html">Pricing</a>
+                                <a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="docs.html" id="docsLink">Documents</a>
+                                <a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="dashboard.html">Dashboard</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="hidden md:block relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-slate-100/50 border-none rounded-full py-1.5 pl-9 pr-4 text-sm focus:ring-2 focus:ring-primary/20 w-48" id="globalSearchInput" placeholder="Search..." type="text"/>
+</div>
+<button id="getApiKeyBtn" class="bg-gradient-to-br from-primary to-primary-container text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:scale-95 duration-200 transition-all">Get API Key</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-12 gap-8">
+<!-- Sidebar Navigation (Filters) -->
+<aside class="col-span-3">
+<div class="sticky top-28 flex flex-col gap-8">
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">category</span>
+                        Categories
+                    </h3>
+<nav class="flex flex-col gap-1" id="categoryFilters">
+<a class="category-filter group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-orange-700 dark:text-orange-400 font-bold shadow-sm transition-all duration-300" data-category="all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Inter'] text-sm">All Projects</span>
+</a>
+<a class="category-filter group flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:pl-6 transition-all duration-300" data-category="computer-vision" href="#">
+<span class="material-symbols-outlined">visibility</span>
+<span class="font-['Inter'] text-sm">Computer Vision</span>
+</a>
+<a class="category-filter group flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:pl-6 transition-all duration-300" data-category="nlp" href="#">
+<span class="material-symbols-outlined">translate</span>
+<span class="font-['Inter'] text-sm">NLP</span>
+</a>
+<a class="category-filter group flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:pl-6 transition-all duration-300" data-category="generative-art" href="#">
+<span class="material-symbols-outlined">palette</span>
+<span class="font-['Inter'] text-sm">Generative Art</span>
+</a>
+<a class="category-filter group flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:pl-6 transition-all duration-300" data-category="robotics" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-['Inter'] text-sm">Robotics</span>
+</a>
+</nav>
+</div>
+<div class="h-px bg-outline-variant opacity-15"></div>
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Tech Stack</h3>
+<div class="flex flex-wrap gap-2" id="stackFilters">
+<span aria-pressed="false" class="stack-filter px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold tracking-tight uppercase cursor-pointer" data-stack="pytorch" role="button" tabindex="0">PyTorch</span>
+<span aria-pressed="false" class="stack-filter px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold tracking-tight uppercase cursor-pointer" data-stack="tensorflow" role="button" tabindex="0">TensorFlow</span>
+<span aria-pressed="false" class="stack-filter px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold tracking-tight uppercase cursor-pointer" data-stack="jax" role="button" tabindex="0">JAX</span>
+<span aria-pressed="false" class="stack-filter px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold tracking-tight uppercase cursor-pointer" data-stack="cuda" role="button" tabindex="0">CUDA</span>
+<span aria-pressed="false" class="stack-filter px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold tracking-tight uppercase cursor-pointer" data-stack="python" role="button" tabindex="0">Python</span>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Project Status</h3>
+<label class="flex items-center gap-3 mb-2 cursor-pointer group">
+<input class="status-filter rounded border-outline-variant text-primary focus:ring-primary" type="checkbox" value="production"/>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Production Ready</span>
+</label>
+<label class="flex items-center gap-3 mb-2 cursor-pointer group">
+<input class="status-filter rounded border-outline-variant text-primary focus:ring-primary" type="checkbox" value="experimental"/>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Experimental</span>
+</label>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="col-span-9">
+<!-- Search & Breadcrumbs -->
+<div class="mb-10">
+<div class="flex items-center gap-2 text-xs font-medium text-on-surface-variant/60 mb-4 uppercase tracking-widest">
+<span>Marketplace</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface-variant">Explore</span>
+</div>
+<div class="flex items-end justify-between gap-4">
+<h1 class="text-4xl font-extrabold tracking-tighter text-on-surface max-w-lg">Project Hub</h1>
+<div class="flex-1 max-w-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60">search</span>
+<input class="w-full bg-surface-container-lowest border-none py-4 pl-12 pr-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] focus:ring-2 focus:ring-primary-fixed-dim transition-all" id="agentSearchInput" placeholder="Search 2,400+ agents..." type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- API Agents Grid -->
+<div class="grid grid-cols-2 gap-6" id="agentsGrid">
+<!-- Agent Card 1 -->
+<div class="searchable-agent col-span-2 group bg-surface-container-lowest p-8 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm hover:shadow-xl hover:shadow-primary/5" data-category="nlp" data-stacks="python pytorch" data-status="production">
+<div class="flex justify-between items-start">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-wider">Featured</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold uppercase tracking-wider">AI Agent</span>
+</div>
+<span class="text-xs text-on-surface-variant font-mono">v3.5-latest</span>
+</div>
+<h2 class="text-2xl font-extrabold tracking-tight text-on-surface group-hover:text-primary transition-colors">CodeGenPro: Intelligent Code Generation Agent</h2>
+<p class="text-on-surface-variant text-base leading-relaxed max-w-2xl">
+Advanced code generation agent with multi-language support. Generates production-ready code snippets, full applications, and API integrations. Powered by latest LLM models with 99.2% accuracy on unit tests.
+</p>
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/10 mt-auto">
+<div class="flex items-center gap-6 text-xs font-semibold text-on-surface-variant">
+<div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">star</span> 28.5k</div>
+<div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">fork_right</span> 3.2k</div>
+<div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> 1h ago</div>
+</div>
+<button class="flex items-center gap-2 text-primary font-bold text-sm group/btn hover:underline underline-offset-4">
+Buy Key
+<span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Agent Card 2 -->
+<div class="searchable-agent bg-surface-container-lowest p-6 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm" data-category="nlp" data-stacks="python jax" data-status="production">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Data Agent</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-on-surface">DataMind Analytics</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+Autonomous data analysis and visualization agent. Processes complex datasets, generates insights, and creates interactive dashboards automatically.
+</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="text-[10px] font-mono text-on-surface-variant/60">SQL / PYTHON / PLOTLY</div>
+<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+</div>
+</div>
+<!-- Agent Card 3 -->
+<div class="searchable-agent bg-surface-container-lowest p-6 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm" data-category="robotics" data-stacks="python" data-status="production">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">API Agent</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-on-surface">APIRouter Orchestrator</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+Intelligent API orchestration agent that manages, routes, and optimizes API calls. Handles load balancing and failover automatically.
+</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="text-[10px] font-mono text-on-surface-variant/60">REST / GRAPHQL / GRPC</div>
+<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+</div>
+</div>
+<!-- Agent Card 4 -->
+<div class="searchable-agent bg-surface-container-lowest p-6 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm" data-category="nlp" data-stacks="python" data-status="production">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">NLP Agent</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-on-surface">LanguageFlow NLP</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+Comprehensive NLP agent for text processing, sentiment analysis, entity recognition, and semantic understanding with 96% accuracy.
+</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="text-[10px] font-mono text-on-surface-variant/60">TRANSFORMERS / SPACY / NLTK</div>
+<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+</div>
+</div>
+<!-- Agent Card 5 -->
+<div class="searchable-agent bg-surface-container-lowest p-6 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm" data-category="computer-vision" data-stacks="tensorflow pytorch cuda" data-status="experimental">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Vision Agent</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-on-surface">VisionAI Scanner</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+Advanced computer vision agent for object detection, image classification, and real-time video analysis. Multi-model support for optimal accuracy.
+</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="text-[10px] font-mono text-on-surface-variant/60">YOLO / OPENCV / TENSORFLOW</div>
+<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+</div>
+</div>
+<!-- Agent Card 6 -->
+<div class="searchable-agent bg-surface-container-lowest p-6 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm" data-category="robotics generative-art" data-stacks="python" data-status="experimental">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Automation Agent</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-on-surface">WorkflowBot Automation</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+Intelligent workflow automation agent that learns patterns and automates repetitive tasks. Integrates with 500+ third-party tools and APIs.
+</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="text-[10px] font-mono text-on-surface-variant/60">ZAPIER / MAKE / N8N</div>
+<button class="bg-surface-container-high px-4 py-2 rounded-lg text-xs font-bold text-on-surface hover:bg-primary hover:text-white transition-all">Buy Key</button>
+</div>
+</div>
+<!-- Pagination/Load More -->
+<div class="col-span-2 pt-8 flex justify-center">
+<button class="group flex items-center gap-3 px-8 py-4 bg-white border border-outline-variant/20 rounded-full font-bold text-on-surface hover:border-primary transition-all shadow-sm">
+Load More Agents
+<span class="material-symbols-outlined group-hover:rotate-180 transition-transform duration-500">sync</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<div id="footer-placeholder"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const STORAGE_KEYS = {
+            recentSearches: 'agentverseRecentSearches',
+            purchaseHistory: 'agentversePurchaseHistory'
+        };
+
+        const topSearch = document.getElementById('globalSearchInput');
+        const mainSearch = document.getElementById('agentSearchInput');
+        const agentsGrid = document.getElementById('agentsGrid');
+
+        if (!topSearch || !mainSearch || !agentsGrid) {
+            return;
+        }
+
+        const cards = Array.from(agentsGrid.querySelectorAll('.searchable-agent'));
+        const cardIndex = cards.map(function (card) {
+            return {
+                element: card,
+                content: card.textContent.toLowerCase(),
+                categories: (card.dataset.category || '').toLowerCase().split(' ').filter(Boolean),
+                stacks: (card.dataset.stacks || '').toLowerCase().split(' ').filter(Boolean),
+                status: (card.dataset.status || '').toLowerCase()
+            };
+        });
+        const categoryLinks = Array.from(document.querySelectorAll('.category-filter'));
+        const stackFilters = Array.from(document.querySelectorAll('.stack-filter'));
+        const statusFilters = Array.from(document.querySelectorAll('.status-filter'));
+        const loadMoreBlock = agentsGrid.querySelector('.col-span-2.pt-8.flex.justify-center');
+
+        const state = {
+            term: '',
+            category: 'all',
+            stacks: new Set(),
+            statuses: new Set()
+        };
+        let searchSaveTimer = null;
+
+        const pushRecentSearch = function (term) {
+            const normalized = String(term || '').trim();
+            if (normalized.length < 2) {
+                return;
+            }
+
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.recentSearches);
+                const existing = raw ? JSON.parse(raw) : [];
+                const list = Array.isArray(existing) ? existing : [];
+
+                const filtered = list.filter(function (item) {
+                    return String(item || '').toLowerCase() !== normalized.toLowerCase();
+                });
+
+                filtered.unshift(normalized);
+                localStorage.setItem(STORAGE_KEYS.recentSearches, JSON.stringify(filtered.slice(0, 12)));
+            } catch (error) {
+                console.warn('Unable to save recent search.', error);
+            }
+        };
+
+        const queueRecentSearchSave = function (term) {
+            if (searchSaveTimer) {
+                clearTimeout(searchSaveTimer);
+            }
+
+            searchSaveTimer = setTimeout(function () {
+                pushRecentSearch(term);
+            }, 320);
+        };
+
+        const pushPurchaseHistory = function (entry) {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.purchaseHistory);
+                const existing = raw ? JSON.parse(raw) : [];
+                const list = Array.isArray(existing) ? existing : [];
+                list.unshift(entry);
+                localStorage.setItem(STORAGE_KEYS.purchaseHistory, JSON.stringify(list.slice(0, 30)));
+            } catch (error) {
+                console.warn('Unable to save purchase history.', error);
+            }
+        };
+
+        Array.from(agentsGrid.querySelectorAll('.searchable-agent')).forEach(function (card) {
+            const buyButton = card.querySelector('button');
+            if (!buyButton || buyButton.textContent.toLowerCase().indexOf('buy key') === -1) {
+                return;
+            }
+
+            buyButton.addEventListener('click', function () {
+                const title = card.querySelector('h2');
+                const price = card.querySelector('.checkout-item-price') ? card.querySelector('.checkout-item-price').textContent : '$49.00';
+                
+                Checkout.open({
+                    name: title ? title.textContent.trim() : 'Agent Access',
+                    price: price
+                });
+            });
+        });
+
+        const noResults = document.createElement('div');
+        noResults.className = 'col-span-2 hidden text-center py-12 bg-surface-container-lowest rounded-xl border border-outline-variant/20';
+        noResults.innerHTML = '<p class="text-lg font-bold text-on-surface">No agents found</p><p class="text-sm text-on-surface-variant mt-2">Try changing filters or search text.</p>';
+        if (loadMoreBlock) {
+            agentsGrid.insertBefore(noResults, loadMoreBlock);
+        } else {
+            agentsGrid.appendChild(noResults);
+        }
+
+        const setSearchValue = function (value, source) {
+            if (source !== topSearch) {
+                topSearch.value = value;
+            }
+            if (source !== mainSearch) {
+                mainSearch.value = value;
+            }
+        };
+
+        const updateCategoryUI = function () {
+            categoryLinks.forEach(function (link) {
+                const isActive = link.dataset.category === state.category;
+                link.classList.toggle('bg-white', isActive);
+                link.classList.toggle('dark:bg-slate-900', isActive);
+                link.classList.toggle('text-orange-700', isActive);
+                link.classList.toggle('dark:text-orange-400', isActive);
+                link.classList.toggle('font-bold', isActive);
+                link.classList.toggle('shadow-sm', isActive);
+
+                link.classList.toggle('text-slate-500', !isActive);
+                link.classList.toggle('dark:text-slate-400', !isActive);
+                link.classList.toggle('hover:bg-slate-100', !isActive);
+                link.classList.toggle('dark:hover:bg-slate-800', !isActive);
+                link.classList.toggle('hover:pl-6', !isActive);
+            });
+        };
+
+        const updateStackUI = function () {
+            stackFilters.forEach(function (chip) {
+                const stackName = chip.dataset.stack;
+                const isActive = state.stacks.has(stackName);
+                chip.setAttribute('aria-pressed', String(isActive));
+                chip.classList.toggle('bg-secondary-fixed', isActive);
+                chip.classList.toggle('text-on-secondary-fixed-variant', isActive);
+                chip.classList.toggle('bg-surface-container-highest', !isActive);
+                chip.classList.toggle('text-on-surface-variant', !isActive);
+            });
+        };
+
+        const runFilters = function () {
+            let visibleCount = 0;
+
+            cardIndex.forEach(function (cardMeta) {
+                const matchesSearch = state.term === '' || cardMeta.content.includes(state.term);
+                const matchesCategory = state.category === 'all' || cardMeta.categories.includes(state.category);
+                const matchesStacks = state.stacks.size === 0 || Array.from(state.stacks).every(function (stack) { return cardMeta.stacks.includes(stack); });
+                const matchesStatus = state.statuses.size === 0 || state.statuses.has(cardMeta.status);
+
+                const isMatch = matchesSearch && matchesCategory && matchesStacks && matchesStatus;
+                cardMeta.element.style.display = isMatch ? '' : 'none';
+                if (isMatch) {
+                    visibleCount += 1;
+                }
+            });
+
+            noResults.classList.toggle('hidden', visibleCount !== 0);
+
+            if (loadMoreBlock) {
+                const hasActiveRequirement = state.term !== '' || state.category !== 'all' || state.stacks.size > 0 || state.statuses.size > 0;
+                loadMoreBlock.style.display = hasActiveRequirement ? 'none' : '';
+            }
+        };
+
+        topSearch.addEventListener('input', function (event) {
+            const value = event.target.value;
+            state.term = value.trim().toLowerCase();
+            setSearchValue(value, topSearch);
+            queueRecentSearchSave(value);
+            runFilters();
+        });
+
+        mainSearch.addEventListener('input', function (event) {
+            const value = event.target.value;
+            state.term = value.trim().toLowerCase();
+            setSearchValue(value, mainSearch);
+            queueRecentSearchSave(value);
+            runFilters();
+        });
+
+        categoryLinks.forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                state.category = link.dataset.category || 'all';
+                updateCategoryUI();
+                runFilters();
+            });
+        });
+
+        stackFilters.forEach(function (chip) {
+            const toggleStack = function () {
+                const stackName = chip.dataset.stack;
+                if (!stackName) {
+                    return;
+                }
+
+                if (state.stacks.has(stackName)) {
+                    state.stacks.delete(stackName);
+                } else {
+                    state.stacks.add(stackName);
+                }
+
+                updateStackUI();
+                runFilters();
+            };
+
+            chip.addEventListener('click', toggleStack);
+            chip.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleStack();
+                }
+            });
+        });
+
+        statusFilters.forEach(function (input) {
+            input.addEventListener('change', function () {
+                if (input.checked) {
+                    state.statuses.add(input.value);
+                } else {
+                    state.statuses.delete(input.value);
+                }
+                runFilters();
+            });
+        });
+
+        updateCategoryUI();
+        updateStackUI();
+        runFilters();
+    });
+</script>
+<script>
+    (function () {
+        const SETTINGS_KEYS = {
+            docs: 'agentverseDocsConfig',
+            apiKeys: 'agentverseApiKeys',
+            configVersion: 'agentverseConfigVersion',
+            purchaseHistory: 'agentversePurchaseHistory'
+        };
+
+        const docsLink = document.getElementById('docsLink');
+        const getApiKeyBtn = document.getElementById('getApiKeyBtn');
+        const agentsGrid = document.getElementById('agentsGrid');
+        const loadMoreBlock = agentsGrid ? agentsGrid.querySelector('.col-span-2.pt-8.flex.justify-center') : null;
+
+        function getApiKeys() {
+            try {
+                const rawKeys = localStorage.getItem(SETTINGS_KEYS.apiKeys);
+                const keys = rawKeys ? JSON.parse(rawKeys) : [];
+                return Array.isArray(keys) ? keys : [];
+            } catch (error) {
+                console.warn('Unable to read API keys.', error);
+                return [];
+            }
+        }
+
+        function renderLiveKeys() {
+            if (!agentsGrid) {
+                return;
+            }
+
+            Array.from(agentsGrid.querySelectorAll('.live-api-key-card')).forEach(function (card) {
+                card.remove();
+            });
+
+            const keys = getApiKeys();
+
+            if (keys.length === 0) {
+                return;
+            }
+
+            keys.forEach(function (item) {
+                const card = document.createElement('article');
+                card.className = 'live-api-key-card searchable-agent group bg-surface-container-lowest p-6 rounded-xl border border-transparent hover:border-outline-variant/20 transition-all flex flex-col gap-4 shadow-sm';
+                card.setAttribute('data-category', item.category ? String(item.category).toLowerCase().replace(/\s+/g, '-') : 'general');
+                card.setAttribute('data-stacks', 'payment key');
+                card.setAttribute('data-status', 'production');
+
+                const title = document.createElement('div');
+                title.className = 'flex justify-between items-start';
+
+                const headingWrap = document.createElement('div');
+                const name = document.createElement('h3');
+                name.className = 'text-xl font-bold tracking-tight text-on-surface';
+                name.textContent = item.keyName || 'Unnamed Key';
+
+                const badgeRow = document.createElement('div');
+                badgeRow.className = 'flex gap-2 mb-3';
+
+                const categoryBadge = document.createElement('span');
+                categoryBadge.className = 'px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider';
+                categoryBadge.textContent = item.category || 'General';
+
+                const accessBadge = document.createElement('span');
+                accessBadge.className = 'px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold uppercase tracking-wider';
+                accessBadge.textContent = 'Key Access';
+
+                badgeRow.appendChild(categoryBadge);
+                badgeRow.appendChild(accessBadge);
+
+                const meta = document.createElement('p');
+                meta.className = 'text-on-surface-variant text-sm leading-relaxed mt-1';
+                meta.textContent = (item.keyFunction || 'No function') + ' · ' + (item.category || 'General');
+
+                const keyUrl = document.createElement('p');
+                keyUrl.className = 'text-on-surface-variant text-sm leading-relaxed break-all';
+                keyUrl.textContent = item.keyUrl || 'No URL provided';
+
+                headingWrap.appendChild(name);
+                headingWrap.appendChild(badgeRow);
+                headingWrap.appendChild(meta);
+                headingWrap.appendChild(keyUrl);
+
+                const price = document.createElement('span');
+                price.className = 'text-xs text-on-surface-variant font-mono';
+                price.textContent = '$' + (item.price || 0);
+
+                title.appendChild(headingWrap);
+                title.appendChild(price);
+
+                const footer = document.createElement('div');
+                footer.className = 'flex items-center justify-between pt-4 border-t border-outline-variant/10 mt-auto gap-4';
+
+                const metaBlock = document.createElement('div');
+                metaBlock.className = 'flex flex-wrap gap-4 text-xs font-semibold text-on-surface-variant';
+
+                const payment = document.createElement('div');
+                payment.className = 'flex items-center gap-1.5';
+                payment.innerHTML = '<span class="material-symbols-outlined text-sm">credit_card</span> ' + (item.paymentMethod || 'N/A');
+
+                const created = document.createElement('div');
+                created.className = 'flex items-center gap-1.5';
+                created.innerHTML = '<span class="material-symbols-outlined text-sm">schedule</span> ' + (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Unknown');
+
+                metaBlock.appendChild(payment);
+                metaBlock.appendChild(created);
+
+                const openButton = document.createElement('button');
+                openButton.type = 'button';
+                openButton.className = 'flex items-center gap-2 text-primary font-bold text-sm group/btn hover:underline underline-offset-4';
+                openButton.textContent = 'Buy Key';
+
+                const icon = document.createElement('span');
+                icon.className = 'material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform';
+                icon.textContent = 'arrow_forward';
+                openButton.appendChild(icon);
+
+                openButton.addEventListener('click', function () {
+                    if (!item.keyUrl) {
+                        alert('No key URL available for this entry.');
+                        return;
+                    }
+
+                    try {
+                        const rawHistory = localStorage.getItem(SETTINGS_KEYS.purchaseHistory);
+                        const history = rawHistory ? JSON.parse(rawHistory) : [];
+                        const list = Array.isArray(history) ? history : [];
+                        list.unshift({
+                            itemName: item.keyName || 'API Key',
+                            amount: item.price || null,
+                            paymentMethod: item.paymentMethod || 'N/A',
+                            source: 'API Key Listing',
+                            purchasedAt: new Date().toISOString()
+                        });
+                        localStorage.setItem(SETTINGS_KEYS.purchaseHistory, JSON.stringify(list.slice(0, 30)));
+                    } catch (error) {
+                        console.warn('Unable to update purchase history.', error);
+                    }
+
+                    window.open(String(item.keyUrl), '_blank', 'noopener,noreferrer');
+                });
+
+                footer.appendChild(metaBlock);
+                footer.appendChild(openButton);
+
+                card.appendChild(title);
+                card.appendChild(footer);
+
+                if (loadMoreBlock) {
+                    agentsGrid.insertBefore(card, loadMoreBlock);
+                } else {
+                    agentsGrid.appendChild(card);
+                }
+            });
+        }
+
+        const applyDocsConfig = function () {
+            if (!docsLink) {
+                return;
+            }
+
+            try {
+                const rawDocs = localStorage.getItem(SETTINGS_KEYS.docs);
+                if (rawDocs) {
+                    const docsConfig = JSON.parse(rawDocs);
+                    if (docsConfig && typeof docsConfig.label === 'string' && docsConfig.label.trim() !== '') {
+                        docsLink.textContent = docsConfig.label.trim();
+                    }
+                }
+            } catch (error) {
+                console.warn('Unable to read docs settings.', error);
+            }
+        };
+
+        applyDocsConfig();
+        renderLiveKeys();
+
+        if (getApiKeyBtn) {
+            getApiKeyBtn.addEventListener('click', function () {
+                try {
+                    const rawKeys = localStorage.getItem(SETTINGS_KEYS.apiKeys);
+                    const keys = rawKeys ? JSON.parse(rawKeys) : [];
+
+                    if (!Array.isArray(keys) || keys.length === 0 || !keys[0].keyUrl) {
+                        alert('No key URL available. Ask admin to add a key URL in the admin console.');
+                        return;
+                    }
+
+                    const keyUrl = String(keys[0].keyUrl);
+                    window.open(keyUrl, '_blank', 'noopener,noreferrer');
+                } catch (error) {
+                    alert('Unable to open key URL.');
+                }
+            });
+        }
+
+        window.addEventListener('storage', function (event) {
+            if (event.key === SETTINGS_KEYS.configVersion) {
+                applyDocsConfig();
+                renderLiveKeys();
+            }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                applyDocsConfig();
+                renderLiveKeys();
+            }
+        });
+    })();
+</script>
+<script src="footer.js"></script>
+<script src="checkout.js"></script>
+</body></html>

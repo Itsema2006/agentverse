@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentVerse | Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="footer.css">
+  <style>
+    :root {
+      --bg: #fff8f3;
+      --card: #ffffff;
+      --line: #f4d8c7;
+      --text: #1f2937;
+      --muted: #64748b;
+      --accent: #ea580c;
+      --accent-strong: #c2410c;
+      --ok: #166534;
+      --ok-bg: #dcfce7;
+      --warn: #92400e;
+      --warn-bg: #fef3c7;
+      --shadow: 0 14px 42px rgba(194, 65, 12, 0.13);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 88% 3%, rgba(251, 146, 60, 0.2), transparent 38%),
+        radial-gradient(circle at 5% 20%, rgba(249, 115, 22, 0.12), transparent 35%),
+        linear-gradient(180deg, #fffaf6 0%, #fff8f3 55%, #fffcf9 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1140px, 92vw);
+      margin: 0 auto;
+      padding-bottom: 30px;
+    }
+
+    .top {
+      margin-top: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(100, 116, 139, 0.15);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--accent);
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 1px solid #fdba74;
+      background: #fff7ed;
+      color: #9a3412;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(140deg, #f97316, #c2410c);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #addKeyBtn {
+      position: relative;
+      overflow: visible;
+      isolation: isolate;
+    }
+
+    #addKeyBtn::before,
+    #addKeyBtn::after {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border-radius: 14px;
+      pointer-events: none;
+      opacity: 0;
+      z-index: -1;
+    }
+
+    #addKeyBtn::before {
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 243, 199, 0.95) 0 1.5px, transparent 1.5px),
+        radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.9) 0 1.6px, transparent 1.6px),
+        radial-gradient(circle at 28% 82%, rgba(253, 186, 116, 0.9) 0 1.8px, transparent 1.8px),
+        radial-gradient(circle at 70% 76%, rgba(255, 237, 213, 0.85) 0 1.4px, transparent 1.4px),
+        radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.3) 0 36%, transparent 64%);
+    }
+
+    #addKeyBtn::after {
+      background:
+        radial-gradient(circle at 16% 70%, rgba(255, 255, 255, 0.95) 0 1.4px, transparent 1.4px),
+        radial-gradient(circle at 35% 10%, rgba(254, 215, 170, 0.95) 0 1.6px, transparent 1.6px),
+        radial-gradient(circle at 64% 88%, rgba(255, 243, 199, 0.9) 0 1.5px, transparent 1.5px),
+        radial-gradient(circle at 92% 48%, rgba(255, 237, 213, 0.8) 0 1.2px, transparent 1.2px),
+        radial-gradient(circle at 50% 50%, rgba(234, 88, 12, 0.28) 0 40%, transparent 68%);
+      transform: rotate(14deg);
+    }
+
+    #addKeyBtn.sparkle,
+    #addKeyBtn.sparkle:hover {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.32), 0 14px 30px rgba(194, 65, 12, 0.34);
+    }
+
+    #addKeyBtn.sparkle::before {
+      animation: sparkBurstA 0.68s ease-out;
+    }
+
+    #addKeyBtn.sparkle::after {
+      animation: sparkBurstB 0.68s ease-out;
+    }
+
+    @keyframes sparkBurstA {
+      0% { opacity: 0; transform: scale(0.78) rotate(0deg); }
+      25% { opacity: 0.95; }
+      100% { opacity: 0; transform: scale(1.24) rotate(10deg); }
+    }
+
+    @keyframes sparkBurstB {
+      0% { opacity: 0; transform: scale(0.82) rotate(16deg); }
+      20% { opacity: 0.9; }
+      100% { opacity: 0; transform: scale(1.28) rotate(-12deg); }
+    }
+
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(194, 65, 12, 0.28);
+    }
+
+    .btn.alt {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fdba74;
+    }
+
+    .hero {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .hero h1 {
+      font-family: "Manrope", sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      max-width: 75ch;
+    }
+
+    .grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
+    }
+
+    .panel p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .rows {
+      display: grid;
+      gap: 9px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 140px 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .field > label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #9a3412;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #f5cfb7;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #fb923c;
+      box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.2);
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      margin-top: 10px;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+    }
+
+    .status.ok {
+      display: block;
+      background: var(--ok-bg);
+      color: var(--ok);
+      border: 1px solid rgba(22, 101, 52, 0.2);
+    }
+
+    .status.warn {
+      display: block;
+      background: var(--warn-bg);
+      color: var(--warn);
+      border: 1px solid rgba(146, 64, 14, 0.2);
+    }
+
+    .key-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .keys-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      max-height: 230px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .keys-list li {
+      border: 1px solid #fde2d2;
+      border-radius: 12px;
+      background: #fffaf6;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .key-meta {
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .key-url {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .key-url:hover {
+      text-decoration: underline;
+    }
+
+    .key-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: #7c2d12;
+      word-break: break-all;
+      font-weight: 700;
+    }
+
+    .key-time {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .empty {
+      border: 1px dashed #fdba74;
+      border-radius: 12px;
+      color: #9a3412;
+      background: #fff7ed;
+      padding: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      min-width: 260px;
+      max-width: 360px;
+      border-radius: 12px;
+      border: 1px solid rgba(22, 101, 52, 0.25);
+      background: #ecfdf3;
+      color: #166534;
+      box-shadow: 0 14px 28px rgba(22, 101, 52, 0.15);
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field {
+        grid-template-columns: 1fr;
+      }
+
+      .key-form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Shared Footer styles now in footer.css */
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="url(#adminLogoGradient)"></rect>
+          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
+          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+          <defs>
+            <linearGradient id="adminLogoGradient" x1="0" y1="0" x2="28" y2="28">
+              <stop stop-color="#F97316"></stop>
+              <stop offset="1" stop-color="#EA580C"></stop>
+            </linearGradient>
+          </defs>
+        </svg>
+        AgentVerse Admin
+      </a>
+      <div class="top-right">
+        <span class="chip">Admin Session</span>
+        <a class="btn alt btn-link" href="index.html">Main Screen</a>
+        <button class="btn alt" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1>Admin Control Center</h1>
+      <p>
+        Manage commercial controls from one place. Updates made here drive pricing page values,
+        API key issuance on Explore, and Docs destinations across the site.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Pricing Controls</h2>
+        <p>Update monthly and yearly prices for each plan.</p>
+        <div class="rows">
+          <div class="field">
+            <label>Starter</label>
+            <input id="starterMonth" type="number" min="1" step="1" placeholder="Monthly" />
+            <input id="starterYear" type="number" min="1" step="1" placeholder="Yearly" />
+          </div>
+          <div class="field">
+            <label>Growth</label>
+            <input id="growthMonth" type="number" min="1" step="1" placeholder="Monthly" />
+            <input id="growthYear" type="number" min="1" step="1" placeholder="Yearly" />
+          </div>
+          <div class="field">
+            <label>Enterprise</label>
+            <input id="enterpriseMonth" type="number" min="1" step="1" placeholder="Monthly" />
+            <input id="enterpriseYear" type="number" min="1" step="1" placeholder="Yearly" />
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="savePricingBtn" type="button">Save Pricing</button>
+        </div>
+        <div class="status" id="pricingStatus"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Docs Handling</h2>
+        <p>Set docs URL and nav label used across pages.</p>
+        <div class="rows">
+          <div class="field" style="grid-template-columns: 1fr;">
+            <label>Docs Label</label>
+            <input id="docsLabel" type="text" placeholder="Docs" />
+          </div>
+          <div class="field" style="grid-template-columns: 1fr;">
+            <label>Docs URL</label>
+            <input id="docsUrl" type="url" placeholder="https://docs.example.com" />
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="saveDocsBtn" type="button">Save Docs Config</button>
+        </div>
+        <div class="status" id="docsStatus"></div>
+      </article>
+
+      <article class="panel" style="grid-column: 1 / -1;">
+        <h2>Add Key Option</h2>
+        <p>Add API keys with agent kind, category, pricing, and payment method.</p>
+        <div class="key-form">
+          <input id="apiKeyName" type="text" placeholder="Key name (e.g. Team A Key)" />
+          <input id="apiKeyFunction" type="text" placeholder="Key function (e.g. Production access)" />
+          <select id="apiAgentKind">
+            <option value="">Agent kind</option>
+            <option value="Data Agent">Data Agent</option>
+            <option value="API Agent">API Agent</option>
+            <option value="NLP Agent">NLP Agent</option>
+            <option value="Vision Agent">Vision Agent</option>
+            <option value="Automation Agent">Automation Agent</option>
+            <option value="General">General</option>
+          </select>
+          <select id="apiKeyCategory">
+            <option value="">Category</option>
+            <option value="Computer Vision">Computer Vision</option>
+            <option value="NLP">NLP</option>
+            <option value="Generative Art">Generative Art</option>
+            <option value="Robotics">Robotics</option>
+            <option value="General">General</option>
+          </select>
+          <input id="apiKeyUrl" type="url" placeholder="Key URL (e.g. https://pay.example.com/key-a)" />
+          <input id="apiKeyPrice" type="number" min="1" step="1" placeholder="Price" />
+          <select id="paymentMethod">
+            <option value="">Payment method</option>
+            <option value="Card">Card</option>
+            <option value="UPI">UPI</option>
+            <option value="Net Banking">Net Banking</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Crypto">Crypto</option>
+          </select>
+          <button class="btn" id="addKeyBtn" type="button">Add Key</button>
+        </div>
+        <ul class="keys-list" id="keysList"></ul>
+        <div class="status" id="keysStatus"></div>
+      </article>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+  </div>
+
+  <div id="successToast" class="toast" role="status" aria-live="polite">Changes added successfully.</div>
+
+  <script>
+    (function () {
+      var SETTINGS_KEYS = {
+        pricing: 'agentversePricingConfig',
+        docs: 'agentverseDocsConfig',
+        apiKeys: 'agentverseApiKeys',
+        adminCredentials: 'agentverseAdminCredentials',
+        adminSession: 'agentverseAdminSession',
+        configVersion: 'agentverseConfigVersion'
+      };
+
+      var DEFAULT_PRICING = {
+        starter: { month: 29, year: 23 },
+        growth: { month: 99, year: 79 },
+        enterprise: { month: 299, year: 239 }
+      };
+
+      if (localStorage.getItem(SETTINGS_KEYS.adminSession) !== 'true') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      function showStatus(id, text, type) {
+        var el = document.getElementById(id);
+        if (!el) {
+          return;
+        }
+        el.textContent = text;
+        el.className = 'status ' + (type || 'ok');
+      }
+
+      function bumpConfigVersion() {
+        localStorage.setItem(SETTINGS_KEYS.configVersion, String(Date.now()));
+      }
+
+      var successToast = document.getElementById('successToast');
+      var toastTimer = null;
+
+      function showSuccessToast(message) {
+        if (!successToast) {
+          return;
+        }
+
+        successToast.textContent = message || 'Changes added successfully.';
+        successToast.classList.add('show');
+
+        if (toastTimer) {
+          clearTimeout(toastTimer);
+        }
+
+        toastTimer = setTimeout(function () {
+          successToast.classList.remove('show');
+        }, 2200);
+      }
+
+      function getPricing() {
+        try {
+          var raw = localStorage.getItem(SETTINGS_KEYS.pricing);
+          if (!raw) {
+            return DEFAULT_PRICING;
+          }
+          var parsed = JSON.parse(raw);
+          if (!parsed || !parsed.starter || !parsed.growth || !parsed.enterprise) {
+            return DEFAULT_PRICING;
+          }
+          return parsed;
+        } catch (error) {
+          return DEFAULT_PRICING;
+        }
+      }
+
+      function setPricingFields(pricing) {
+        document.getElementById('starterMonth').value = pricing.starter.month;
+        document.getElementById('starterYear').value = pricing.starter.year;
+        document.getElementById('growthMonth').value = pricing.growth.month;
+        document.getElementById('growthYear').value = pricing.growth.year;
+        document.getElementById('enterpriseMonth').value = pricing.enterprise.month;
+        document.getElementById('enterpriseYear').value = pricing.enterprise.year;
+      }
+
+      function readNumber(id) {
+        var value = Number(document.getElementById(id).value);
+        return Number.isFinite(value) && value > 0 ? Math.round(value) : 0;
+      }
+
+      function getDocs() {
+        try {
+          var raw = localStorage.getItem(SETTINGS_KEYS.docs);
+          if (!raw) {
+            return { label: 'Docs', url: 'docs.html' };
+          }
+          var parsed = JSON.parse(raw);
+          return {
+            label: parsed && parsed.label ? String(parsed.label) : 'Docs',
+            url: parsed && parsed.url ? String(parsed.url) : 'docs.html'
+          };
+        } catch (error) {
+          return { label: 'Docs', url: 'docs.html' };
+        }
+      }
+
+      function getApiKeys() {
+        try {
+          var raw = localStorage.getItem(SETTINGS_KEYS.apiKeys);
+          if (!raw) {
+            return [];
+          }
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function setApiKeys(keys) {
+        localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(keys));
+      }
+
+      function renderKeys() {
+        var keysList = document.getElementById('keysList');
+        if (!keysList) {
+          return;
+        }
+
+        var keys = getApiKeys();
+
+        keysList.innerHTML = '';
+
+        if (keys.length === 0) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No key links available. Add the first key entry.';
+          keysList.appendChild(empty);
+          return;
+        }
+
+        keys.forEach(function (item, index) {
+          var li = document.createElement('li');
+
+          var left = document.createElement('div');
+          left.style.display = 'grid';
+          left.style.gap = '4px';
+
+          var key = document.createElement('div');
+          key.className = 'key-val';
+          key.textContent = item.keyUrl || item.key || 'No key URL';
+
+          var time = document.createElement('div');
+          time.className = 'key-time';
+          var keyName = item.keyName || item.label || 'Unnamed Key';
+          time.textContent = new Date(item.createdAt).toLocaleString() + ' · ' + keyName;
+
+          var meta = document.createElement('div');
+          meta.className = 'key-meta';
+
+          var keyFunction = document.createElement('span');
+          keyFunction.textContent = 'Function: ' + (item.keyFunction || 'N/A');
+
+          var agentKind = document.createElement('span');
+          agentKind.textContent = 'Agent kind: ' + (item.agentKind || 'General');
+
+          var category = document.createElement('span');
+          category.textContent = 'Category: ' + (item.category || 'General');
+
+          var price = document.createElement('span');
+          price.textContent = 'Price: $' + (item.price || 0);
+
+          var payment = document.createElement('span');
+          payment.textContent = 'Payment: ' + (item.paymentMethod || 'N/A');
+
+          if (item.keyUrl) {
+            var keyUrl = document.createElement('a');
+            keyUrl.className = 'key-url';
+            keyUrl.href = item.keyUrl;
+            keyUrl.target = '_blank';
+            keyUrl.rel = 'noopener noreferrer';
+            keyUrl.textContent = 'Key URL';
+            meta.appendChild(keyUrl);
+          }
+
+          meta.appendChild(keyFunction);
+          meta.appendChild(agentKind);
+          meta.appendChild(category);
+          meta.appendChild(price);
+          meta.appendChild(payment);
+
+          left.appendChild(key);
+          left.appendChild(time);
+          left.appendChild(meta);
+
+          var remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'btn alt';
+          remove.textContent = 'Revoke';
+          remove.style.padding = '6px 10px';
+          remove.style.fontSize = '12px';
+          remove.addEventListener('click', function () {
+            var updated = getApiKeys().filter(function (_, i) { return i !== index; });
+            setApiKeys(updated);
+            renderKeys();
+            showStatus('keysStatus', 'API key revoked.', 'warn');
+          });
+
+          li.appendChild(left);
+          li.appendChild(remove);
+          keysList.appendChild(li);
+        });
+      }
+
+      setPricingFields(getPricing());
+
+      var docs = getDocs();
+      document.getElementById('docsLabel').value = docs.label;
+      document.getElementById('docsUrl').value = docs.url;
+      renderKeys();
+
+      document.getElementById('savePricingBtn').addEventListener('click', function () {
+        var pricing = {
+          starter: { month: readNumber('starterMonth'), year: readNumber('starterYear') },
+          growth: { month: readNumber('growthMonth'), year: readNumber('growthYear') },
+          enterprise: { month: readNumber('enterpriseMonth'), year: readNumber('enterpriseYear') }
+        };
+
+        if (!pricing.starter.month || !pricing.starter.year || !pricing.growth.month || !pricing.growth.year || !pricing.enterprise.month || !pricing.enterprise.year) {
+          showStatus('pricingStatus', 'All pricing values must be valid numbers greater than 0.', 'warn');
+          return;
+        }
+
+        localStorage.setItem(SETTINGS_KEYS.pricing, JSON.stringify(pricing));
+        bumpConfigVersion();
+        showStatus('pricingStatus', 'Pricing settings saved.', 'ok');
+        showSuccessToast('Changes added successfully.');
+      });
+
+      document.getElementById('saveDocsBtn').addEventListener('click', function () {
+        var label = document.getElementById('docsLabel').value.trim() || 'Docs';
+        var url = document.getElementById('docsUrl').value.trim() || 'docs.html';
+
+        localStorage.setItem(SETTINGS_KEYS.docs, JSON.stringify({ label: label, url: url }));
+        bumpConfigVersion();
+        showStatus('docsStatus', 'Docs settings saved.', 'ok');
+        showSuccessToast('Changes added successfully.');
+      });
+
+      var addKeyBtn = document.getElementById('addKeyBtn');
+      var sparkleTimer = null;
+
+      function triggerAddKeySparkle() {
+        if (!addKeyBtn) {
+          return;
+        }
+
+        if (sparkleTimer) {
+          clearTimeout(sparkleTimer);
+        }
+
+        addKeyBtn.classList.remove('sparkle');
+        void addKeyBtn.offsetWidth;
+        addKeyBtn.classList.add('sparkle');
+
+        sparkleTimer = setTimeout(function () {
+          addKeyBtn.classList.remove('sparkle');
+        }, 700);
+      }
+
+      document.getElementById('addKeyBtn').addEventListener('click', function () {
+        triggerAddKeySparkle();
+
+        var keyName = document.getElementById('apiKeyName').value.trim();
+        var keyFunction = document.getElementById('apiKeyFunction').value.trim();
+        var agentKind = document.getElementById('apiAgentKind').value;
+        var category = document.getElementById('apiKeyCategory').value;
+        var keyUrl = document.getElementById('apiKeyUrl').value.trim();
+        var price = Number(document.getElementById('apiKeyPrice').value);
+        var paymentMethod = document.getElementById('paymentMethod').value;
+
+        if (!keyName) {
+          showStatus('keysStatus', 'Key name is required.', 'warn');
+          return;
+        }
+
+        if (!keyFunction) {
+          showStatus('keysStatus', 'Key function is required.', 'warn');
+          return;
+        }
+
+        if (!agentKind) {
+          showStatus('keysStatus', 'Agent kind is required.', 'warn');
+          return;
+        }
+
+        if (!category) {
+          showStatus('keysStatus', 'Key category is required.', 'warn');
+          return;
+        }
+
+        if (!Number.isFinite(price) || price <= 0) {
+          showStatus('keysStatus', 'Enter a valid key price greater than 0.', 'warn');
+          return;
+        }
+
+        if (!keyUrl) {
+          showStatus('keysStatus', 'Pasted key URL is required.', 'warn');
+          return;
+        }
+
+        try {
+          new URL(keyUrl);
+        } catch (error) {
+          showStatus('keysStatus', 'Enter a valid URL format for key URL.', 'warn');
+          return;
+        }
+
+        if (!paymentMethod) {
+          showStatus('keysStatus', 'Select a payment method.', 'warn');
+          return;
+        }
+
+        var keys = getApiKeys();
+        keys.unshift({
+          keyName: keyName,
+          keyFunction: keyFunction,
+          agentKind: agentKind,
+          category: category,
+          keyUrl: keyUrl,
+          price: Math.round(price),
+          paymentMethod: paymentMethod,
+          createdAt: new Date().toISOString()
+        });
+        setApiKeys(keys);
+        bumpConfigVersion();
+        document.getElementById('apiKeyName').value = '';
+        document.getElementById('apiKeyFunction').value = '';
+        document.getElementById('apiAgentKind').value = '';
+        document.getElementById('apiKeyCategory').value = '';
+        document.getElementById('apiKeyUrl').value = '';
+        document.getElementById('apiKeyPrice').value = '';
+        document.getElementById('paymentMethod').value = '';
+        renderKeys();
+        showStatus('keysStatus', 'API key option added with price and payment method.', 'ok');
+        showSuccessToast('Changes added successfully.');
+      });
+
+
+      document.getElementById('logoutBtn').addEventListener('click', function () {
+        localStorage.removeItem(SETTINGS_KEYS.adminSession);
+        window.location.href = 'index.html';
+      });
+    })();
+  </script>
+<script src="footer.js"></script>
+</body>
+</html>

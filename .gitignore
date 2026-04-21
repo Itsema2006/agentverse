@@ -1,0 +1,14 @@
+.DS_Store
+.gemini/
+brain/
+scratch/
+task.md
+implementation_plan.md
+walkthrough.md
+*.webp
+*.png
+*.jpg
+*.jpeg
+node_modules/
+dist/
+build/
