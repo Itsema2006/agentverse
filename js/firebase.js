@@ -1,10 +1,10 @@
-// Import Firebase core
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 
-// (Optional) Analytics
+
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
 
-// Your config (PASTE EXACTLY WHAT YOU SENT)
+
 const firebaseConfig = {
   apiKey: "AIzaSyBrSiXsvkhNFoQ75Sx0XcLDZIg6-RTGqks",
   authDomain: "agentverse-acd19.firebaseapp.com",
@@ -15,9 +15,9 @@ const firebaseConfig = {
   measurementId: "G-QQ07JDVJ4N"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Export app
+
 export default app;
