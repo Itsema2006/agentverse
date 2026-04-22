@@ -361,9 +361,9 @@
         </form>
         <div class="divider"><span>or continue with</span></div>
         <div class="social-btns">
-          <button class="social-btn">G</button>
-          <button class="social-btn">𝕏</button>
-          <button class="social-btn">◆</button>
+          <button class="social-btn" type="button" data-provider="google">G</button>
+          <button class="social-btn" type="button">𝕏</button>
+          <button class="social-btn" type="button">◆</button>
         </div>
       </div>
 
@@ -389,9 +389,9 @@
         </form>
         <div class="divider"><span>or continue with</span></div>
         <div class="social-btns">
-          <button class="social-btn">G</button>
-          <button class="social-btn">𝕏</button>
-          <button class="social-btn">◆</button>
+          <button class="social-btn" type="button" data-provider="google">G</button>
+          <button class="social-btn" type="button">𝕏</button>
+          <button class="social-btn" type="button">◆</button>
         </div>
       </div>
     </div>
@@ -400,6 +400,7 @@
 
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.module.js';
+import { initFirebaseAuth } from './js/firebase-auth.js';
 
 // Tab switching with URL persistence
 const tabs = document.querySelectorAll('.form-tab');
@@ -747,153 +748,13 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ─── AUTH LOGIC ───
-(function () {
-    const SETTINGS_KEYS = {
-        adminCredentials: 'agentverseAdminCredentials',
-        adminSession: 'agentverseAdminSession',
-        userCredentials: 'agentverseUserCredentials',
-        userSession: 'agentverseUserSession',
-        activeUser: 'agentverseActiveUser'
-    };
-
-    const notice = document.getElementById('notice');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const loginIdInput = document.getElementById('loginId');
-    
-    // Prefill logic
-    const storedNotice = sessionStorage.getItem('agentverseAuthNotice');
-    const storedLoginId = sessionStorage.getItem('agentversePrefillLoginId');
-
-    if (storedNotice && notice) {
-        showNotice(storedNotice, 'success');
-        sessionStorage.removeItem('agentverseAuthNotice');
-    }
-
-    if (storedLoginId && loginIdInput) {
-        loginIdInput.value = storedLoginId;
-        sessionStorage.removeItem('agentversePrefillLoginId');
-    }
-
-    function showNotice(msg, type = 'error') {
-        if (!notice) return;
-        notice.textContent = msg;
-        notice.style.display = 'block';
-        notice.style.background = type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-        notice.style.borderColor = type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-        notice.style.color = type === 'success' ? '#10b981' : '#ef4444';
-    }
-
-    function getStoredUsers() {
-        try {
-            const raw = localStorage.getItem(SETTINGS_KEYS.userCredentials);
-            const parsed = raw ? JSON.parse(raw) : [];
-            return Array.isArray(parsed) ? parsed : [];
-        } catch (error) { return []; }
-    }
-
-    function getStoredAdminCredentials() {
-        try {
-            const raw = localStorage.getItem(SETTINGS_KEYS.adminCredentials);
-            const parsed = raw ? JSON.parse(raw) : null;
-            return (parsed && parsed.loginId && parsed.password) ? parsed : null;
-        } catch (error) { return null; }
-    }
-
-    // LOGIN HANDLER
-    if (loginForm) {
-        loginForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const loginId = (loginIdInput && loginIdInput.value || '').trim();
-            const passwordInput = document.getElementById('loginPassword');
-            const password = (passwordInput && passwordInput.value || '').trim();
-            const normalizedLoginId = loginId.toLowerCase();
-
-            if (!loginId || !password) {
-                showNotice('Login ID and password are required.');
-                return;
-            }
-
-            const users = getStoredUsers();
-            const matchedUser = users.find(u => u && String(u.loginId || '').toLowerCase() === normalizedLoginId && u.password === password);
-
-            if (matchedUser) {
-                localStorage.setItem(SETTINGS_KEYS.userSession, 'true');
-                localStorage.setItem(SETTINGS_KEYS.activeUser, JSON.stringify({
-                    loginId: matchedUser.loginId,
-                    name: matchedUser.name || '',
-                    loggedInAt: new Date().toISOString()
-                }));
-                window.location.href = 'dashboard.html';
-                return;
-            }
-
-            const storedAdmin = getStoredAdminCredentials();
-            if (!storedAdmin && normalizedLoginId.indexOf('@') === -1) {
-                localStorage.setItem(SETTINGS_KEYS.adminCredentials, JSON.stringify({
-                    loginId: loginId,
-                    password: password,
-                    createdAt: new Date().toISOString()
-                }));
-                localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
-                window.location.href = 'admin.html';
-                return;
-            }
-
-            if (storedAdmin && loginId === storedAdmin.loginId && password === storedAdmin.password) {
-                localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
-                window.location.href = 'admin.html';
-                return;
-            }
-
-            showNotice('Invalid credentials. Register first or use admin login.');
-        });
-    }
-
-    // REGISTER HANDLER
-    if (registerForm) {
-        registerForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const confirm = document.getElementById('regConfirmPassword').value.trim();
-
-            if (!name || !email || !password) {
-                showNotice('All fields are required.');
-                return;
-            }
-
-            if (password !== confirm) {
-                showNotice('Passwords do not match.');
-                return;
-            }
-
-            const users = getStoredUsers();
-            if (users.some(u => String(u.loginId).toLowerCase() === email.toLowerCase())) {
-                showNotice('User with this email already exists.');
-                return;
-            }
-
-            users.push({
-                name: name,
-                loginId: email,
-                password: password,
-                createdAt: new Date().toISOString()
-            });
-
-            localStorage.setItem(SETTINGS_KEYS.userCredentials, JSON.stringify(users));
-            showNotice('Registration successful! Redirecting...', 'success');
-            
-            setTimeout(() => {
-                sessionStorage.setItem('agentversePrefillLoginId', email);
-                sessionStorage.setItem('agentverseAuthNotice', 'Registration successful! Please log in.');
-                window.location.reload();
-            }, 1500);
-        });
-    }
-})();
+initFirebaseAuth({
+  switchTab,
+  onLoginSuccess: function () {
+    localStorage.setItem('agentverseUserSession', 'true');
+    window.location.href = 'dashboard.html';
+  }
+});
 </script>
 
 </body>

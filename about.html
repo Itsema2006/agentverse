@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentVerse | About Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="footer.css">
+  <style>
+    :root {
+      --bg: #fff8f3;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #f4d8c7;
+      --accent: #ea580c;
+      --accent-strong: #c2410c;
+      --shadow: 0 14px 42px rgba(194, 65, 12, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 4%, rgba(251, 146, 60, 0.2), transparent 38%),
+        radial-gradient(circle at 8% 24%, rgba(249, 115, 22, 0.12), transparent 36%),
+        linear-gradient(180deg, #fffaf6 0%, #fff8f3 55%, #fffcf9 100%);
+      min-height: 100vh;
+    }
+
+    .wrap { width: min(1100px, 92vw); margin: 0 auto; }
+
+    .top {
+      width: min(1120px, 94vw);
+      margin: 16px auto 0;
+      position: sticky;
+      top: 12px;
+      z-index: 40;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--accent);
+      font-family: "Manrope", sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand svg { width: 28px; height: 28px; }
+
+    .top-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .top-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 160ms ease, transform 160ms ease;
+    }
+
+    .top-links a:hover {
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .top-links a.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 2px;
+    }
+
+    .cta {
+      border: 1px solid rgba(234, 88, 12, 0.28);
+      background: #ffffff;
+      color: #c2410c;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(234, 88, 12, 0.2);
+    }
+
+    .hero {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: "Manrope", sans-serif;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+      max-width: 72ch;
+    }
+
+    .grid {
+      margin-top: 14px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2 {
+      font-family: "Manrope", sans-serif;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #7c2d12;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .stats {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      border: 1px solid #ffe4d2;
+      border-radius: 14px;
+      background: #fffaf6;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-family: "Manrope", sans-serif;
+      font-size: 24px;
+      color: #9a3412;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .timeline {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline h2 {
+      font-family: "Manrope", sans-serif;
+      font-size: 20px;
+      color: #7c2d12;
+      margin-bottom: 4px;
+    }
+
+    .timeline-item {
+      border: 1px solid #ffe4d2;
+      border-radius: 12px;
+      background: #fffaf6;
+      padding: 12px;
+    }
+
+    .timeline-item strong {
+      display: block;
+      color: #9a3412;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .timeline-item p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .top {
+        border-radius: 16px;
+        padding: 12px;
+        flex-wrap: wrap;
+      }
+
+      .brand { font-size: 18px; }
+
+      .top-links {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 12px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(194, 65, 12, 0.14);
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .top-links a { white-space: nowrap; }
+
+      .cta {
+        margin-left: auto;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
+      .hero { padding: 18px; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="url(#aboutLogoGradient)"></rect>
+          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
+          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+          <defs>
+            <linearGradient id="aboutLogoGradient" x1="0" y1="0" x2="28" y2="28">
+              <stop stop-color="#F97316"></stop>
+              <stop offset="1" stop-color="#EA580C"></stop>
+            </linearGradient>
+          </defs>
+        </svg>
+        AgentVerse
+      </a>
+      <nav class="top-links">
+        <a href="index.html">Home</a>
+        <a href="browse.html">Explore</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="docs.html">Docs</a>
+        <a href="about.html" class="active">About</a>
+      </nav>
+      <a href="register.html" class="cta">Start Free Trial</a>
+    </header>
+
+    <section class="hero">
+      <span class="eyebrow">About AgentVerse</span>
+      <h1>Building the marketplace for autonomous AI agents</h1>
+      <p>
+        AgentVerse helps teams discover, deploy, and scale AI agents that solve real business workflows.
+        We are focused on making advanced agentic systems practical, reliable, and easy to use for builders of every size.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Our Mission</h2>
+        <p>Democratize AI automation by providing an open marketplace where anyone can find and deploy trusted, production-ready AI agents in minutes.</p>
+      </article>
+      <article class="card">
+        <h2>What We Believe</h2>
+        <p>AI should be transparent, secure, and collaborative. We build tools that allow humans and agents to work together with clear controls and measurable outcomes.</p>
+      </article>
+      <article class="card">
+        <h2>Who We Serve</h2>
+        <p>From startups to enterprise teams, AgentVerse supports developers, operators, and product teams who want to automate routine work and move faster.</p>
+      </article>
+    </section>
+
+    <section class="stats" aria-label="Company highlights">
+      <div class="stat"><strong>1,247+</strong><span>Live Agents</span></div>
+      <div class="stat"><strong>18M+</strong><span>Tasks Completed</span></div>
+      <div class="stat"><strong>5,800+</strong><span>Developers</span></div>
+      <div class="stat"><strong>99.95%</strong><span>Uptime</span></div>
+    </section>
+
+    <section class="timeline">
+      <h2>Our Journey</h2>
+      <div class="timeline-item">
+        <strong>2024 - Foundation</strong>
+        <p>AgentVerse launched with a small catalog of specialized agents focused on coding and data operations.</p>
+      </div>
+      <div class="timeline-item">
+        <strong>2025 - Ecosystem Growth</strong>
+        <p>We introduced community publishing, third-party integrations, and enterprise governance controls.</p>
+      </div>
+      <div class="timeline-item">
+        <strong>2026 - Global Marketplace</strong>
+        <p>AgentVerse expanded to a broad ecosystem powering millions of tasks each day across industries.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="wrap">
+    <div id="footer-placeholder"></div>
+  </section>
+  <script src="js/footer.js"></script>
+</body>
+</html>
