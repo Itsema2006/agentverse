@@ -33,20 +33,24 @@
       min-height: 100vh;
     }
 
-    .wrap { width: min(1140px, 92vw); margin: 0 auto; padding-bottom: 0; }
+    .wrap { width: min(1120px, 92vw); margin: 0 auto; padding-bottom: 0; }
 
-    .top {
-      margin-top: 16px;
+    .nav {
+      width: min(1120px, 94vw);
+      margin: 16px auto 0;
+      position: sticky;
+      top: 12px;
+      z-index: 40;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.75);
       background: rgba(255, 255, 255, 0.82);
       backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(100, 116, 139, 0.15);
-      padding: 12px 16px;
+      box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 14px;
     }
 
     .brand {
@@ -63,20 +67,31 @@
 
     .brand svg { width: 28px; height: 28px; }
 
-    .top-links {
+    .links {
       display: flex;
       align-items: center;
       gap: 18px;
+      flex-wrap: wrap;
     }
 
-    .top-links a {
+    .links a {
       text-decoration: none;
       color: var(--muted);
-      font-weight: 700;
-      font-size: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 160ms ease, transform 160ms ease;
     }
 
-    .top-links a.active { color: var(--accent); }
+    .links a:hover {
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .links a.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 2px;
+    }
 
     .hero {
       margin-top: 16px;
@@ -319,17 +334,17 @@
         width: 94vw;
       }
 
-      .top {
+      .nav {
         border-radius: 16px;
-        padding: 12px;
         flex-wrap: wrap;
+        padding: 12px;
       }
 
       .brand {
         font-size: 18px;
       }
 
-      .top-links {
+      .links {
         order: 3;
         width: 100%;
         justify-content: flex-start;
@@ -341,7 +356,7 @@
         -webkit-overflow-scrolling: touch;
       }
 
-      .top-links a {
+      .links a {
         white-space: nowrap;
       }
 
@@ -371,11 +386,9 @@
 
     /* Shared Footer styles now in footer.css */
   </style>
-  </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="top">
+  <header class="nav">
       <a class="brand" href="index.html">
         <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
           <rect width="28" height="28" rx="7" fill="url(#docsLogoGradient)"></rect>
@@ -390,13 +403,20 @@
         </svg>
         AgentVerse 
       </a>
-      <nav class="top-links">
+      <nav class="links">
         <a href="index.html">Home</a>
         <a href="browse.html">Explore</a>
         <a href="pricing.html">Pricing</a>
-        <a href="docs.html" class="active">Docs</a>
+        <a href="docs.html" id="docsLink" class="active">Docs</a>
+        <a href="login.html" class="nav-auth" id="navSignInBtn">Sign In</a>
+        <a href="register.html" class="nav-cta" id="navRegisterBtn">Register</a>
+        <a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
+        <a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
+        <a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
       </nav>
     </header>
+
+  <div class="wrap">
 
     <section class="hero">
       <h1>Developer Documentation</h1>

@@ -196,6 +196,63 @@
     color: #cca080;
   }
 
+  .password-wrap {
+    position: relative;
+  }
+
+  .password-wrap input {
+    padding-right: 46px;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #b06040;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+
+  .password-toggle:hover {
+    color: #ff6a00;
+    background: rgba(255, 106, 0, 0.08);
+  }
+
+  .password-toggle:focus-visible {
+    outline: 2px solid #ff6a00;
+    outline-offset: 2px;
+  }
+
+  .password-toggle svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .password-toggle .icon-eye-off {
+    display: none;
+  }
+
+  .password-toggle.is-visible .icon-eye {
+    display: none;
+  }
+
+  .password-toggle.is-visible .icon-eye-off {
+    display: inline;
+  }
+
   .submit-btn {
     width: 100%;
     padding: 15px;
@@ -352,7 +409,20 @@
           </div>
           <div class="form-group">
             <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" required />
+            <div class="password-wrap">
+              <input type="password" id="loginPassword" placeholder="••••••••" required />
+              <button type="button" class="password-toggle" id="toggleLoginPassword" aria-label="Show password" aria-pressed="false">
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M1.5 12s3.8-6.5 10.5-6.5S22.5 12 22.5 12s-3.8 6.5-10.5 6.5S1.5 12 1.5 12z"></path>
+                  <circle cx="12" cy="12" r="3.2"></circle>
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 3l18 18"></path>
+                  <path d="M10.6 6.6A9.9 9.9 0 0 1 12 6.5c6.7 0 10.5 5.5 10.5 5.5a19.2 19.2 0 0 1-4 4.8"></path>
+                  <path d="M6.7 6.7A18.5 18.5 0 0 0 1.5 12s3.8 6.5 10.5 6.5c1.7 0 3.2-.4 4.5-1.1"></path>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="forgot-link">
             <a href="#">Forgot password?</a>
@@ -416,6 +486,19 @@ tabs.forEach(tab => {
     switchTab(tab.dataset.tab);
   });
 });
+
+const loginPasswordInput = document.getElementById('loginPassword');
+const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
+
+if (loginPasswordInput && toggleLoginPasswordBtn) {
+  toggleLoginPasswordBtn.addEventListener('click', () => {
+    const isVisible = loginPasswordInput.type === 'text';
+    loginPasswordInput.type = isVisible ? 'password' : 'text';
+    toggleLoginPasswordBtn.classList.toggle('is-visible', !isVisible);
+    toggleLoginPasswordBtn.setAttribute('aria-pressed', String(!isVisible));
+    toggleLoginPasswordBtn.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+  });
+}
 
 // Check URL for direct tab access
 window.addEventListener('load', () => {
@@ -746,9 +829,15 @@ window.addEventListener('resize', () => {
 
 initFirebaseAuth({
   switchTab,
-  onLoginSuccess: function () {
-    localStorage.setItem('agentverseUserSession', 'true');
-    window.location.href = 'dashboard.html';
+  onLoginSuccess: function (user) {
+    const email = (user && user.email) ? user.email.toLowerCase() : '';
+    if (email === 'admin@gmail.com') {
+      localStorage.setItem('agentverseAdminSession', 'true');
+      window.location.href = 'admin.html';
+    } else {
+      localStorage.setItem('agentverseUserSession', 'true');
+      window.location.href = 'dashboard.html';
+    }
   }
 });
 </script>

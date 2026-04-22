@@ -360,6 +360,96 @@
             animation: slideInLeft 0.6s ease-out 0.25s both;
         }
 
+        .nav {
+            width: min(1120px, 94vw);
+            margin: 16px auto 0;
+            position: sticky;
+            top: 12px;
+            z-index: 40;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #ea580c;
+            font-family: "Manrope", sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-decoration: none;
+        }
+
+        .brand svg {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            text-decoration: none;
+            color: #646d79;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 160ms ease, transform 160ms ease;
+        }
+
+        .links a:hover {
+            color: #ea580c;
+            transform: translateY(-1px);
+        }
+
+        .links a.active {
+            color: #ea580c;
+            border-bottom: 2px solid #ea580c;
+            padding-bottom: 2px;
+        }
+
+        @media (max-width: 740px) {
+            .nav {
+                border-radius: 16px;
+                flex-wrap: wrap;
+                padding: 12px;
+            }
+
+            .links {
+                order: 3;
+                width: 100%;
+                justify-content: flex-start;
+                gap: 12px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(194, 65, 12, 0.14);
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .links a {
+                white-space: nowrap;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+        }
+
 
 
         /* Shared Footer styles now in footer.css */
@@ -367,9 +457,9 @@
 </head>
 <body class="bg-surface text-on-background min-h-screen">
 <!-- TopNavBar -->
-<header class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-full mt-4 mx-auto max-w-5xl sticky top-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] z-50 flex items-center justify-between px-6 py-3 font-['Manrope'] tracking-tight">
-<a href="index.html" class="flex items-center gap-3 text-orange-600 transition-all hover:opacity-90">
-<svg class="w-7 h-7" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+<header class="nav">
+<a href="index.html" class="brand">
+<svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
 <rect width="28" height="28" rx="7" fill="url(#browseLogoGradient)"></rect>
 <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
 <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
@@ -380,20 +470,19 @@
 </linearGradient>
 </defs>
 </svg>
-<span class="text-2xl font-extrabold tracking-tight text-orange-600">AgentVerse</span>
+AgentVerse
 </a>
-<nav class="hidden md:flex items-center gap-8">
-                                <a class="nav-active text-orange-700 dark:text-orange-500 font-semibold border-b-2 border-orange-700 transition-all" href="#">Explore</a>
-<a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="pricing.html">Pricing</a>
-                                <a class="text-slate-600 dark:text-slate-400 hover:text-orange-600 transition-all" href="docs.html" id="docsLink">Documents</a>
+<nav class="links">
+<a href="index.html">Home</a>
+<a href="browse.html" class="active">Explore</a>
+<a href="pricing.html">Pricing</a>
+<a href="docs.html" id="docsLink">Docs</a>
+<a href="login.html" class="nav-auth" id="navSignInBtn">Sign In</a>
+<a href="register.html" class="nav-cta" id="navRegisterBtn">Register</a>
+<a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
+<a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
+<a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
 </nav>
-<div class="flex items-center gap-4">
-<div class="hidden md:block relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-<input class="bg-slate-100/50 border-none rounded-full py-1.5 pl-9 pr-4 text-sm focus:ring-2 focus:ring-primary/20 w-48" id="globalSearchInput" placeholder="Search..." type="text"/>
-</div>
-<button id="getApiKeyBtn" class="bg-gradient-to-br from-primary to-primary-container text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:scale-95 duration-200 transition-all">Get API Key</button>
-</div>
 </header>
 <main class="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-12 gap-8">
 <!-- Sidebar Navigation (Filters) -->
@@ -607,7 +696,7 @@ Load More Agents
         const mainSearch = document.getElementById('agentSearchInput');
         const agentsGrid = document.getElementById('agentsGrid');
 
-        if (!topSearch || !mainSearch || !agentsGrid) {
+        if (!mainSearch || !agentsGrid) {
             return;
         }
 
@@ -705,7 +794,7 @@ Load More Agents
         }
 
         const setSearchValue = function (value, source) {
-            if (source !== topSearch) {
+            if (topSearch && source !== topSearch) {
                 topSearch.value = value;
             }
             if (source !== mainSearch) {
@@ -767,13 +856,15 @@ Load More Agents
             }
         };
 
-        topSearch.addEventListener('input', function (event) {
-            const value = event.target.value;
-            state.term = value.trim().toLowerCase();
-            setSearchValue(value, topSearch);
-            queueRecentSearchSave(value);
-            runFilters();
-        });
+        if (topSearch) {
+            topSearch.addEventListener('input', function (event) {
+                const value = event.target.value;
+                state.term = value.trim().toLowerCase();
+                setSearchValue(value, topSearch);
+                queueRecentSearchSave(value);
+                runFilters();
+            });
+        }
 
         mainSearch.addEventListener('input', function (event) {
             const value = event.target.value;

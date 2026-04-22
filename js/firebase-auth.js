@@ -14,6 +14,7 @@ import {
   serverTimestamp,
   setDoc
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
 function showNotice(notice, msg, type = 'error') {
   if (!notice) return;
@@ -67,6 +68,32 @@ async function tryUpsertUserProfile(user, name = '') {
   }
 }
 
+export function syncNav(user) {
+  const adminLink     = document.getElementById('navAdminLink');
+  const dashboardLink = document.getElementById('navDashboardLink');
+  const loginLink     = document.getElementById('navSignInBtn');
+  const registerLink  = document.getElementById('navRegisterBtn');
+  const signOutBtn    = document.getElementById('navSignOutBtn');
+
+  const isAdmin    = user && user.email && user.email.toLowerCase() === 'admin@gmail.com';
+  const isLoggedIn = !!user;
+
+  if (loginLink)     loginLink.style.display     = isLoggedIn ? 'none' : 'inline-block';
+  if (registerLink)  registerLink.style.display  = isLoggedIn ? 'none' : 'inline-block';
+  if (dashboardLink) dashboardLink.style.display = (isLoggedIn && !isAdmin) ? 'inline-block' : 'none';
+  if (adminLink)     adminLink.style.display     = isAdmin ? 'inline-block' : 'none';
+
+  if (signOutBtn) {
+    signOutBtn.style.display = isLoggedIn ? 'inline-block' : 'none';
+    signOutBtn.onclick = () => {
+      auth.signOut().then(() => {
+        localStorage.removeItem('agentverseAdminSession');
+        localStorage.removeItem('agentverseUserSession');
+        window.location.href = 'index.html';
+      });
+    };
+  }
+}
 export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
   const notice = document.getElementById('notice');
   const loginForm = document.getElementById('loginForm');
@@ -80,7 +107,7 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
   getRedirectResult(auth)
     .then(async (result) => {
       if (!result || !result.user) return;
-      if (onLoginSuccess) onLoginSuccess();
+      if (onLoginSuccess) onLoginSuccess(result.user);
       await tryUpsertUserProfile(result.user);
     })
     .catch((err) => {
@@ -135,7 +162,7 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
 
       try {
         const cred = await signInWithEmailAndPassword(auth, email, password);
-        if (onLoginSuccess) onLoginSuccess();
+        if (onLoginSuccess) onLoginSuccess(cred.user);
         const profileWarning = await tryUpsertUserProfile(cred.user);
         if (profileWarning) {
           showNotice(notice, profileWarning, 'success');
@@ -167,7 +194,7 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
     btn.addEventListener('click', async () => {
       try {
         const result = await signInWithPopup(auth, googleProvider);
-        if (onLoginSuccess) onLoginSuccess();
+        if (onLoginSuccess) onLoginSuccess(result.user);
         const profileWarning = await tryUpsertUserProfile(result.user);
         if (profileWarning) {
           showNotice(notice, profileWarning, 'success');
@@ -186,5 +213,18 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
         showNotice(notice, mapAuthError(err.code));
       }
     });
+  });
+
+  // Global auth state listener for nav sync
+  onAuthStateChanged(auth, (user) => {
+    syncNav(user);
+    if (user) {
+      const isAdmin = user.email && user.email.toLowerCase() === 'admin@gmail.com';
+      if (isAdmin) {
+        localStorage.setItem('agentverseAdminSession', 'true');
+      } else {
+        localStorage.setItem('agentverseUserSession', 'true');
+      }
+    }
   });
 }

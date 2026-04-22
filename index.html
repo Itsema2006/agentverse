@@ -536,8 +536,11 @@ path="index.html"
     <a href="browse.html">Explore</a>
     <a href="pricing.html">Pricing</a>
     <a href="docs.html" id="docsLink">Docs</a>
-    <a href="login.html" class="nav-auth">Sign In</a>
-    <a href="register.html" class="nav-cta">Register</a>
+   <a href="login.html" class="nav-auth" id="navSignInBtn">Sign In</a>
+<a href="register.html" class="nav-cta" id="navRegisterBtn">Register</a>
+    <a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
+    <a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
+    <a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
   </div>
 </nav>
 
@@ -1318,40 +1321,30 @@ window.addEventListener('scroll', () => {
   heroContent.style.transform = `translateY(${progress * -40}px)`;
 });
 </script>
-<script>
-const authTrigger = document.getElementById('authTrigger');
-const authModal = document.getElementById('authModal');
-const authClose = document.getElementById('authClose');
-const authCard = document.querySelector('.auth-card');
-const authTabs = Array.from(document.querySelectorAll('[data-auth-tab]'));
-const authPanes = Array.from(document.querySelectorAll('[data-auth-pane]'));
-const loginForm = document.getElementById('loginForm');
-const loginStatus = document.getElementById('loginStatus');
-const registerForm = document.getElementById('registerForm');
-const registerStatus = document.getElementById('registerStatus');
+<script type="module">
+import { auth } from './js/firebase_config.js';
+import { syncNav } from './js/firebase-auth.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+// Hide all auth-dependent nav items immediately to prevent wrong-state flash.
+['navSignInBtn', 'navRegisterBtn', 'navDashboardLink', 'navAdminLink', 'navSignOutBtn']
+  .forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
 
 const SETTINGS_KEYS = {
   docs: 'agentverseDocsConfig',
-  adminCredentials: 'agentverseAdminCredentials',
-  adminSession: 'agentverseAdminSession',
-  userCredentials: 'agentverseUserCredentials',
-  userSession: 'agentverseUserSession',
-  activeUser: 'agentverseActiveUser',
   configVersion: 'agentverseConfigVersion'
 };
 
-const applyDocsLink = function () {
+function applyDocsLink() {
   const docsLink = document.getElementById('docsLink');
-  if (!docsLink) {
-    return;
-  }
+  if (!docsLink) return;
 
   try {
     const raw = localStorage.getItem(SETTINGS_KEYS.docs);
-    if (!raw) {
-      return;
-    }
-
+    if (!raw) return;
     const config = JSON.parse(raw);
     if (config && typeof config.label === 'string' && config.label.trim() !== '') {
       docsLink.textContent = config.label.trim();
@@ -1359,64 +1352,17 @@ const applyDocsLink = function () {
   } catch (error) {
     console.warn('Unable to apply docs link config.', error);
   }
-};
-
-const getStoredAdminCredentials = function () {
-  try {
-    const existing = localStorage.getItem(SETTINGS_KEYS.adminCredentials);
-    if (existing) {
-      const parsed = JSON.parse(existing);
-      if (parsed && parsed.loginId && parsed.password) {
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.warn('Unable to parse admin credentials.', error);
-  }
-  return null;
-};
-
-const getStoredUsers = function () {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEYS.userCredentials);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.warn('Unable to parse user credentials.', error);
-    return [];
-  }
-};
-
-const saveStoredUsers = function (users) {
-  localStorage.setItem(SETTINGS_KEYS.userCredentials, JSON.stringify(users));
-};
-
-const syncUserNavState = function () {
-  const dashboardLink = document.getElementById('navDashboardLink');
-  const isUserLoggedIn = localStorage.getItem(SETTINGS_KEYS.userSession) === 'true';
-
-  if (dashboardLink) {
-    dashboardLink.style.display = isUserLoggedIn ? 'inline-block' : 'none';
-  }
-};
+}
 
 applyDocsLink();
-syncUserNavState();
+onAuthStateChanged(auth, (user) => syncNav(user));
 
-window.addEventListener('storage', function (event) {
-  if (event.key === SETTINGS_KEYS.configVersion) {
-    applyDocsLink();
-  }
-
-  if (event.key === SETTINGS_KEYS.userSession) {
-    syncUserNavState();
-  }
+window.addEventListener('storage', (event) => {
+  if (event.key === SETTINGS_KEYS.configVersion) applyDocsLink();
 });
 
-document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) {
-    applyDocsLink();
-  }
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) applyDocsLink();
 });
 </script>
 <script src="js/footer.js"></script>

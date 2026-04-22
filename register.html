@@ -750,9 +750,15 @@ window.addEventListener('resize', () => {
 
 initFirebaseAuth({
   switchTab,
-  onLoginSuccess: function () {
-    localStorage.setItem('agentverseUserSession', 'true');
-    window.location.href = 'dashboard.html';
+  onLoginSuccess: function (user) {
+    const email = (user && user.email) ? user.email.toLowerCase() : '';
+    if (email === 'admin@gmail.com') {
+      localStorage.setItem('agentverseAdminSession', 'true');
+      window.location.href = 'admin.html';
+    } else {
+      localStorage.setItem('agentverseUserSession', 'true');
+      window.location.href = 'dashboard.html';
+    }
   }
 });
 </script>

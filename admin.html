@@ -554,27 +554,51 @@
 
   <div id="successToast" class="toast" role="status" aria-live="polite">Changes added successfully.</div>
 
-  <script>
-    (function () {
-      var SETTINGS_KEYS = {
-        pricing: 'agentversePricingConfig',
-        docs: 'agentverseDocsConfig',
-        apiKeys: 'agentverseApiKeys',
-        adminCredentials: 'agentverseAdminCredentials',
-        adminSession: 'agentverseAdminSession',
-        configVersion: 'agentverseConfigVersion'
-      };
+  <script type="module">
+    import { auth } from './js/firebase_config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-      var DEFAULT_PRICING = {
-        starter: { month: 29, year: 23 },
-        growth: { month: 99, year: 79 },
-        enterprise: { month: 299, year: 239 }
-      };
+    var SETTINGS_KEYS = {
+      pricing: 'agentversePricingConfig',
+      docs: 'agentverseDocsConfig',
+      apiKeys: 'agentverseApiKeys',
+      adminCredentials: 'agentverseAdminCredentials',
+      adminSession: 'agentverseAdminSession',
+      configVersion: 'agentverseConfigVersion'
+    };
 
-      if (localStorage.getItem(SETTINGS_KEYS.adminSession) !== 'true') {
-        window.location.href = 'index.html';
-        return;
+    var DEFAULT_PRICING = {
+      starter: { month: 29, year: 23 },
+      growth: { month: 99, year: 79 },
+      enterprise: { month: 299, year: 239 }
+    };
+
+    // Initial check from localStorage for speed
+    const hasAdminSession = localStorage.getItem(SETTINGS_KEYS.adminSession) === 'true';
+    console.log('[Admin] Local session check:', hasAdminSession);
+
+    // Verify with Firebase
+    onAuthStateChanged(auth, (user) => {
+      console.log('[Admin] Auth state changed:', user ? user.email : 'No user');
+      
+      if (user) {
+        const isAdmin = user.email && user.email.toLowerCase() === 'admin@gmail.com';
+        if (isAdmin) {
+          console.log('[Admin] Admin verified.');
+          localStorage.setItem(SETTINGS_KEYS.adminSession, 'true');
+        } else {
+          console.warn('[Admin] User is not an admin:', user.email);
+          localStorage.removeItem(SETTINGS_KEYS.adminSession);
+          window.location.href = 'index.html?error=unauthorized';
+        }
+      } else {
+        // If no user and no local session, redirect
+        if (!hasAdminSession) {
+          console.warn('[Admin] No session found, redirecting...');
+          window.location.href = 'login.html?tab=login&redirect=admin.html';
+        }
       }
+    });
 
       function showStatus(id, text, type) {
         var el = document.getElementById(id);
@@ -898,11 +922,12 @@
       });
 
 
-      document.getElementById('logoutBtn').addEventListener('click', function () {
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      auth.signOut().then(() => {
         localStorage.removeItem(SETTINGS_KEYS.adminSession);
         window.location.href = 'index.html';
       });
-    })();
+    });
   </script>
 <script src="js/footer.js"></script>
 </body>
