@@ -88,10 +88,6 @@ const Checkout = (function () {
             <p style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Scan QR to Pay</p>
             <p style="font-size: 12px; color: #6b7280; margin-bottom: 24px;">Open your UPI app and scan the code</p>
             
-            <div style="background: rgba(249, 115, 22, 0.05); border: 1px dashed #f97316; border-radius: 10px; padding: 12px; margin-bottom: 24px;">
-              <span style="font-size: 12px; color: #ea580c; font-weight: 700;">Merchant VPA: agentverse@upi</span>
-            </div>
-            
             <button class="checkout-pay-btn" id="completeUpiPayment">
               Confirm Payment Done
             </button>
@@ -104,10 +100,10 @@ const Checkout = (function () {
             <span class="material-symbols-outlined">check_circle</span>
           </div>
           <h3 style="text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 8px;">Payment Done!</h3>
-          <p id="successMessage" style="text-align: center; color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">Your license key has been generated successfully.</p>
+          <p id="successMessage" style="text-align: center; color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">Your API key has been retrieved successfully.</p>
           
           <div class="api-key-container">
-            <label>Your License Key</label>
+            <label>YOUR API KEY</label>
             <div class="api-key-box">
               <code id="generatedKey">av_live_7x9pL...</code>
               <button id="copyKey" class="material-symbols-outlined">content_copy</button>
@@ -222,16 +218,27 @@ const Checkout = (function () {
       const history = raw ? JSON.parse(raw) : [];
       const list = Array.isArray(history) ? history : [];
       
-      const newKey = `av_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
+      let newKey = `av_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
+      try {
+        const rawKeys = localStorage.getItem('agentverseApiKeys');
+        const keys = rawKeys ? JSON.parse(rawKeys) : [];
+        if (Array.isArray(keys) && keys.length > 0 && keys[0].keyUrl) {
+          newKey = keys[0].keyUrl;
+        }
+      } catch (e) {
+        console.warn('Could not retrieve API key URL from settings.');
+      }
       
-      list.unshift({
+      const entry = {
         itemName: currentItem.name,
         amount: currentItem.price,
         paymentMethod: selectedMethod.toUpperCase(),
         source: window.location.pathname.split('/').pop() || 'Index',
         purchasedAt: new Date().toISOString(),
         licenseKey: newKey
-      });
+      };
+      
+      list.unshift(entry);
       
       localStorage.setItem(STORAGE_KEYS.purchaseHistory, JSON.stringify(list.slice(0, 30)));
       
@@ -239,13 +246,46 @@ const Checkout = (function () {
       document.getElementById('generatedKey').textContent = newKey;
       
       window.dispatchEvent(new Event('storage'));
+      
+      // Save purchase data to Firebase
+      savePurchaseFirebase(entry);
     } catch (error) {
       console.warn('Unable to record purchase:', error);
     }
   }
 
+  async function savePurchaseFirebase(entry) {
+    try {
+      const firebaseModule = await import('./firebase_config.js');
+      const auth = firebaseModule.auth;
+      const db = firebaseModule.db;
+      
+      const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
+      const addDoc = firestoreModule.addDoc;
+      const collection = firestoreModule.collection;
+      const serverTimestamp = firestoreModule.serverTimestamp;
+
+      const user = auth.currentUser;
+      if (user) {
+        await addDoc(collection(db, 'users', user.uid, 'purchaseHistory'), {
+            itemName: entry.itemName || 'Unknown Item',
+            amount: entry.amount ?? null,
+            paymentMethod: entry.paymentMethod || 'N/A',
+            source: entry.source || 'Unknown',
+            purchasedAt: entry.purchasedAt ? new Date(entry.purchasedAt) : serverTimestamp(),
+            createdAt: serverTimestamp()
+        });
+        console.log("Purchase successfully connected and saved to Firebase.");
+      } else {
+        console.warn("User not logged in, purchase not saved to Firebase.");
+      }
+    } catch (error) {
+      console.warn("Could not save to Firebase", error);
+    }
+  }
+
   function showSuccess() {
-    document.getElementById('successMessage').textContent = `Your license key for ${currentItem.name} has been generated successfully.`;
+    document.getElementById('successMessage').textContent = `Your API key for ${currentItem.name} has been retrieved successfully.`;
     switchView('successView');
     modalOverlay.classList.add('success');
   }

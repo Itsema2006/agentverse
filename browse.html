@@ -938,6 +938,63 @@ Load More Agents
 </main>
 <!-- Footer -->
 <div id="footer-placeholder"></div>
+<script type="module">
+    import { auth, db } from './js/firebase_config.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    const syncState = {
+        uid: null,
+        recentSearchSignature: ''
+    };
+
+    onAuthStateChanged(auth, function (user) {
+        syncState.uid = user && user.uid ? user.uid : null;
+        if (!syncState.uid) {
+            syncState.recentSearchSignature = '';
+        }
+    });
+
+    async function saveRecentSearch(term) {
+        const normalized = String(term || '').trim();
+        if (!syncState.uid || normalized.length < 2) {
+            return;
+        }
+
+        const signature = normalized.toLowerCase();
+        if (syncState.recentSearchSignature === signature) {
+            return;
+        }
+
+        syncState.recentSearchSignature = signature;
+
+        await addDoc(collection(db, 'users', syncState.uid, 'recentSearches'), {
+            term: normalized,
+            source: 'browse',
+            createdAt: serverTimestamp()
+        });
+    }
+
+    async function savePurchaseHistory(entry) {
+        if (!syncState.uid || !entry || typeof entry !== 'object') {
+            return;
+        }
+
+        await addDoc(collection(db, 'users', syncState.uid, 'purchaseHistory'), {
+            itemName: entry.itemName || 'Unknown Item',
+            amount: entry.amount ?? null,
+            paymentMethod: entry.paymentMethod || 'N/A',
+            source: entry.source || 'Unknown',
+            purchasedAt: entry.purchasedAt ? new Date(entry.purchasedAt) : serverTimestamp(),
+            createdAt: serverTimestamp()
+        });
+    }
+
+    window.agentverseCloudSync = {
+        saveRecentSearch,
+        savePurchaseHistory
+    };
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const STORAGE_KEYS = {
@@ -993,6 +1050,13 @@ Load More Agents
 
                 filtered.unshift(normalized);
                 localStorage.setItem(STORAGE_KEYS.recentSearches, JSON.stringify(filtered.slice(0, 12)));
+
+                const cloudSync = window.agentverseCloudSync;
+                if (cloudSync && typeof cloudSync.saveRecentSearch === 'function') {
+                    cloudSync.saveRecentSearch(normalized).catch(function (syncError) {
+                        console.warn('Unable to sync recent search to Firebase.', syncError);
+                    });
+                }
             } catch (error) {
                 console.warn('Unable to save recent search.', error);
             }
@@ -1015,6 +1079,13 @@ Load More Agents
                 const list = Array.isArray(existing) ? existing : [];
                 list.unshift(entry);
                 localStorage.setItem(STORAGE_KEYS.purchaseHistory, JSON.stringify(list.slice(0, 30)));
+
+                const cloudSync = window.agentverseCloudSync;
+                if (cloudSync && typeof cloudSync.savePurchaseHistory === 'function') {
+                    cloudSync.savePurchaseHistory(entry).catch(function (syncError) {
+                        console.warn('Unable to sync purchase history to Firebase.', syncError);
+                    });
+                }
             } catch (error) {
                 console.warn('Unable to save purchase history.', error);
             }
@@ -1295,20 +1366,29 @@ Load More Agents
                         return;
                     }
 
+                    const purchaseEntry = {
+                        itemName: item.keyName || 'API Key',
+                        amount: item.price || null,
+                        paymentMethod: item.paymentMethod || 'N/A',
+                        source: 'API Key Listing',
+                        purchasedAt: new Date().toISOString()
+                    };
+
                     try {
                         const rawHistory = localStorage.getItem(SETTINGS_KEYS.purchaseHistory);
                         const history = rawHistory ? JSON.parse(rawHistory) : [];
                         const list = Array.isArray(history) ? history : [];
-                        list.unshift({
-                            itemName: item.keyName || 'API Key',
-                            amount: item.price || null,
-                            paymentMethod: item.paymentMethod || 'N/A',
-                            source: 'API Key Listing',
-                            purchasedAt: new Date().toISOString()
-                        });
+                        list.unshift(purchaseEntry);
                         localStorage.setItem(SETTINGS_KEYS.purchaseHistory, JSON.stringify(list.slice(0, 30)));
                     } catch (error) {
                         console.warn('Unable to update purchase history.', error);
+                    }
+
+                    const cloudSync = window.agentverseCloudSync;
+                    if (cloudSync && typeof cloudSync.savePurchaseHistory === 'function') {
+                        cloudSync.savePurchaseHistory(purchaseEntry).catch(function (syncError) {
+                            console.warn('Unable to sync purchase history to Firebase.', syncError);
+                        });
                     }
 
                     window.open(String(item.keyUrl), '_blank', 'noopener,noreferrer');
