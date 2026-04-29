@@ -1324,7 +1324,7 @@ Load More Agents
 
                 const keyUrl = document.createElement('p');
                 keyUrl.className = 'text-on-surface-variant text-sm leading-relaxed break-all';
-                keyUrl.textContent = item.keyUrl || 'No URL provided';
+                keyUrl.textContent = item.keyUrl || item.key || 'No key available';
 
                 headingWrap.appendChild(name);
                 headingWrap.appendChild(badgeRow);
@@ -1361,8 +1361,8 @@ Load More Agents
                 openButton.innerHTML = 'Buy Key <span class="material-symbols-outlined text-[14px]">arrow_forward</span>';
 
                 openButton.addEventListener('click', function () {
-                    if (!item.keyUrl) {
-                        alert('No key URL available for this entry.');
+                    if (!item.keyUrl && !item.key) {
+                        alert('No key available for this entry. Ask admin to add a key URL or raw key in the admin console.');
                         return;
                     }
 
@@ -1391,7 +1391,17 @@ Load More Agents
                         });
                     }
 
-                    window.open(String(item.keyUrl), '_blank', 'noopener,noreferrer');
+                    if (item.keyUrl) {
+                        window.open(String(item.keyUrl), '_blank', 'noopener,noreferrer');
+                    } else if (item.key) {
+                        // Copy raw key to clipboard and inform user
+                        try {
+                            navigator.clipboard.writeText(String(item.key));
+                            alert('Raw key copied to clipboard.');
+                        } catch (err) {
+                            alert('Raw key: ' + String(item.key));
+                        }
+                    }
                 });
 
                 footer.appendChild(metaBlock);
@@ -1435,13 +1445,22 @@ Load More Agents
                     const rawKeys = localStorage.getItem(SETTINGS_KEYS.apiKeys);
                     const keys = rawKeys ? JSON.parse(rawKeys) : [];
 
-                    if (!Array.isArray(keys) || keys.length === 0 || !keys[0].keyUrl) {
-                        alert('No key URL available. Ask admin to add a key URL in the admin console.');
+                    if (!Array.isArray(keys) || keys.length === 0 || (!keys[0].keyUrl && !keys[0].key)) {
+                        alert('No key available. Ask admin to add a key URL or raw key in the admin console.');
                         return;
                     }
 
-                    const keyUrl = String(keys[0].keyUrl);
-                    window.open(keyUrl, '_blank', 'noopener,noreferrer');
+                    if (keys[0].keyUrl) {
+                        const keyUrl = String(keys[0].keyUrl);
+                        window.open(keyUrl, '_blank', 'noopener,noreferrer');
+                    } else if (keys[0].key) {
+                        try {
+                            navigator.clipboard.writeText(String(keys[0].key));
+                            alert('Raw key copied to clipboard.');
+                        } catch (err) {
+                            alert('Raw key: ' + String(keys[0].key));
+                        }
+                    }
                 } catch (error) {
                     alert('Unable to open key URL.');
                 }
@@ -1464,5 +1483,6 @@ Load More Agents
     })();
 </script>
 <script src="js/footer.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="js/checkout.js"></script>
 </body></html>

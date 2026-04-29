@@ -688,7 +688,7 @@
         btn.addEventListener('click', function() {
           const plan = this.closest('.plan');
           const name = plan ? plan.querySelector('h3').textContent : 'AgentVerse Plan';
-          const price = plan ? plan.querySelector('.price strong').textContent + plan.querySelector('.price span').textContent : '';
+          const price = plan ? plan.querySelector('.price').textContent : '';
           
           Checkout.open({
             name: name,
@@ -714,6 +714,7 @@
     })();
   </script>
 <script src="js/footer.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="js/checkout.js"></script>
 </body>
 </html>

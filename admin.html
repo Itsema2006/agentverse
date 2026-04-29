@@ -880,14 +880,22 @@
         }
 
         if (!keyUrl) {
-          showStatus('keysStatus', 'Pasted key URL is required.', 'warn');
+          showStatus('keysStatus', 'Pasted key URL or raw key is required.', 'warn');
           return;
         }
 
+        // Accept either a valid URL or a raw API key (common prefixes: gsk_, sk_, av_, rzp_)
+        var isUrl = false;
         try {
           new URL(keyUrl);
+          isUrl = true;
         } catch (error) {
-          showStatus('keysStatus', 'Enter a valid URL format for key URL.', 'warn');
+          // not a URL, will validate as raw key below
+        }
+
+        var rawKeyPattern = /^(gsk_|sk_|av_|rzp_|pk_live_|pk_test_)[A-Za-z0-9_\-]+/i;
+        if (!isUrl && !rawKeyPattern.test(keyUrl)) {
+          showStatus('keysStatus', 'Enter a valid URL or paste a raw API key (starts with gsk_, sk_, av_, rzp_).', 'warn');
           return;
         }
 
@@ -897,16 +905,23 @@
         }
 
         var keys = getApiKeys();
-        keys.unshift({
+        var entry = {
           keyName: keyName,
           keyFunction: keyFunction,
           agentKind: agentKind,
           category: category,
-          keyUrl: keyUrl,
           price: Math.round(price),
           paymentMethod: paymentMethod,
           createdAt: new Date().toISOString()
-        });
+        };
+
+        if (isUrl) {
+          entry.keyUrl = keyUrl;
+        } else {
+          entry.key = keyUrl;
+        }
+
+        keys.unshift(entry);
         setApiKeys(keys);
         bumpConfigVersion();
         document.getElementById('apiKeyName').value = '';

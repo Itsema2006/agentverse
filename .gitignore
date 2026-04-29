@@ -12,3 +12,4 @@ walkthrough.md
 node_modules/
 dist/
 build/
+.env

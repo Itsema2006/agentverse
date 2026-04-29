@@ -8,9 +8,17 @@ const Checkout = (function () {
     purchaseHistory: 'agentversePurchaseHistory'
   };
 
+  const API_ENDPOINTS = {
+    config: '/api/config',
+    createOrder: '/api/create-order',
+    verifyPayment: '/api/verify-payment'
+  };
+
   let modalOverlay = null;
   let currentItem = null;
   let selectedMethod = 'card';
+  let paymentButtonState = null;
+  let razorpayConfigPromise = null;
 
   const modalHTML = `
     <div class="checkout-overlay" id="checkoutOverlay">
@@ -66,8 +74,10 @@ const Checkout = (function () {
           </div>
 
           <button class="checkout-pay-btn" id="payButton">
-            Pay with Credit Card
+            Pay with Razorpay
           </button>
+
+          <p id="paymentStatus" style="min-height: 18px; margin-top: 12px; font-size: 13px; font-weight: 600; color: #6b7280;"></p>
           
           <p style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 16px;">
             By clicking Pay, you agree to AgentVerse's Terms of Service.
@@ -100,9 +110,9 @@ const Checkout = (function () {
             <span class="material-symbols-outlined">check_circle</span>
           </div>
           <h3 style="text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 8px;">Payment Done!</h3>
-          <p id="successMessage" style="text-align: center; color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">Your API key has been retrieved successfully.</p>
+          <p id="successMessage" style="text-align: center; color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">Your purchase has been completed successfully.</p>
           
-          <div class="api-key-container">
+          <div class="api-key-container" style="display: none;">
             <label>YOUR API KEY</label>
             <div class="api-key-box">
               <code id="generatedKey">av_live_7x9pL...</code>
@@ -156,12 +166,7 @@ const Checkout = (function () {
 
   function updatePayButtonText() {
     const btn = document.getElementById('payButton');
-    const methodNames = {
-      card: 'Credit Card',
-      paypal: 'PayPal',
-      upi: 'UPI'
-    };
-    btn.textContent = `Pay with ${methodNames[selectedMethod]}`;
+    btn.textContent = 'Pay with Razorpay';
   }
 
   function handlePaymentAction() {
@@ -188,6 +193,7 @@ const Checkout = (function () {
     modalOverlay.classList.remove('success');
     modalOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+    setPaymentStatus('');
   }
 
   function close() {
@@ -195,47 +201,254 @@ const Checkout = (function () {
     modalOverlay.classList.remove('active');
     modalOverlay.classList.remove('success');
     document.body.style.overflow = '';
+    setPaymentStatus('');
+    restorePaymentButton();
   }
 
-  function processPayment() {
+  function resolveAmountInPaise(itemInfo) {
+    if (itemInfo && Number.isFinite(itemInfo.amount)) {
+      return Math.max(100, Math.round(itemInfo.amount));
+    }
+
+    if (itemInfo && Number.isFinite(itemInfo.amountInPaise)) {
+      return Math.max(100, Math.round(itemInfo.amountInPaise));
+    }
+
+    const priceText = String((itemInfo && itemInfo.price) || '49').replace(/,/g, '');
+    const parsedAmount = Number.parseFloat((priceText.match(/\d+(?:\.\d+)?/) || ['49'])[0]);
+
+    if (!Number.isFinite(parsedAmount)) {
+      return 4900;
+    }
+
+    return Math.max(100, Math.round(parsedAmount * 100));
+  }
+
+  function setPaymentStatus(message, tone) {
+    const statusNode = document.getElementById('paymentStatus');
+
+    if (!statusNode) return;
+
+    statusNode.textContent = message || '';
+    if (!message) {
+      statusNode.style.color = '#6b7280';
+      return;
+    }
+
+    if (tone === 'success') {
+      statusNode.style.color = '#059669';
+      return;
+    }
+
+    if (tone === 'error') {
+      statusNode.style.color = '#dc2626';
+      return;
+    }
+
+    statusNode.style.color = '#b45309';
+  }
+
+  function setPaymentButtonState(button, label) {
+    paymentButtonState = {
+      button: button,
+      label: label
+    };
+
+    button.disabled = true;
+    button.textContent = 'Processing...';
+  }
+
+  function restorePaymentButton() {
+    if (!paymentButtonState || !paymentButtonState.button) return;
+
+    paymentButtonState.button.disabled = false;
+    paymentButtonState.button.textContent = paymentButtonState.label;
+    paymentButtonState = null;
+  }
+
+  async function safeParseJson(response) {
+    try {
+      return await response.json();
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async function loadRazorpayConfig() {
+    if (!razorpayConfigPromise) {
+      razorpayConfigPromise = fetch(API_ENDPOINTS.config, {
+        headers: {
+          Accept: 'application/json'
+        }
+      }).then(async response => {
+        if (!response.ok) {
+          const errorBody = await safeParseJson(response);
+          throw new Error((errorBody && errorBody.message) || 'Unable to load Razorpay configuration.');
+        }
+
+        const payload = await response.json();
+
+        if (!payload.razorpayKeyId) {
+          throw new Error('Razorpay key id is missing from the backend configuration.');
+        }
+
+        return payload;
+      }).catch(error => {
+        razorpayConfigPromise = null;
+        throw error;
+      });
+    }
+
+    return razorpayConfigPromise;
+  }
+
+  async function createRazorpayOrder(amountInPaise) {
+    const receipt = `receipt_${Date.now()}`;
+    const response = await fetch(API_ENDPOINTS.createOrder, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        amount: amountInPaise,
+        currency: 'INR',
+        receipt: receipt
+      })
+    });
+
+    const payload = await safeParseJson(response);
+
+    if (!response.ok) {
+      throw new Error((payload && payload.message) || 'Unable to create Razorpay order.');
+    }
+
+    if (!payload || !payload.order_id) {
+      throw new Error('Razorpay order response was incomplete.');
+    }
+
+    return payload;
+  }
+
+  async function verifyRazorpayPayment(payload) {
+    const response = await fetch(API_ENDPOINTS.verifyPayment, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await safeParseJson(response);
+
+    if (!response.ok || !result || !result.success) {
+      throw new Error((result && result.message) || 'Payment verification failed.');
+    }
+
+    return result;
+  }
+
+  async function processPayment() {
     const activeBtn = selectedMethod === 'upi' ? document.getElementById('completeUpiPayment') : document.getElementById('payButton');
-    const originalText = activeBtn.textContent;
-    activeBtn.disabled = true;
-    activeBtn.textContent = 'Processing...';
-    
-    // Simulate API call
-    setTimeout(() => {
-      savePurchase();
-      showSuccess();
-      activeBtn.disabled = false;
-      activeBtn.textContent = originalText;
-    }, 1500);
+    const originalText = activeBtn ? activeBtn.textContent : 'Pay with Razorpay';
+
+    if (!activeBtn) {
+      setPaymentStatus('Checkout is not ready yet.', 'error');
+      return;
+    }
+
+    setPaymentButtonState(activeBtn, originalText);
+    setPaymentStatus('Preparing secure Razorpay checkout...', 'info');
+
+    try {
+      const config = await loadRazorpayConfig();
+      const amountInPaise = resolveAmountInPaise(currentItem);
+      const order = await createRazorpayOrder(amountInPaise);
+
+      if (typeof window.Razorpay !== 'function') {
+        throw new Error('Razorpay checkout script is not available.');
+      }
+
+      const razorpay = new window.Razorpay({
+        key: config.razorpayKeyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'AgentVerse',
+        description: currentItem && currentItem.name ? currentItem.name : 'Agent Access Key',
+        order_id: order.order_id,
+        modal: {
+          ondismiss: function () {
+            setPaymentStatus('Payment cancelled.', 'error');
+            restorePaymentButton();
+          }
+        },
+        handler: async function (response) {
+          setPaymentStatus('Verifying payment...', 'info');
+
+          try {
+            await verifyRazorpayPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            savePurchase({
+              paymentMethod: 'RAZORPAY',
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id
+            });
+            setPaymentStatus('Payment verified successfully.', 'success');
+            showSuccess();
+          } catch (error) {
+            setPaymentStatus(error.message || 'Payment verification failed.', 'error');
+          } finally {
+            restorePaymentButton();
+          }
+        }
+      });
+
+      razorpay.on('payment.failed', function (response) {
+        const message = response && response.error && response.error.description
+          ? response.error.description
+          : 'Payment failed. Please try again.';
+        setPaymentStatus(message, 'error');
+        restorePaymentButton();
+      });
+
+      razorpay.open();
+    } catch (error) {
+      setPaymentStatus(error.message || 'Unable to start Razorpay checkout.', 'error');
+      restorePaymentButton();
+    }
   }
 
-  function savePurchase() {
+  function savePurchase(paymentDetails) {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.purchaseHistory);
       const history = raw ? JSON.parse(raw) : [];
       const list = Array.isArray(history) ? history : [];
       
       let newKey = `av_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
-      try {
+        try {
         const rawKeys = localStorage.getItem('agentverseApiKeys');
         const keys = rawKeys ? JSON.parse(rawKeys) : [];
-        if (Array.isArray(keys) && keys.length > 0 && keys[0].keyUrl) {
-          newKey = keys[0].keyUrl;
+        if (Array.isArray(keys) && keys.length > 0) {
+          newKey = keys[0].keyUrl || keys[0].key || newKey;
         }
       } catch (e) {
-        console.warn('Could not retrieve API key URL from settings.');
+        console.warn('Could not retrieve API key from settings.');
       }
       
       const entry = {
         itemName: currentItem.name,
         amount: currentItem.price,
-        paymentMethod: selectedMethod.toUpperCase(),
+        paymentMethod: paymentDetails && paymentDetails.paymentMethod ? paymentDetails.paymentMethod : 'RAZORPAY',
         source: window.location.pathname.split('/').pop() || 'Index',
         purchasedAt: new Date().toISOString(),
-        licenseKey: newKey
+        licenseKey: newKey,
+        razorpayOrderId: paymentDetails && paymentDetails.razorpayOrderId ? paymentDetails.razorpayOrderId : undefined,
+        razorpayPaymentId: paymentDetails && paymentDetails.razorpayPaymentId ? paymentDetails.razorpayPaymentId : undefined
       };
       
       list.unshift(entry);
@@ -285,7 +498,7 @@ const Checkout = (function () {
   }
 
   function showSuccess() {
-    document.getElementById('successMessage').textContent = `Your API key for ${currentItem.name} has been retrieved successfully.`;
+    document.getElementById('successMessage').textContent = `Your purchase of ${currentItem.name} has been completed successfully.`;
     switchView('successView');
     modalOverlay.classList.add('success');
   }
