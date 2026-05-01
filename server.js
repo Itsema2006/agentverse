@@ -11,6 +11,9 @@ const publicDirectory = __dirname;
 
 const razorpayKeyId = process.env.RAZORPAY_KEY_ID || '';
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || '';
+const upiVpa = process.env.UPI_VPA || 'random@razorpay';
+const upiMerchantName = process.env.UPI_MERCHANT_NAME || 'AgentVerse';
+const upiNote = process.env.UPI_NOTE || 'AgentVerse purchase';
 const razorpayClient = razorpayKeyId && razorpayKeySecret
   ? new Razorpay({
       key_id: razorpayKeyId,
@@ -23,7 +26,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/config', (req, res) => {
   res.json({
-    razorpayKeyId: razorpayKeyId || null
+    razorpayKeyId: razorpayKeyId || null,
+    upiVpa: upiVpa || null,
+    upiMerchantName: upiMerchantName || null,
+    upiNote: upiNote || null
   });
 });
 

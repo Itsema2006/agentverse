@@ -990,7 +990,17 @@ window.addEventListener('resize', () => {
 initFirebaseAuth({
   switchTab,
   onLoginSuccess: function (user) {
+    const params = new URLSearchParams(window.location.search);
+    const redirectTarget = params.get('redirect');
     const email = (user && user.email) ? user.email.toLowerCase() : '';
+    const isSafeRedirect = redirectTarget && !redirectTarget.includes('://') && !redirectTarget.startsWith('//');
+
+    if (isSafeRedirect) {
+      localStorage.setItem('agentverseUserSession', 'true');
+      window.location.href = redirectTarget;
+      return;
+    }
+
     if (email === 'admin@gmail.com') {
       localStorage.setItem('agentverseAdminSession', 'true');
       window.location.href = 'admin.html';

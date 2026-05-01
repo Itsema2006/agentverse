@@ -19,6 +19,7 @@ const Checkout = (function () {
   let selectedMethod = 'card';
   let paymentButtonState = null;
   let razorpayConfigPromise = null;
+  let authStatePromise = null;
 
   const modalHTML = `
     <div class="checkout-overlay" id="checkoutOverlay">
@@ -84,7 +85,7 @@ const Checkout = (function () {
           </p>
         </div>
 
-        <!-- UPI Gateway View (Simulated) -->
+        <!-- UPI Gateway View -->
         <div class="checkout-view" id="upiGatewayView" style="display: none;">
           <div class="checkout-header">
             <button class="material-symbols-outlined" id="backToMain" style="background:none; border:none; cursor:pointer;">arrow_back</button>
@@ -92,14 +93,15 @@ const Checkout = (function () {
           </div>
           
           <div style="text-align: center; padding: 20px 0;">
-            <div style="width: 180px; height: 180px; background: #f3f4f6; border: 4px solid #fff; border-radius: 12px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <div id="upiQrContainer" style="width: 190px; height: 190px; background: #f3f4f6; border: 4px solid #fff; border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
                <span class="material-symbols-outlined" style="font-size: 80px; color: #374151;">qr_code_2</span>
             </div>
-            <p style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Scan QR to Pay</p>
-            <p style="font-size: 12px; color: #6b7280; margin-bottom: 24px;">Open your UPI app and scan the code</p>
+            <p id="upiGatewayTitle" style="font-size: 14px; font-weight: 700; margin-bottom: 4px;">Scan QR to Pay</p>
+            <p id="upiGatewaySubtitle" style="font-size: 12px; color: #6b7280; margin-bottom: 10px;">Open any UPI app and scan the code below</p>
+            <p id="upiGatewayMeta" style="font-size: 12px; color: #111827; margin-bottom: 24px; line-height: 1.6;"></p>
             
             <button class="checkout-pay-btn" id="completeUpiPayment">
-              Confirm Payment Done
+              I Have Paid
             </button>
           </div>
         </div>
@@ -155,7 +157,7 @@ const Checkout = (function () {
     });
 
     document.getElementById('payButton').onclick = handlePaymentAction;
-    document.getElementById('completeUpiPayment').onclick = processPayment;
+    document.getElementById('completeUpiPayment').onclick = completeUpiPayment;
     document.getElementById('copyKey').onclick = copyToClipboard;
     
     // Close on backdrop click
@@ -171,10 +173,112 @@ const Checkout = (function () {
 
   function handlePaymentAction() {
     if (selectedMethod === 'upi') {
-      switchView('upiGatewayView');
+      ensureAuthenticated().then((isAuthenticated) => {
+        if (isAuthenticated) {
+          openUpiGateway();
+        }
+      });
     } else {
-      processPayment();
+      ensureAuthenticated().then((isAuthenticated) => {
+        if (isAuthenticated) {
+          processPayment();
+        }
+      });
     }
+  }
+
+  async function getCurrentUser() {
+    if (!authStatePromise) {
+      authStatePromise = import('./firebase_config.js').then(async (firebaseModule) => {
+        const auth = firebaseModule.auth;
+
+        if (auth && typeof auth.authStateReady === 'function') {
+          try {
+            await auth.authStateReady();
+          } catch (error) {
+            // Ignore auth readiness failures and fall back to currentUser.
+          }
+        }
+
+        return auth && auth.currentUser ? auth.currentUser : null;
+      }).catch(() => null);
+    }
+
+    return authStatePromise;
+  }
+
+  function redirectToLogin() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    window.location.href = `login.html?tab=login&redirect=${encodeURIComponent(currentPage)}`;
+  }
+
+  async function ensureAuthenticated() {
+    const user = await getCurrentUser();
+
+    if (user) {
+      return true;
+    }
+
+    setPaymentStatus('Please sign in to continue with payment.', 'error');
+    redirectToLogin();
+    return false;
+  }
+
+  function buildUpiUri(amountInPaise, config) {
+    const amountInRupees = (amountInPaise / 100).toFixed(2);
+    const merchantName = (config && config.upiMerchantName) || 'AgentVerse';
+    const upiVpa = (config && config.upiVpa) || 'random@razorpay';
+    const note = (config && config.upiNote) || (currentItem && currentItem.name ? `Payment for ${currentItem.name}` : 'AgentVerse purchase');
+    const params = new URLSearchParams({
+      pa: upiVpa,
+      pn: merchantName,
+      am: amountInRupees,
+      cu: 'INR',
+      tn: note
+    });
+
+    return `upi://pay?${params.toString()}`;
+  }
+
+  async function openUpiGateway() {
+    try {
+      const authenticated = await ensureAuthenticated();
+      if (!authenticated) {
+        return;
+      }
+
+      const config = await loadRazorpayConfig();
+      const amountInPaise = resolveAmountInPaise(currentItem);
+      const upiUri = buildUpiUri(amountInPaise, config);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(upiUri)}`;
+      const qrContainer = document.getElementById('upiQrContainer');
+      const metaNode = document.getElementById('upiGatewayMeta');
+
+      if (qrContainer) {
+        qrContainer.innerHTML = `<img src="${qrUrl}" alt="UPI QR code" style="width: 100%; height: 100%; object-fit: cover;">`;
+      }
+
+      if (metaNode) {
+        const merchantName = (config && config.upiMerchantName) || 'AgentVerse';
+        const upiVpa = (config && config.upiVpa) || 'random@razorpay';
+        metaNode.textContent = `Pay ${currentItem && currentItem.price ? currentItem.price : '$49.00'} to ${merchantName} (${upiVpa})`;
+      }
+
+      switchView('upiGatewayView');
+      setPaymentStatus('Scan the QR in your UPI app, then confirm once the payment is complete.', 'info');
+    } catch (error) {
+      setPaymentStatus(error.message || 'Unable to prepare UPI payment.', 'error');
+    }
+  }
+
+  function completeUpiPayment() {
+    ensureAuthenticated().then((isAuthenticated) => {
+      if (!isAuthenticated) {
+        return;
+      }
+
+      setPaymentStatus('UPI payment marked as submitted. Please complete the payment in your UPI app.', 'info');
+    });
   }
 
   function switchView(viewId) {
