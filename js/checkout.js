@@ -72,7 +72,11 @@ const Checkout = (function () {
                 <p>Google Pay, PhonePe, Paytm</p>
               </div>
             </div>
+
+
           </div>
+
+
 
           <button class="checkout-pay-btn" id="payButton">
             Pay with Razorpay
@@ -153,12 +157,14 @@ const Checkout = (function () {
         this.classList.add('selected');
         selectedMethod = this.dataset.method;
         updatePayButtonText();
+        toggleUpiIdField();
       };
     });
 
     document.getElementById('payButton').onclick = handlePaymentAction;
     document.getElementById('completeUpiPayment').onclick = completeUpiPayment;
     document.getElementById('copyKey').onclick = copyToClipboard;
+    toggleUpiIdField();
     
     // Close on backdrop click
     modalOverlay.onclick = function(e) {
@@ -170,6 +176,17 @@ const Checkout = (function () {
     const btn = document.getElementById('payButton');
     btn.textContent = 'Pay with Razorpay';
   }
+
+  function toggleUpiIdField() {
+    // UPI ID option removed; keep function safe/no-op.
+    const upiFieldWrap = document.getElementById('upiIdFieldWrap');
+    const upiInput = document.getElementById('upiIdInput');
+
+    if (upiFieldWrap) upiFieldWrap.style.display = 'none';
+    if (upiInput) upiInput.value = '';
+  }
+
+
 
   function handlePaymentAction() {
     if (selectedMethod === 'upi') {
@@ -456,6 +473,7 @@ const Checkout = (function () {
   async function processPayment() {
     const activeBtn = selectedMethod === 'upi' ? document.getElementById('completeUpiPayment') : document.getElementById('payButton');
     const originalText = activeBtn ? activeBtn.textContent : 'Pay with Razorpay';
+    const paymentMethodUsed = selectedMethod;
 
     if (!activeBtn) {
       setPaymentStatus('Checkout is not ready yet.', 'error');
@@ -474,7 +492,7 @@ const Checkout = (function () {
         throw new Error('Razorpay checkout script is not available.');
       }
 
-      const razorpay = new window.Razorpay({
+      const razorpayOptions = {
         key: config.razorpayKeyId,
         amount: order.amount,
         currency: order.currency,
@@ -498,7 +516,7 @@ const Checkout = (function () {
             });
 
             savePurchase({
-              paymentMethod: 'RAZORPAY',
+              paymentMethod: paymentMethodUsed === 'upi_id' ? 'RAZORPAY_UPI_ID' : 'RAZORPAY',
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id
             });
@@ -510,7 +528,9 @@ const Checkout = (function () {
             restorePaymentButton();
           }
         }
-      });
+      };
+
+      const razorpay = new window.Razorpay(razorpayOptions);
 
       razorpay.on('payment.failed', function (response) {
         const message = response && response.error && response.error.description

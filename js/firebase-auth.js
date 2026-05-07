@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   getRedirectResult,
   sendPasswordResetEmail,
+  updateProfile,
   setPersistence,
   signInWithEmailAndPassword,
   signInWithRedirect,
@@ -66,6 +67,12 @@ async function tryUpsertUserProfile(user, name = '') {
     console.warn('Profile sync failed:', error);
     return 'Signed in, but profile sync failed. Check Firestore rules.';
   }
+          try {
+            var active = { name: cred.user.displayName || '', email: cred.user.email || '' };
+            localStorage.setItem('agentverseActiveUser', JSON.stringify(active));
+          } catch (e) {
+            console.warn('Could not persist active user after sign in', e);
+          }
 }
 
 export function syncNav(user) {
@@ -82,6 +89,12 @@ export function syncNav(user) {
   if (registerLink)  registerLink.style.display  = isLoggedIn ? 'none' : 'inline-block';
   if (dashboardLink) dashboardLink.style.display = (isLoggedIn && !isAdmin) ? 'inline-block' : 'none';
   if (adminLink)     adminLink.style.display     = isAdmin ? 'inline-block' : 'none';
+          try {
+            var active = { name: result.user.displayName || '', email: result.user.email || '' };
+            localStorage.setItem('agentverseActiveUser', JSON.stringify(active));
+          } catch (e) {
+            console.warn('Could not persist active user after popup sign in', e);
+          }
 
   if (signOutBtn) {
     signOutBtn.style.display = isLoggedIn ? 'inline-block' : 'none';
@@ -89,6 +102,7 @@ export function syncNav(user) {
       auth.signOut().then(() => {
         localStorage.removeItem('agentverseAdminSession');
         localStorage.removeItem('agentverseUserSession');
+        localStorage.removeItem('agentverseActiveUser');
         window.location.href = 'index.html';
       });
     };
@@ -133,7 +147,21 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
 
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
+        // Set display name in Firebase Auth
+        try {
+          await updateProfile(cred.user, { displayName: name });
+        } catch (err) {
+          console.warn('Unable to update auth displayName:', err);
+        }
+        // Store name in Firestore
         await upsertUserProfile(cred.user, name);
+        // Persist active user to localStorage
+        try {
+          var active = { name: name || cred.user.displayName || '', email: cred.user.email || '' };
+          localStorage.setItem('agentverseActiveUser', JSON.stringify(active));
+        } catch (e) {
+          console.warn('Could not persist active user after registration', e);
+        }
         showNotice(notice, 'Registration successful. Please sign in.', 'success');
         if (switchTab) switchTab('login');
         if (loginIdInput) loginIdInput.value = email;
@@ -162,6 +190,13 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
 
       try {
         const cred = await signInWithEmailAndPassword(auth, email, password);
+        // Persist active user to localStorage
+        try {
+          var active = { name: cred.user.displayName || '', email: cred.user.email || '' };
+          localStorage.setItem('agentverseActiveUser', JSON.stringify(active));
+        } catch (e) {
+          console.warn('Could not persist active user after sign in', e);
+        }
         if (onLoginSuccess) onLoginSuccess(cred.user);
         const profileWarning = await tryUpsertUserProfile(cred.user);
         if (profileWarning) {
@@ -194,6 +229,13 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
     btn.addEventListener('click', async () => {
       try {
         const result = await signInWithPopup(auth, googleProvider);
+        // Persist active user to localStorage
+        try {
+          var active = { name: result.user.displayName || '', email: result.user.email || '' };
+          localStorage.setItem('agentverseActiveUser', JSON.stringify(active));
+        } catch (e) {
+          console.warn('Could not persist active user after Google sign in', e);
+        }
         if (onLoginSuccess) onLoginSuccess(result.user);
         const profileWarning = await tryUpsertUserProfile(result.user);
         if (profileWarning) {
@@ -224,6 +266,15 @@ export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
         localStorage.setItem('agentverseAdminSession', 'true');
       } else {
         localStorage.setItem('agentverseUserSession', 'true');
+      }
+      try {
+        var active = {
+          name: user.displayName || '',
+          email: user.email || ''
+        };
+        localStorage.setItem('agentverseActiveUser', JSON.stringify(active));
+      } catch (e) {
+        console.warn('Could not persist active user in localStorage', e);
       }
     }
   });

@@ -1,0 +1,11 @@
+{
+  "name": "AgentVerse",
+  "short_name": "AgentVerse",
+  "description": "AgentVerse AI agent marketplace",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "icons": []
+}
