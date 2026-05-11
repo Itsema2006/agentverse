@@ -8,7 +8,9 @@ const Checkout = (function () {
     purchaseHistory: 'agentversePurchaseHistory'
   };
 
-  const BACKEND_URL = window.location.hostname === '127.0.0.1' || (window.location.hostname === 'localhost' && window.location.port !== '3000') 
+  const BACKEND_URL = window.location.hostname === '127.0.0.1' || 
+                      (window.location.hostname === 'localhost' && window.location.port !== '3000') ||
+                      window.location.hostname === 'infiniteagent.netlify.app'
     ? 'http://localhost:3000' 
     : '';
 
