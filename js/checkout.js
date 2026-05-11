@@ -8,10 +8,14 @@ const Checkout = (function () {
     purchaseHistory: 'agentversePurchaseHistory'
   };
 
+  const BACKEND_URL = window.location.hostname === '127.0.0.1' || (window.location.hostname === 'localhost' && window.location.port !== '3000') 
+    ? 'http://localhost:3000' 
+    : '';
+
   const API_ENDPOINTS = {
-    config: '/api/config',
-    createOrder: '/api/create-order',
-    verifyPayment: '/api/verify-payment'
+    config: BACKEND_URL + '/api/config',
+    createOrder: BACKEND_URL + '/api/create-order',
+    verifyPayment: BACKEND_URL + '/api/verify-payment'
   };
 
   let modalOverlay = null;

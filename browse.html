@@ -998,7 +998,7 @@ Load More Agents
             snap.forEach(d => keys.push({ id: d.id, ...d.data() }));
             return keys;
         } catch (err) {
-            console.error("Failed to fetch API keys", err);
+            console.warn("Failed to fetch API keys (may require authentication or admin rules):", err.message);
             return [];
         }
     }
