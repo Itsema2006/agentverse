@@ -3,6 +3,7 @@ require('dotenv').config();
 const crypto = require('crypto');
 const path = require('path');
 const express = require('express');
+const cors = require("cors");
 const Razorpay = require('razorpay');
 
 const app = express();
@@ -21,12 +22,17 @@ const razorpayClient = razorpayKeyId && razorpayKeySecret
     })
   : null;
 
+app.use(cors({
+  origin: "*",
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/config', (req, res) => {
   res.json({
     razorpayKeyId: razorpayKeyId || null,
+    razorpayConfigured: Boolean(razorpayClient),
     upiVpa: upiVpa || null,
     upiMerchantName: upiMerchantName || null,
     upiNote: upiNote || null
@@ -66,7 +72,8 @@ app.post('/api/create-order', async (req, res) => {
     const statusCode = error?.statusCode || error?.status || 500;
 
     if (statusCode === 401) {
-      return res.status(401).json({ message: 'Razorpay authentication failed.' });
+      console.error('Razorpay authentication failed. Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.', error);
+      return res.status(500).json({ message: 'Razorpay authentication failed. Check server credentials.' });
     }
 
     console.error('Failed to create Razorpay order:', error);

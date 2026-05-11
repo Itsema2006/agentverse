@@ -941,7 +941,7 @@ Load More Agents
 <script type="module">
     import { auth, db } from './js/firebase_config.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-    import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { addDoc, collection, serverTimestamp, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     const syncState = {
         uid: null,
@@ -990,9 +990,23 @@ Load More Agents
         });
     }
 
+    async function fetchApiKeys() {
+        try {
+            const q = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'));
+            const snap = await getDocs(q);
+            const keys = [];
+            snap.forEach(d => keys.push({ id: d.id, ...d.data() }));
+            return keys;
+        } catch (err) {
+            console.error("Failed to fetch API keys", err);
+            return [];
+        }
+    }
+
     window.agentverseCloudSync = {
         saveRecentSearch,
-        savePurchaseHistory
+        savePurchaseHistory,
+        fetchApiKeys
     };
 </script>
 <script>
@@ -1274,7 +1288,7 @@ Load More Agents
             }
         }
 
-        function renderLiveKeys() {
+        async function renderLiveKeys() {
             if (!agentsGrid) {
                 return;
             }
@@ -1283,7 +1297,13 @@ Load More Agents
                 card.remove();
             });
 
-            const keys = getApiKeys();
+            // Fallback to local storage if Cloud Sync isn't available
+            let keys = [];
+            if (window.agentverseCloudSync && window.agentverseCloudSync.fetchApiKeys) {
+                keys = await window.agentverseCloudSync.fetchApiKeys();
+            } else {
+                keys = getApiKeys();
+            }
 
             if (keys.length === 0) {
                 return;
@@ -1350,7 +1370,15 @@ Load More Agents
 
                 const created = document.createElement('div');
                 created.className = 'flex items-center gap-1.5';
-                created.innerHTML = '<span class="material-symbols-outlined text-sm">schedule</span> ' + (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Unknown');
+                
+                let dateText = 'Unknown';
+                if (item.createdAt && typeof item.createdAt.toDate === 'function') {
+                    dateText = item.createdAt.toDate().toLocaleDateString();
+                } else if (item.createdAt) {
+                    dateText = new Date(item.createdAt).toLocaleDateString();
+                }
+                
+                created.innerHTML = '<span class="material-symbols-outlined text-sm">schedule</span> ' + dateText;
 
                 metaBlock.appendChild(payment);
                 metaBlock.appendChild(created);

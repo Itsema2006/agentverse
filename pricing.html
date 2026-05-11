@@ -592,7 +592,10 @@
 
   </main>
 
-  <script>
+  <script type="module">
+    import { db } from './js/firebase_config.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
     (function () {
       var SETTINGS_KEYS = {
         pricing: 'agentversePricingConfig',
@@ -626,17 +629,27 @@
         }
       }
 
-      function applyPricingConfig() {
+      async function applyPricingConfig() {
+        let config = null;
         try {
-          var raw = localStorage.getItem(SETTINGS_KEYS.pricing);
-          if (!raw) {
-            return;
+          const d = await getDoc(doc(db, 'config', 'pricing'));
+          if (d.exists()) {
+             config = d.data();
           }
+        } catch (error) {
+          console.warn('Unable to load pricing from Firebase.', error);
+        }
 
-          var config = JSON.parse(raw);
-          if (!config) {
-            return;
-          }
+        if (!config) {
+          try {
+            var raw = localStorage.getItem(SETTINGS_KEYS.pricing);
+            if (raw) config = JSON.parse(raw);
+          } catch(e) {}
+        }
+
+        if (!config) {
+          return;
+        }
 
           plans.forEach(function (plan) {
             var planName = plan.dataset.plan;
@@ -653,10 +666,6 @@
               plan.dataset.year = String(Math.round(year));
             }
           });
-
-        } catch (error) {
-          console.warn('Unable to load pricing config.', error);
-        }
       }
 
       function setMode(mode) {
@@ -674,9 +683,9 @@
         });
       }
 
-      function refreshFromStorage() {
+      async function refreshFromStorage() {
         applyDocsConfig();
-        applyPricingConfig();
+        await applyPricingConfig();
         setMode(currentMode);
       }
 

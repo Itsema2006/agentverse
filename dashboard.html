@@ -313,7 +313,7 @@
   <script type="module">
     import { auth, db } from './js/firebase_config.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { doc, getDoc, collection, query, getDocs, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     (function () {
       var AUTH_KEYS = {
@@ -365,6 +365,9 @@
               titleEl.textContent = user.email || 'User';
             }
           }
+          
+          // Fetch user data from Firebase
+          fetchFirebaseData(user.uid);
         } catch (err) {
           console.warn('Error fetching user profile from Firestore:', err);
           // Fallback to localStorage
@@ -446,8 +449,12 @@
           var amountText = item.amount ? '$' + item.amount : 'Amount pending';
           details.textContent = amountText + ' · ' + (item.paymentMethod || 'N/A') + ' · ' + (item.source || 'Marketplace');
 
-          var time = document.createElement('span');
           var parsedDate = item.purchasedAt ? new Date(item.purchasedAt) : null;
+          if (item.purchasedAt && typeof item.purchasedAt.toDate === 'function') {
+            parsedDate = item.purchasedAt.toDate();
+          } else if (item.createdAt && typeof item.createdAt.toDate === 'function') {
+            parsedDate = item.createdAt.toDate();
+          }
           time.textContent = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate.toLocaleString() : 'Unknown time';
 
           row.appendChild(title);
@@ -530,15 +537,52 @@
         renderApiKeys(apiKeys);
       }
 
-      renderAll();
+      async function fetchFirebaseData(uid) {
+        try {
+          const qPurchases = query(collection(db, 'users', uid, 'purchaseHistory'), orderBy('createdAt', 'desc'), limit(12));
+          const purchaseSnap = await getDocs(qPurchases);
+          const purchases = [];
+          purchaseSnap.forEach(d => purchases.push(d.data()));
+          
+          const qSearches = query(collection(db, 'users', uid, 'recentSearches'), orderBy('createdAt', 'desc'), limit(16));
+          const searchSnap = await getDocs(qSearches);
+          const searches = [];
+          searchSnap.forEach(d => {
+            const data = d.data();
+            if (data.term) searches.push(data.term);
+          });
+          
+          const qKeys = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'), limit(50));
+          const keysSnap = await getDocs(qKeys);
+          const apiKeys = [];
+          keysSnap.forEach(d => apiKeys.push(d.data()));
 
+          setStat('totalPurchases', purchases.length);
+          setStat('totalSearches', searches.length);
+          setStat('totalApiKeys', apiKeys.length);
+
+          renderPurchases(purchases);
+          renderSearches(searches);
+          renderApiKeys(apiKeys);
+        } catch (error) {
+          console.error("Error fetching data from Firebase:", error);
+          renderAll(); // fallback to local storage
+        }
+      }
+
+      // Initial render from local storage removed so we don't flash old data
+      // fetchFirebaseData will run after auth completes.
+      
       window.addEventListener('storage', function () {
-        renderAll();
+        // If they change something locally we could update, but preferably we rely on Firebase now.
       });
 
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) {
-          renderAll();
+          const user = auth.currentUser;
+          if (user) {
+            fetchFirebaseData(user.uid);
+          }
         }
       });
     })();

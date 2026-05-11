@@ -555,8 +555,9 @@
   <div id="successToast" class="toast" role="status" aria-live="polite">Changes added successfully.</div>
 
   <script type="module">
-    import { auth } from './js/firebase_config.js';
+    import { auth, db } from './js/firebase_config.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     var SETTINGS_KEYS = {
       pricing: 'agentversePricingConfig',
@@ -633,20 +634,28 @@
         }, 2200);
       }
 
-      function getPricing() {
+      async function fetchPricing() {
+        let config = null;
         try {
-          var raw = localStorage.getItem(SETTINGS_KEYS.pricing);
-          if (!raw) {
-            return DEFAULT_PRICING;
+          const d = await getDoc(doc(db, 'config', 'pricing'));
+          if (d.exists()) {
+             config = d.data();
           }
-          var parsed = JSON.parse(raw);
-          if (!parsed || !parsed.starter || !parsed.growth || !parsed.enterprise) {
-            return DEFAULT_PRICING;
-          }
-          return parsed;
-        } catch (error) {
+        } catch (e) {
+          console.warn("Could not fetch pricing from Firebase", e);
+        }
+
+        if (!config) {
+          try {
+            var raw = localStorage.getItem(SETTINGS_KEYS.pricing);
+            if (raw) config = JSON.parse(raw);
+          } catch(e) {}
+        }
+        
+        if (!config || !config.starter || !config.growth || !config.enterprise) {
           return DEFAULT_PRICING;
         }
+        return config;
       }
 
       function setPricingFields(pricing) {
@@ -663,7 +672,7 @@
         return Number.isFinite(value) && value > 0 ? Math.round(value) : 0;
       }
 
-      function getDocs() {
+      function getDocsConfig() {
         try {
           var raw = localStorage.getItem(SETTINGS_KEYS.docs);
           if (!raw) {
@@ -679,30 +688,31 @@
         }
       }
 
-      function getApiKeys() {
+      // getApiKeys/setApiKeys replaced by fetchFirebaseKeys
+      let firebaseApiKeys = [];
+
+      async function fetchFirebaseKeys() {
         try {
-          var raw = localStorage.getItem(SETTINGS_KEYS.apiKeys);
-          if (!raw) {
-            return [];
-          }
-          var parsed = JSON.parse(raw);
-          return Array.isArray(parsed) ? parsed : [];
+          const q = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'));
+          const snap = await getDocs(q);
+          firebaseApiKeys = [];
+          snap.forEach(d => {
+            firebaseApiKeys.push({ id: d.id, ...d.data() });
+          });
+          return firebaseApiKeys;
         } catch (error) {
+          console.error("Error fetching keys:", error);
           return [];
         }
       }
 
-      function setApiKeys(keys) {
-        localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(keys));
-      }
-
-      function renderKeys() {
+      async function renderKeys() {
         var keysList = document.getElementById('keysList');
         if (!keysList) {
           return;
         }
 
-        var keys = getApiKeys();
+        var keys = await fetchFirebaseKeys();
 
         keysList.innerHTML = '';
 
@@ -728,7 +738,13 @@
           var time = document.createElement('div');
           time.className = 'key-time';
           var keyName = item.keyName || item.label || 'Unnamed Key';
-          time.textContent = new Date(item.createdAt).toLocaleString() + ' · ' + keyName;
+          var dateText = 'Unknown';
+          if (item.createdAt && typeof item.createdAt.toDate === 'function') {
+            dateText = item.createdAt.toDate().toLocaleString();
+          } else if (item.createdAt) {
+            dateText = new Date(item.createdAt).toLocaleString();
+          }
+          time.textContent = dateText + ' · ' + keyName;
 
           var meta = document.createElement('div');
           meta.className = 'key-meta';
@@ -774,11 +790,17 @@
           remove.textContent = 'Revoke';
           remove.style.padding = '6px 10px';
           remove.style.fontSize = '12px';
-          remove.addEventListener('click', function () {
-            var updated = getApiKeys().filter(function (_, i) { return i !== index; });
-            setApiKeys(updated);
-            renderKeys();
-            showStatus('keysStatus', 'API key revoked.', 'warn');
+          remove.addEventListener('click', async function () {
+            try {
+              if (item.id) {
+                await deleteDoc(doc(db, 'apiKeys', item.id));
+              }
+              await renderKeys();
+              showStatus('keysStatus', 'API key revoked.', 'warn');
+            } catch (error) {
+              console.error("Error revoking key", error);
+              showStatus('keysStatus', 'Failed to revoke API key.', 'warn');
+            }
           });
 
           li.appendChild(left);
@@ -787,14 +809,16 @@
         });
       }
 
-      setPricingFields(getPricing());
+      fetchPricing().then(pricing => {
+        setPricingFields(pricing);
+      });
 
-      var docs = getDocs();
+      var docs = getDocsConfig();
       document.getElementById('docsLabel').value = docs.label;
       document.getElementById('docsUrl').value = docs.url;
       renderKeys();
 
-      document.getElementById('savePricingBtn').addEventListener('click', function () {
+      document.getElementById('savePricingBtn').addEventListener('click', async function () {
         var pricing = {
           starter: { month: readNumber('starterMonth'), year: readNumber('starterYear') },
           growth: { month: readNumber('growthMonth'), year: readNumber('growthYear') },
@@ -806,10 +830,16 @@
           return;
         }
 
-        localStorage.setItem(SETTINGS_KEYS.pricing, JSON.stringify(pricing));
-        bumpConfigVersion();
-        showStatus('pricingStatus', 'Pricing settings saved.', 'ok');
-        showSuccessToast('Changes added successfully.');
+        try {
+          await setDoc(doc(db, 'config', 'pricing'), pricing);
+          localStorage.setItem(SETTINGS_KEYS.pricing, JSON.stringify(pricing));
+          bumpConfigVersion();
+          showStatus('pricingStatus', 'Pricing settings saved to cloud.', 'ok');
+          showSuccessToast('Changes added successfully.');
+        } catch (e) {
+          console.error("Failed to save pricing", e);
+          showStatus('pricingStatus', 'Failed to save pricing to cloud.', 'error');
+        }
       });
 
       document.getElementById('saveDocsBtn').addEventListener('click', function () {
@@ -904,7 +934,6 @@
           return;
         }
 
-        var keys = getApiKeys();
         var entry = {
           keyName: keyName,
           keyFunction: keyFunction,
@@ -912,7 +941,7 @@
           category: category,
           price: Math.round(price),
           paymentMethod: paymentMethod,
-          createdAt: new Date().toISOString()
+          createdAt: serverTimestamp()
         };
 
         if (isUrl) {
@@ -921,19 +950,22 @@
           entry.key = keyUrl;
         }
 
-        keys.unshift(entry);
-        setApiKeys(keys);
-        bumpConfigVersion();
-        document.getElementById('apiKeyName').value = '';
-        document.getElementById('apiKeyFunction').value = '';
-        document.getElementById('apiAgentKind').value = '';
-        document.getElementById('apiKeyCategory').value = '';
-        document.getElementById('apiKeyUrl').value = '';
-        document.getElementById('apiKeyPrice').value = '';
-        document.getElementById('paymentMethod').value = '';
-        renderKeys();
-        showStatus('keysStatus', 'API key option added with price and payment method.', 'ok');
-        showSuccessToast('Changes added successfully.');
+        addDoc(collection(db, 'apiKeys'), entry).then(() => {
+          bumpConfigVersion();
+          document.getElementById('apiKeyName').value = '';
+          document.getElementById('apiKeyFunction').value = '';
+          document.getElementById('apiAgentKind').value = '';
+          document.getElementById('apiKeyCategory').value = '';
+          document.getElementById('apiKeyUrl').value = '';
+          document.getElementById('apiKeyPrice').value = '';
+          document.getElementById('paymentMethod').value = '';
+          renderKeys();
+          showStatus('keysStatus', 'API key option added with price and payment method.', 'ok');
+          showSuccessToast('Changes added successfully.');
+        }).catch((error) => {
+          console.error("Error adding key", error);
+          showStatus('keysStatus', 'Failed to add API key.', 'warn');
+        });
       });
 
 

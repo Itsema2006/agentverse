@@ -174,7 +174,7 @@ const Checkout = (function () {
 
   function updatePayButtonText() {
     const btn = document.getElementById('payButton');
-    btn.textContent = 'Pay with Razorpay';
+    btn.textContent = 'Pay';
   }
 
   function toggleUpiIdField() {
@@ -413,6 +413,10 @@ const Checkout = (function () {
           throw new Error('Razorpay key id is missing from the backend configuration.');
         }
 
+        if (payload.razorpayConfigured === false) {
+          throw new Error('Razorpay is not configured on the server.');
+        }
+
         return payload;
       }).catch(error => {
         razorpayConfigPromise = null;
@@ -441,6 +445,10 @@ const Checkout = (function () {
     const payload = await safeParseJson(response);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Razorpay credentials were rejected by the payment provider.');
+      }
+
       throw new Error((payload && payload.message) || 'Unable to create Razorpay order.');
     }
 
@@ -515,7 +523,7 @@ const Checkout = (function () {
               razorpay_signature: response.razorpay_signature
             });
 
-            savePurchase({
+            await savePurchase({
               paymentMethod: paymentMethodUsed === 'upi_id' ? 'RAZORPAY_UPI_ID' : 'RAZORPAY',
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id
@@ -547,21 +555,28 @@ const Checkout = (function () {
     }
   }
 
-  function savePurchase(paymentDetails) {
+  async function savePurchase(paymentDetails) {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.purchaseHistory);
       const history = raw ? JSON.parse(raw) : [];
       const list = Array.isArray(history) ? history : [];
       
       let newKey = `av_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
-        try {
-        const rawKeys = localStorage.getItem('agentverseApiKeys');
-        const keys = rawKeys ? JSON.parse(rawKeys) : [];
-        if (Array.isArray(keys) && keys.length > 0) {
-          newKey = keys[0].keyUrl || keys[0].key || newKey;
+      try {
+        const firebaseModule = await import('./firebase_config.js');
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
+        const q = firestoreModule.query(
+          firestoreModule.collection(firebaseModule.db, 'apiKeys'), 
+          firestoreModule.orderBy('createdAt', 'desc'), 
+          firestoreModule.limit(1)
+        );
+        const snap = await firestoreModule.getDocs(q);
+        if (!snap.empty) {
+          const keyData = snap.docs[0].data();
+          newKey = keyData.keyUrl || keyData.key || newKey;
         }
       } catch (e) {
-        console.warn('Could not retrieve API key from settings.');
+        console.warn('Could not retrieve API key from Firebase.', e);
       }
       
       const entry = {
