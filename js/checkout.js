@@ -47,6 +47,13 @@ const Checkout = (function () {
             </div>
           </div>
 
+          <div class="checkout-summary" style="margin-top: 14px;">
+            <h3 class="checkout-section-title">Key Details</h3>
+            <p id="checkoutItemDescription" style="color: #6b7280; font-size: 14px; line-height: 1.7; margin-top: 4px;">
+              This API key will be unlocked after your payment is completed and verified.
+            </p>
+          </div>
+
           <h3 class="checkout-section-title">Select Payment Method</h3>
           <div class="payment-options">
             <div class="payment-option selected" data-method="card">
@@ -239,6 +246,8 @@ const Checkout = (function () {
     
     document.getElementById('checkoutItemName').textContent = itemInfo.name || 'Agent Access Key';
     document.getElementById('checkoutItemPrice').textContent = itemInfo.price || '$49.00';
+    document.getElementById('checkoutItemDescription').textContent = itemInfo.description
+      || 'This API key will be unlocked after your payment is completed and verified.';
     
     switchView('mainView');
     modalOverlay.classList.remove('success');
@@ -597,6 +606,10 @@ const Checkout = (function () {
       
       // Update the UI with the key
       document.getElementById('generatedKey').textContent = newKey;
+      const keyContainer = document.querySelector('.api-key-container');
+      if (keyContainer) {
+        keyContainer.style.display = 'block';
+      }
       
       window.dispatchEvent(new Event('storage'));
       
