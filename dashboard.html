@@ -120,7 +120,7 @@
     .stats {
       margin-top: 14px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -220,6 +220,21 @@
       font-weight: 700;
     }
 
+    .key-card {
+      display: grid;
+      gap: 4px;
+    }
+
+    .key-card code {
+      font-size: 12px;
+      color: #7c2d12;
+      word-break: break-all;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
     .empty {
       border: 1px dashed #fdba74;
       border-radius: 12px;
@@ -284,6 +299,10 @@
           <h3>API Keys</h3>
           <p id="totalApiKeys">0</p>
         </div>
+        <div class="stat-card">
+          <h3>Owned Keys</h3>
+          <p id="totalOwnedKeys">0</p>
+        </div>
       </div>
     </section>
 
@@ -305,6 +324,12 @@
         <p>All available key options currently configured in the platform.</p>
         <ul id="apiKeyList" class="list"></ul>
       </article>
+
+      <article class="panel" style="grid-column: 1 / -1;">
+        <h2>Owned API Keys</h2>
+        <p>Your purchased keys and the license values unlocked after payment.</p>
+        <ul id="ownedKeyList" class="list"></ul>
+      </article>
     </section>
 
     <div id="footer-placeholder"></div>
@@ -313,7 +338,7 @@
   <script type="module">
     import { auth, db } from './js/firebase_config.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-    import { doc, getDoc, collection, query, getDocs, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { doc, getDoc, collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     (function () {
       var AUTH_KEYS = {
@@ -423,6 +448,31 @@
         }
       }
 
+      function getTimestampValue(item) {
+        if (!item) {
+          return 0;
+        }
+
+        var value = item.createdAt || item.purchasedAt || item.timestamp || item.updatedAt;
+
+        if (value && typeof value.toDate === 'function') {
+          value = value.toDate();
+        }
+
+        if (value instanceof Date && !isNaN(value.getTime())) {
+          return value.getTime();
+        }
+
+        var parsed = value ? new Date(value) : null;
+        return parsed && !isNaN(parsed.getTime()) ? parsed.getTime() : 0;
+      }
+
+      function sortLatestFirst(items) {
+        return items.slice().sort(function (left, right) {
+          return getTimestampValue(right) - getTimestampValue(left);
+        });
+      }
+
       function renderPurchases(items) {
         var list = document.getElementById('purchaseList');
         if (!list) {
@@ -441,6 +491,7 @@
 
         items.slice(0, 12).forEach(function (item) {
           var row = document.createElement('li');
+          var time = document.createElement('span');
 
           var title = document.createElement('strong');
           title.textContent = item.itemName || 'Purchase Item';
@@ -523,28 +574,74 @@
         });
       }
 
+      function renderOwnedKeys(items) {
+        var list = document.getElementById('ownedKeyList');
+        if (!list) {
+          return;
+        }
+
+        list.innerHTML = '';
+
+        var owned = items.filter(function (item) {
+          return item && (item.licenseKey || item.key || item.keyUrl);
+        });
+
+        if (!owned.length) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No owned keys yet. Complete a purchase to unlock your key here.';
+          list.appendChild(empty);
+          return;
+        }
+
+        owned.slice(0, 12).forEach(function (item) {
+          var row = document.createElement('li');
+          row.className = 'key-card';
+
+          var title = document.createElement('strong');
+          title.textContent = item.itemName || 'Purchased Key';
+
+          var details = document.createElement('span');
+          details.textContent = (item.paymentMethod || 'N/A') + ' · ' + (item.source || 'Marketplace');
+
+          var keyValue = document.createElement('code');
+          keyValue.textContent = item.licenseKey || item.keyUrl || item.key || 'Key unavailable';
+
+          row.appendChild(title);
+          row.appendChild(details);
+          row.appendChild(keyValue);
+          list.appendChild(row);
+        });
+      }
+
       function renderAll() {
         var purchases = readArray(STORAGE_KEYS.purchases);
         var searches = readArray(STORAGE_KEYS.searches);
         var apiKeys = readArray(STORAGE_KEYS.apiKeys);
+        var ownedKeys = purchases.filter(function (item) {
+          return item && (item.licenseKey || item.key || item.keyUrl);
+        });
 
         setStat('totalPurchases', purchases.length);
         setStat('totalSearches', searches.length);
         setStat('totalApiKeys', apiKeys.length);
+        setStat('totalOwnedKeys', ownedKeys.length);
 
         renderPurchases(purchases);
         renderSearches(searches);
         renderApiKeys(apiKeys);
+        renderOwnedKeys(purchases);
       }
 
       async function fetchFirebaseData(uid) {
         try {
-          const qPurchases = query(collection(db, 'users', uid, 'purchaseHistory'), orderBy('createdAt', 'desc'), limit(12));
+          const qPurchases = query(collection(db, 'users', uid, 'purchaseHistory'));
           const purchaseSnap = await getDocs(qPurchases);
           const purchases = [];
           purchaseSnap.forEach(d => purchases.push(d.data()));
+          const orderedPurchases = sortLatestFirst(purchases);
           
-          const qSearches = query(collection(db, 'users', uid, 'recentSearches'), orderBy('createdAt', 'desc'), limit(16));
+          const qSearches = query(collection(db, 'users', uid, 'recentSearches'));
           const searchSnap = await getDocs(qSearches);
           const searches = [];
           searchSnap.forEach(d => {
@@ -552,18 +649,24 @@
             if (data.term) searches.push(data.term);
           });
           
-          const qKeys = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'), limit(50));
+          const qKeys = query(collection(db, 'apiKeys'));
           const keysSnap = await getDocs(qKeys);
           const apiKeys = [];
           keysSnap.forEach(d => apiKeys.push(d.data()));
+          const orderedApiKeys = sortLatestFirst(apiKeys);
+          const ownedKeys = orderedPurchases.filter(function (item) {
+            return item && (item.licenseKey || item.key || item.keyUrl);
+          });
 
-          setStat('totalPurchases', purchases.length);
+          setStat('totalPurchases', orderedPurchases.length);
           setStat('totalSearches', searches.length);
-          setStat('totalApiKeys', apiKeys.length);
+          setStat('totalApiKeys', orderedApiKeys.length);
+          setStat('totalOwnedKeys', ownedKeys.length);
 
-          renderPurchases(purchases);
+          renderPurchases(orderedPurchases);
           renderSearches(searches);
-          renderApiKeys(apiKeys);
+          renderApiKeys(orderedApiKeys);
+          renderOwnedKeys(orderedPurchases);
         } catch (error) {
           console.error("Error fetching data from Firebase:", error);
           renderAll(); // fallback to local storage
