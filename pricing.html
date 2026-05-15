@@ -720,6 +720,13 @@
           refreshFromStorage();
         }
       });
+
+      // Auto-refresh every 15 seconds to show newly added data
+      setInterval(function () {
+        if (!document.hidden) {
+          refreshFromStorage();
+        }
+      }, 15000);
     })();
   </script>
 <script src="js/footer.js"></script>

@@ -940,8 +940,9 @@ Load More Agents
 <div id="footer-placeholder"></div>
 <script type="module">
     import { auth, db } from './js/firebase_config.js';
+    import { syncNav } from './js/firebase-auth.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-    import { addDoc, collection, serverTimestamp, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     const syncState = {
         uid: null,
@@ -953,6 +954,7 @@ Load More Agents
         if (!syncState.uid) {
             syncState.recentSearchSignature = '';
         }
+        syncNav(user);
     });
 
     async function saveRecentSearch(term) {
@@ -992,14 +994,45 @@ Load More Agents
 
     async function fetchApiKeys() {
         try {
+            const publicResponse = await fetch('/api/public-api-keys', {
+                headers: {
+                    Accept: 'application/json'
+                }
+            });
+
+            if (publicResponse.ok) {
+                const publicPayload = await publicResponse.json();
+                const publicKeys = publicPayload && Array.isArray(publicPayload.keys) ? publicPayload.keys : [];
+                if (publicKeys.length > 0) {
+                    try {
+                        localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(publicKeys));
+                    } catch (cacheError) {
+                        console.warn('Could not cache public apiKeys locally on browse page.', cacheError);
+                    }
+                    return publicKeys;
+                }
+            }
+
             const q = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'));
             const snap = await getDocs(q);
             const keys = [];
             snap.forEach(d => keys.push({ id: d.id, ...d.data() }));
+            try {
+                localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(keys));
+            } catch (cacheError) {
+                console.warn('Could not cache apiKeys locally on browse page.', cacheError);
+            }
             return keys;
         } catch (err) {
             console.warn("Failed to fetch API keys (may require authentication or admin rules):", err.message);
-            return [];
+            try {
+                const raw = localStorage.getItem(SETTINGS_KEYS.apiKeys);
+                const cached = raw ? JSON.parse(raw) : [];
+                return Array.isArray(cached) ? cached : [];
+            } catch (cacheError) {
+                console.warn('Could not read cached apiKeys on browse page.', cacheError);
+                return [];
+            }
         }
     }
 
@@ -1007,6 +1040,26 @@ Load More Agents
         saveRecentSearch,
         savePurchaseHistory,
         fetchApiKeys
+    };
+
+    // Expose a helper to setup a realtime listener for apiKeys that updates local cache
+    window._setupApiKeysRealtime = function () {
+        try {
+            const q = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'));
+            onSnapshot(q, function (snap) {
+                try {
+                    const keys = [];
+                    snap.forEach(function (d) { keys.push({ id: d.id, ...d.data() }); });
+                    localStorage.setItem('agentverseApiKeys', JSON.stringify(keys));
+                    // Notify the page that api keys have been updated
+                    window.dispatchEvent(new Event('agentverseApiKeysUpdated'));
+                } catch (e) {
+                    console.warn('Failed to update apiKeys cache from realtime snapshot', e);
+                }
+            });
+        } catch (e) {
+            console.warn('Could not initialize realtime apiKeys listener', e);
+        }
     };
 </script>
 <script>
@@ -1297,11 +1350,13 @@ Load More Agents
                 card.remove();
             });
 
-            // Fallback to local storage if Cloud Sync isn't available
+            // Prefer Firestore, but always fall back to local cache if the request fails or returns nothing.
             let keys = [];
             if (window.agentverseCloudSync && window.agentverseCloudSync.fetchApiKeys) {
                 keys = await window.agentverseCloudSync.fetchApiKeys();
-            } else {
+            }
+
+            if (!Array.isArray(keys) || keys.length === 0) {
                 keys = getApiKeys();
             }
 
@@ -1342,6 +1397,10 @@ Load More Agents
                 meta.className = 'text-on-surface-variant text-sm leading-relaxed mt-1';
                 meta.textContent = (item.keyFunction || 'No function') + ' · ' + (item.category || 'General');
 
+                const description = document.createElement('p');
+                description.className = 'text-on-surface-variant text-sm leading-relaxed';
+                description.textContent = item.description || 'No description provided';
+
                 const keyUrl = document.createElement('p');
                 keyUrl.className = 'text-on-surface-variant text-sm leading-relaxed break-all';
                 keyUrl.textContent = item.keyUrl || item.key || 'No key available';
@@ -1349,6 +1408,7 @@ Load More Agents
                 headingWrap.appendChild(name);
                 headingWrap.appendChild(badgeRow);
                 headingWrap.appendChild(meta);
+                headingWrap.appendChild(description);
                 headingWrap.appendChild(keyUrl);
 
                 const price = document.createElement('span');
@@ -1389,46 +1449,20 @@ Load More Agents
                 openButton.innerHTML = 'Buy Key <span class="material-symbols-outlined text-[14px]">arrow_forward</span>';
 
                 openButton.addEventListener('click', function () {
-                    if (!item.keyUrl && !item.key) {
-                        alert('No key available for this entry. Ask admin to add a key URL or raw key in the admin console.');
-                        return;
-                    }
-
-                    const purchaseEntry = {
-                        itemName: item.keyName || 'API Key',
-                        amount: item.price || null,
-                        paymentMethod: item.paymentMethod || 'N/A',
-                        source: 'API Key Listing',
-                        purchasedAt: new Date().toISOString()
-                    };
-
+                    // Initiate checkout for this API key. The checkout will reveal the key
+                    // only after successful payment and when the user clicks the success copy button.
                     try {
-                        const rawHistory = localStorage.getItem(SETTINGS_KEYS.purchaseHistory);
-                        const history = rawHistory ? JSON.parse(rawHistory) : [];
-                        const list = Array.isArray(history) ? history : [];
-                        list.unshift(purchaseEntry);
-                        localStorage.setItem(SETTINGS_KEYS.purchaseHistory, JSON.stringify(list.slice(0, 30)));
-                    } catch (error) {
-                        console.warn('Unable to update purchase history.', error);
-                    }
-
-                    const cloudSync = window.agentverseCloudSync;
-                    if (cloudSync && typeof cloudSync.savePurchaseHistory === 'function') {
-                        cloudSync.savePurchaseHistory(purchaseEntry).catch(function (syncError) {
-                            console.warn('Unable to sync purchase history to Firebase.', syncError);
+                        Checkout.open({
+                            id: item.id,
+                            name: item.keyName || 'API Key',
+                            price: '$' + (item.price || 0),
+                            amount: Number(item.price) || null,
+                            keyUrl: item.keyUrl || item.key || '',
+                            rawKey: item.key || ''
                         });
-                    }
-
-                    if (item.keyUrl) {
-                        window.open(String(item.keyUrl), '_blank', 'noopener,noreferrer');
-                    } else if (item.key) {
-                        // Copy raw key to clipboard and inform user
-                        try {
-                            navigator.clipboard.writeText(String(item.key));
-                            alert('Raw key copied to clipboard.');
-                        } catch (err) {
-                            alert('Raw key: ' + String(item.key));
-                        }
+                    } catch (e) {
+                        console.warn('Unable to open checkout for item', e);
+                        alert('Unable to start checkout. Please try again.');
                     }
                 });
 
@@ -1466,6 +1500,24 @@ Load More Agents
 
         applyDocsConfig();
         renderLiveKeys();
+
+        // If the module initialized a realtime listener, start it and listen for updates
+        if (window._setupApiKeysRealtime) {
+            try {
+                window._setupApiKeysRealtime();
+            } catch (e) {
+                console.warn('Error starting realtime apiKeys listener', e);
+            }
+        }
+
+        // When the realtime listener updates the local cache, re-render live keys
+        window.addEventListener('agentverseApiKeysUpdated', function () {
+            try {
+                renderLiveKeys();
+            } catch (e) {
+                console.warn('Error rendering live keys after realtime update', e);
+            }
+        });
 
         if (getApiKeyBtn) {
             getApiKeyBtn.addEventListener('click', function () {
@@ -1508,6 +1560,13 @@ Load More Agents
                 renderLiveKeys();
             }
         });
+
+        // Auto-refresh live keys every 15 seconds to show newly added data
+        setInterval(function () {
+            if (!document.hidden) {
+                renderLiveKeys();
+            }
+        }, 15000);
     })();
 </script>
 <script src="js/footer.js"></script>

@@ -95,26 +95,7 @@ const Checkout = (function () {
           </p>
         </div>
 
-        <!-- UPI Gateway View -->
-        <div class="checkout-view" id="upiGatewayView" style="display: none;">
-          <div class="checkout-header">
-            <button class="material-symbols-outlined" id="backToMain" style="background:none; border:none; cursor:pointer;">arrow_back</button>
-            <h2 style="flex: 1; text-align: center;">UPI Gateway</h2>
-          </div>
-          
-          <div style="text-align: center; padding: 20px 0;">
-            <div id="upiQrContainer" style="width: 190px; height: 190px; background: #f3f4f6; border: 4px solid #fff; border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
-               <span class="material-symbols-outlined" style="font-size: 80px; color: #374151;">qr_code_2</span>
-            </div>
-            <p id="upiGatewayTitle" style="font-size: 14px; font-weight: 700; margin-bottom: 4px;">Scan QR to Pay</p>
-            <p id="upiGatewaySubtitle" style="font-size: 12px; color: #6b7280; margin-bottom: 10px;">Open any UPI app and scan the code below</p>
-            <p id="upiGatewayMeta" style="font-size: 12px; color: #111827; margin-bottom: 24px; line-height: 1.6;"></p>
-            
-            <button class="checkout-pay-btn" id="completeUpiPayment">
-              I Have Paid
-            </button>
-          </div>
-        </div>
+
 
         <!-- Success View -->
         <div class="checkout-view" id="successView" style="display: none;">
@@ -153,9 +134,13 @@ const Checkout = (function () {
     modalOverlay = document.getElementById('checkoutOverlay');
     
     // Event Listeners
-    document.getElementById('checkoutClose').onclick = close;
-    document.getElementById('closeSuccess').onclick = close;
-    document.getElementById('backToMain').onclick = () => switchView('mainView');
+    const checkoutCloseButton = document.getElementById('checkoutClose');
+    const closeSuccessButton = document.getElementById('closeSuccess');
+    const backToMainButton = document.getElementById('backToMain');
+
+    if (checkoutCloseButton) checkoutCloseButton.onclick = close;
+    if (closeSuccessButton) closeSuccessButton.onclick = close;
+    if (backToMainButton) backToMainButton.onclick = () => switchView('mainView');
     
     document.querySelectorAll('.payment-option').forEach(opt => {
       opt.onclick = function() {
@@ -167,9 +152,11 @@ const Checkout = (function () {
       };
     });
 
-    document.getElementById('payButton').onclick = handlePaymentAction;
-    document.getElementById('completeUpiPayment').onclick = completeUpiPayment;
-    document.getElementById('copyKey').onclick = copyToClipboard;
+    const payButton = document.getElementById('payButton');
+    const copyKeyButton = document.getElementById('copyKey');
+
+    if (payButton) payButton.onclick = handlePaymentAction;
+    if (copyKeyButton) copyKeyButton.onclick = copyToClipboard;
     toggleUpiIdField();
     
     // Close on backdrop click
@@ -195,19 +182,11 @@ const Checkout = (function () {
 
 
   function handlePaymentAction() {
-    if (selectedMethod === 'upi') {
-      ensureAuthenticated().then((isAuthenticated) => {
-        if (isAuthenticated) {
-          openUpiGateway();
-        }
-      });
-    } else {
-      ensureAuthenticated().then((isAuthenticated) => {
-        if (isAuthenticated) {
-          processPayment();
-        }
-      });
-    }
+    ensureAuthenticated().then((isAuthenticated) => {
+      if (isAuthenticated) {
+        processPayment();
+      }
+    });
   }
 
   async function getCurrentUser() {
@@ -247,62 +226,7 @@ const Checkout = (function () {
     return false;
   }
 
-  function buildUpiUri(amountInPaise, config) {
-    const amountInRupees = (amountInPaise / 100).toFixed(2);
-    const merchantName = (config && config.upiMerchantName) || 'AgentVerse';
-    const upiVpa = (config && config.upiVpa) || 'random@razorpay';
-    const note = (config && config.upiNote) || (currentItem && currentItem.name ? `Payment for ${currentItem.name}` : 'AgentVerse purchase');
-    const params = new URLSearchParams({
-      pa: upiVpa,
-      pn: merchantName,
-      am: amountInRupees,
-      cu: 'INR',
-      tn: note
-    });
 
-    return `upi://pay?${params.toString()}`;
-  }
-
-  async function openUpiGateway() {
-    try {
-      const authenticated = await ensureAuthenticated();
-      if (!authenticated) {
-        return;
-      }
-
-      const config = await loadRazorpayConfig();
-      const amountInPaise = resolveAmountInPaise(currentItem);
-      const upiUri = buildUpiUri(amountInPaise, config);
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(upiUri)}`;
-      const qrContainer = document.getElementById('upiQrContainer');
-      const metaNode = document.getElementById('upiGatewayMeta');
-
-      if (qrContainer) {
-        qrContainer.innerHTML = `<img src="${qrUrl}" alt="UPI QR code" style="width: 100%; height: 100%; object-fit: cover;">`;
-      }
-
-      if (metaNode) {
-        const merchantName = (config && config.upiMerchantName) || 'AgentVerse';
-        const upiVpa = (config && config.upiVpa) || 'random@razorpay';
-        metaNode.textContent = `Pay ${currentItem && currentItem.price ? currentItem.price : '$49.00'} to ${merchantName} (${upiVpa})`;
-      }
-
-      switchView('upiGatewayView');
-      setPaymentStatus('Scan the QR in your UPI app, then confirm once the payment is complete.', 'info');
-    } catch (error) {
-      setPaymentStatus(error.message || 'Unable to prepare UPI payment.', 'error');
-    }
-  }
-
-  function completeUpiPayment() {
-    ensureAuthenticated().then((isAuthenticated) => {
-      if (!isAuthenticated) {
-        return;
-      }
-
-      setPaymentStatus('UPI payment marked as submitted. Please complete the payment in your UPI app.', 'info');
-    });
-  }
 
   function switchView(viewId) {
     document.querySelectorAll('.checkout-view').forEach(v => v.style.display = 'none');
@@ -485,7 +409,7 @@ const Checkout = (function () {
   }
 
   async function processPayment() {
-    const activeBtn = selectedMethod === 'upi' ? document.getElementById('completeUpiPayment') : document.getElementById('payButton');
+    const activeBtn = document.getElementById('payButton');
     const originalText = activeBtn ? activeBtn.textContent : 'Pay with Razorpay';
     const paymentMethodUsed = selectedMethod;
 
@@ -506,6 +430,41 @@ const Checkout = (function () {
         throw new Error('Razorpay checkout script is not available.');
       }
 
+      // Mock mode: simulate successful payment without opening real Razorpay modal
+      console.log('[DEBUG] Order object:', order);
+      if (order.mock) {
+        console.log('[DEBUG] Mock mode detected - skipping real Razorpay checkout');
+        setPaymentStatus('Processing test payment...', 'info');
+        
+        // Simulate payment handler with mock credentials
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const mockResponse = {
+          razorpay_order_id: order.order_id,
+          razorpay_payment_id: `pay_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          razorpay_signature: `mock_sig_${Math.random().toString(36).substr(2, 20)}`
+        };
+        
+        setPaymentStatus('Verifying payment...', 'info');
+        
+        try {
+          await verifyRazorpayPayment(mockResponse);
+
+          await savePurchase({
+            paymentMethod: paymentMethodUsed === 'upi' ? 'RAZORPAY_UPI' : 'RAZORPAY',
+            razorpayOrderId: mockResponse.razorpay_order_id,
+            razorpayPaymentId: mockResponse.razorpay_payment_id
+          });
+          setPaymentStatus('Payment verified successfully.', 'success');
+          showSuccess();
+        } catch (error) {
+          setPaymentStatus(error.message || 'Payment verification failed.', 'error');
+        } finally {
+          restorePaymentButton();
+        }
+        return;
+      }
+
       const razorpayOptions = {
         key: config.razorpayKeyId,
         amount: order.amount,
@@ -513,6 +472,22 @@ const Checkout = (function () {
         name: 'AgentVerse',
         description: currentItem && currentItem.name ? currentItem.name : 'Agent Access Key',
         order_id: order.order_id,
+        config: {
+          display: {
+            blocks: {
+              preferred: {
+                name: paymentMethodUsed === 'upi' ? 'Pay with UPI' : (paymentMethodUsed === 'paypal' ? 'Pay with Wallet' : 'Pay with Card'),
+                instruments: [
+                  { method: paymentMethodUsed === 'upi' ? 'upi' : (paymentMethodUsed === 'paypal' ? 'wallet' : 'card') }
+                ]
+              }
+            },
+            sequence: ['block.preferred'],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
+        },
         modal: {
           ondismiss: function () {
             setPaymentStatus('Payment cancelled.', 'error');
@@ -530,7 +505,7 @@ const Checkout = (function () {
             });
 
             await savePurchase({
-              paymentMethod: paymentMethodUsed === 'upi_id' ? 'RAZORPAY_UPI_ID' : 'RAZORPAY',
+              paymentMethod: paymentMethodUsed === 'upi' ? 'RAZORPAY_UPI' : 'RAZORPAY',
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id
             });
@@ -545,6 +520,8 @@ const Checkout = (function () {
       };
 
       const razorpay = new window.Razorpay(razorpayOptions);
+
+      console.log('[DEBUG] Opening real Razorpay checkout for order:', order.order_id);
 
       razorpay.on('payment.failed', function (response) {
         const message = response && response.error && response.error.description
@@ -571,15 +548,33 @@ const Checkout = (function () {
       try {
         const firebaseModule = await import('./firebase_config.js');
         const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
-        const q = firestoreModule.query(
-          firestoreModule.collection(firebaseModule.db, 'apiKeys'), 
-          firestoreModule.orderBy('createdAt', 'desc'), 
-          firestoreModule.limit(1)
-        );
-        const snap = await firestoreModule.getDocs(q);
-        if (!snap.empty) {
-          const keyData = snap.docs[0].data();
-          newKey = keyData.keyUrl || keyData.key || newKey;
+
+        // If the currentItem references a specific apiKeys document id, fetch that doc
+        if (currentItem && currentItem.id) {
+          try {
+            const docRef = firestoreModule.doc(firebaseModule.db, 'apiKeys', currentItem.id);
+            const docSnap = await firestoreModule.getDoc(docRef);
+            if (docSnap && docSnap.exists()) {
+              const keyData = docSnap.data();
+              newKey = keyData.keyUrl || keyData.key || newKey;
+            }
+          } catch (innerErr) {
+            console.warn('Could not fetch specific apiKey document', innerErr);
+          }
+        }
+
+        // Fallback: get most recent key if specific id not available or fetch failed
+        if (!newKey || newKey.indexOf('av_live_') === 0) {
+          const q = firestoreModule.query(
+            firestoreModule.collection(firebaseModule.db, 'apiKeys'),
+            firestoreModule.orderBy('createdAt', 'desc'),
+            firestoreModule.limit(1)
+          );
+          const snap = await firestoreModule.getDocs(q);
+          if (!snap.empty) {
+            const keyData = snap.docs[0].data();
+            newKey = keyData.keyUrl || keyData.key || newKey;
+          }
         }
       } catch (e) {
         console.warn('Could not retrieve API key from Firebase.', e);
@@ -625,15 +620,37 @@ const Checkout = (function () {
 
       const user = auth.currentUser;
       if (user) {
+        // Save to user-specific purchase history
         await addDoc(collection(db, 'users', user.uid, 'purchaseHistory'), {
             itemName: entry.itemName || 'Unknown Item',
             amount: entry.amount ?? null,
             paymentMethod: entry.paymentMethod || 'N/A',
             source: entry.source || 'Unknown',
             purchasedAt: entry.purchasedAt ? new Date(entry.purchasedAt) : serverTimestamp(),
+            licenseKey: entry.licenseKey || null,
+            razorpayOrderId: entry.razorpayOrderId || null,
+            razorpayPaymentId: entry.razorpayPaymentId || null,
+            userId: user.uid,
+            userEmail: user.email,
             createdAt: serverTimestamp()
         });
-        console.log("Purchase successfully connected and saved to Firebase.");
+        
+        // Also save to global purchase logs for admin reporting
+        await addDoc(collection(db, 'logs', 'purchases', 'records'), {
+            itemName: entry.itemName || 'Unknown Item',
+            amount: entry.amount ?? null,
+            paymentMethod: entry.paymentMethod || 'N/A',
+            source: entry.source || 'Unknown',
+            purchasedAt: entry.purchasedAt ? new Date(entry.purchasedAt) : serverTimestamp(),
+            licenseKey: entry.licenseKey || null,
+            razorpayOrderId: entry.razorpayOrderId || null,
+            razorpayPaymentId: entry.razorpayPaymentId || null,
+            userId: user.uid,
+            userEmail: user.email,
+            timestamp: serverTimestamp()
+        });
+        
+        console.log("Purchase successfully saved to user history and purchase logs.");
       } else {
         console.warn("User not logged in, purchase not saved to Firebase.");
       }

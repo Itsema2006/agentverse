@@ -514,6 +514,7 @@
         <div class="key-form">
           <input id="apiKeyName" type="text" placeholder="Key name (e.g. Team A Key)" />
           <input id="apiKeyFunction" type="text" placeholder="Key function (e.g. Production access)" />
+          <input id="apiKeyDescription" type="text" placeholder="Key description (shown on browse cards)" />
           <select id="apiAgentKind">
             <option value="">Agent kind</option>
             <option value="Data Agent">Data Agent</option>
@@ -557,7 +558,7 @@
   <script type="module">
     import { auth, db } from './js/firebase_config.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     var SETTINGS_KEYS = {
       pricing: 'agentversePricingConfig',
@@ -699,10 +700,22 @@
           snap.forEach(d => {
             firebaseApiKeys.push({ id: d.id, ...d.data() });
           });
+          try {
+            localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(firebaseApiKeys));
+          } catch (cacheError) {
+            console.warn('Could not cache apiKeys locally', cacheError);
+          }
           return firebaseApiKeys;
         } catch (error) {
           console.error("Error fetching keys:", error);
-          return [];
+          try {
+            const raw = localStorage.getItem(SETTINGS_KEYS.apiKeys);
+            const cached = raw ? JSON.parse(raw) : [];
+            return Array.isArray(cached) ? cached : [];
+          } catch (cacheError) {
+            console.warn('Could not read cached apiKeys', cacheError);
+            return [];
+          }
         }
       }
 
@@ -752,6 +765,9 @@
           var keyFunction = document.createElement('span');
           keyFunction.textContent = 'Function: ' + (item.keyFunction || 'N/A');
 
+          var keyDescription = document.createElement('span');
+          keyDescription.textContent = 'Description: ' + (item.description || 'N/A');
+
           var agentKind = document.createElement('span');
           agentKind.textContent = 'Agent kind: ' + (item.agentKind || 'General');
 
@@ -775,6 +791,7 @@
           }
 
           meta.appendChild(keyFunction);
+          meta.appendChild(keyDescription);
           meta.appendChild(agentKind);
           meta.appendChild(category);
           meta.appendChild(price);
@@ -793,7 +810,36 @@
           remove.addEventListener('click', async function () {
             try {
               if (item.id) {
+                const keyName = item.keyName || 'Unknown';
+                
+                // Log the deletion
+                await addDoc(collection(db, 'logs', 'apiKeyDeletion', 'records'), {
+                  keyName: keyName,
+                  category: item.category || null,
+                  deletedBy: auth.currentUser?.email || 'unknown',
+                  timestamp: serverTimestamp(),
+                  apiKeyDocId: item.id
+                }).catch(err => console.warn('Could not log API key deletion:', err));
+                
                 await deleteDoc(doc(db, 'apiKeys', item.id));
+
+                fetch('/api/public-api-keys/' + encodeURIComponent(item.id), {
+                  method: 'DELETE',
+                  headers: {
+                    Accept: 'application/json'
+                  }
+                }).catch(function (syncError) {
+                  console.warn('Could not remove apiKey from public store:', syncError);
+                });
+              }
+              try {
+                const remaining = firebaseApiKeys.filter(function (entry) {
+                  return entry.id !== item.id;
+                });
+                firebaseApiKeys = remaining;
+                localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(remaining));
+              } catch (cacheError) {
+                console.warn('Could not update local apiKeys cache after delete', cacheError);
               }
               await renderKeys();
               showStatus('keysStatus', 'API key revoked.', 'warn');
@@ -817,6 +863,21 @@
       document.getElementById('docsLabel').value = docs.label;
       document.getElementById('docsUrl').value = docs.url;
       renderKeys();
+
+      // Start a realtime listener so admin sees new keys immediately
+      try {
+        const qRealtime = query(collection(db, 'apiKeys'), orderBy('createdAt', 'desc'));
+        onSnapshot(qRealtime, function (snap) {
+          // Re-render the keys list when any change occurs
+          try {
+            renderKeys();
+          } catch (e) {
+            console.warn('Error re-rendering keys from realtime snapshot', e);
+          }
+        });
+      } catch (e) {
+        console.warn('Could not start realtime listener for apiKeys in admin view', e);
+      }
 
       document.getElementById('savePricingBtn').addEventListener('click', async function () {
         var pricing = {
@@ -878,6 +939,7 @@
 
         var keyName = document.getElementById('apiKeyName').value.trim();
         var keyFunction = document.getElementById('apiKeyFunction').value.trim();
+        var keyDescription = document.getElementById('apiKeyDescription').value.trim();
         var agentKind = document.getElementById('apiAgentKind').value;
         var category = document.getElementById('apiKeyCategory').value;
         var keyUrl = document.getElementById('apiKeyUrl').value.trim();
@@ -891,6 +953,11 @@
 
         if (!keyFunction) {
           showStatus('keysStatus', 'Key function is required.', 'warn');
+          return;
+        }
+
+        if (!keyDescription) {
+          showStatus('keysStatus', 'Key description is required.', 'warn');
           return;
         }
 
@@ -937,6 +1004,7 @@
         var entry = {
           keyName: keyName,
           keyFunction: keyFunction,
+          description: keyDescription,
           agentKind: agentKind,
           category: category,
           price: Math.round(price),
@@ -950,10 +1018,42 @@
           entry.key = keyUrl;
         }
 
-        addDoc(collection(db, 'apiKeys'), entry).then(() => {
+        addDoc(collection(db, 'apiKeys'), entry).then((docRef) => {
+          const cachedEntry = Object.assign({ id: docRef.id }, entry);
+          try {
+            firebaseApiKeys = [cachedEntry].concat(firebaseApiKeys || []);
+            localStorage.setItem(SETTINGS_KEYS.apiKeys, JSON.stringify(firebaseApiKeys));
+          } catch (cacheError) {
+            console.warn('Could not cache newly added apiKey locally', cacheError);
+          }
+
+          fetch('/api/public-api-keys', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            body: JSON.stringify(cachedEntry)
+          }).catch(function (syncError) {
+            console.warn('Could not sync apiKey to public store:', syncError);
+          });
+
+          // Log API key creation to database
+          addDoc(collection(db, 'logs', 'apiKeyCreation', 'records'), {
+            keyName: keyName,
+            category: category,
+            price: Math.round(price),
+            paymentMethod: paymentMethod,
+            isUrl: isUrl,
+            createdBy: auth.currentUser?.email || 'unknown',
+            timestamp: serverTimestamp(),
+            apiKeyDocId: docRef.id
+          }).catch(err => console.warn('Could not log API key creation:', err));
+          
           bumpConfigVersion();
           document.getElementById('apiKeyName').value = '';
           document.getElementById('apiKeyFunction').value = '';
+          document.getElementById('apiKeyDescription').value = '';
           document.getElementById('apiAgentKind').value = '';
           document.getElementById('apiKeyCategory').value = '';
           document.getElementById('apiKeyUrl').value = '';
