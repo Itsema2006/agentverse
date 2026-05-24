@@ -555,40 +555,44 @@ const Checkout = (function () {
       const history = raw ? JSON.parse(raw) : [];
       const list = Array.isArray(history) ? history : [];
       
-      let newKey = `av_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
-      try {
-        const firebaseModule = await import('./firebase_config.js');
-        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
+      let newKey = (currentItem && (currentItem.keyUrl || currentItem.rawKey)) ? (currentItem.keyUrl || currentItem.rawKey) : '';
+      
+      if (!newKey) {
+        newKey = `av_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
+        try {
+          const firebaseModule = await import('./firebase_config.js');
+          const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
 
-        // If the currentItem references a specific apiKeys document id, fetch that doc
-        if (currentItem && currentItem.id) {
-          try {
-            const docRef = firestoreModule.doc(firebaseModule.db, 'apiKeys', currentItem.id);
-            const docSnap = await firestoreModule.getDoc(docRef);
-            if (docSnap && docSnap.exists()) {
-              const keyData = docSnap.data();
+          // If the currentItem references a specific apiKeys document id, fetch that doc
+          if (currentItem && currentItem.id) {
+            try {
+              const docRef = firestoreModule.doc(firebaseModule.db, 'apiKeys', currentItem.id);
+              const docSnap = await firestoreModule.getDoc(docRef);
+              if (docSnap && docSnap.exists()) {
+                const keyData = docSnap.data();
+                newKey = keyData.keyUrl || keyData.key || newKey;
+              }
+            } catch (innerErr) {
+              console.warn('Could not fetch specific apiKey document', innerErr);
+            }
+          }
+
+          // Fallback: get most recent key if specific id not available or fetch failed
+          if (!newKey || newKey.indexOf('av_live_') === 0) {
+            const q = firestoreModule.query(
+              firestoreModule.collection(firebaseModule.db, 'apiKeys'),
+              firestoreModule.orderBy('createdAt', 'desc'),
+              firestoreModule.limit(1)
+            );
+            const snap = await firestoreModule.getDocs(q);
+            if (!snap.empty) {
+              const keyData = snap.docs[0].data();
               newKey = keyData.keyUrl || keyData.key || newKey;
             }
-          } catch (innerErr) {
-            console.warn('Could not fetch specific apiKey document', innerErr);
           }
+        } catch (e) {
+          console.warn('Could not retrieve API key from Firebase.', e);
         }
-
-        // Fallback: get most recent key if specific id not available or fetch failed
-        if (!newKey || newKey.indexOf('av_live_') === 0) {
-          const q = firestoreModule.query(
-            firestoreModule.collection(firebaseModule.db, 'apiKeys'),
-            firestoreModule.orderBy('createdAt', 'desc'),
-            firestoreModule.limit(1)
-          );
-          const snap = await firestoreModule.getDocs(q);
-          if (!snap.empty) {
-            const keyData = snap.docs[0].data();
-            newKey = keyData.keyUrl || keyData.key || newKey;
-          }
-        }
-      } catch (e) {
-        console.warn('Could not retrieve API key from Firebase.', e);
       }
       
       const entry = {
