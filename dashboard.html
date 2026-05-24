@@ -360,6 +360,8 @@
           return;
         }
 
+        renderAll(); // Immediately show local data to avoid empty flash
+
         try {
           const userDocRef = doc(db, 'users', user.uid);
           const userDocSnap = await getDoc(userDocRef);
@@ -390,9 +392,6 @@
               titleEl.textContent = user.email || 'User';
             }
           }
-          
-          // Fetch user data from Firebase
-          fetchFirebaseData(user.uid);
         } catch (err) {
           console.warn('Error fetching user profile from Firestore:', err);
           // Fallback to localStorage
@@ -403,14 +402,20 @@
                 var active = JSON.parse(activeRaw);
                 if (active && active.name && active.name.trim() !== '') {
                   titleEl.textContent = active.name;
-                  return;
+                } else {
+                  titleEl.textContent = user.email || 'User';
                 }
+              } else {
+                titleEl.textContent = user.email || 'User';
               }
             } catch (e) {
               console.warn('Fallback to localStorage failed', e);
+              titleEl.textContent = user.email || 'User';
             }
-            titleEl.textContent = user.email || 'User';
           }
+        } finally {
+          // Fetch user data from Firebase regardless of profile fetch success
+          fetchFirebaseData(user.uid);
         }
       });
 
@@ -637,34 +642,50 @@
         try {
           const qPurchases = query(collection(db, 'users', uid, 'purchaseHistory'));
           const purchaseSnap = await getDocs(qPurchases);
-          const purchases = [];
-          purchaseSnap.forEach(d => purchases.push(d.data()));
-          const orderedPurchases = sortLatestFirst(purchases);
+          const fbPurchases = [];
+          purchaseSnap.forEach(d => fbPurchases.push(d.data()));
           
           const qSearches = query(collection(db, 'users', uid, 'recentSearches'));
           const searchSnap = await getDocs(qSearches);
-          const searches = [];
+          const fbSearches = [];
           searchSnap.forEach(d => {
             const data = d.data();
-            if (data.term) searches.push(data.term);
+            if (data.term) fbSearches.push(data.term);
           });
           
           const qKeys = query(collection(db, 'apiKeys'));
           const keysSnap = await getDocs(qKeys);
-          const apiKeys = [];
-          keysSnap.forEach(d => apiKeys.push(d.data()));
-          const orderedApiKeys = sortLatestFirst(apiKeys);
+          const fbApiKeys = [];
+          keysSnap.forEach(d => fbApiKeys.push(d.data()));
+
+          // Fetch local storage
+          const localPurchases = readArray(STORAGE_KEYS.purchases);
+          const localSearches = readArray(STORAGE_KEYS.searches);
+          const localApiKeys = readArray(STORAGE_KEYS.apiKeys);
+
+          // Merge by prioritizing Firebase, but keeping local if missing (simplistic merge)
+          // For simple display, combining them and deduplicating by a unique field is best.
+          // For now, if Firebase is completely empty, heavily rely on local storage.
+          
+          const allPurchases = fbPurchases.length > 0 ? fbPurchases : localPurchases;
+          const allSearches = fbSearches.length > 0 ? fbSearches : localSearches;
+          
+          // API keys from backend are typically cached in localApiKeys
+          const allApiKeys = fbApiKeys.length > 0 ? fbApiKeys : localApiKeys;
+
+          const orderedPurchases = sortLatestFirst(allPurchases);
+          const orderedApiKeys = sortLatestFirst(allApiKeys);
           const ownedKeys = orderedPurchases.filter(function (item) {
             return item && (item.licenseKey || item.key || item.keyUrl);
           });
 
           setStat('totalPurchases', orderedPurchases.length);
-          setStat('totalSearches', searches.length);
+          setStat('totalSearches', allSearches.length);
           setStat('totalApiKeys', orderedApiKeys.length);
           setStat('totalOwnedKeys', ownedKeys.length);
 
           renderPurchases(orderedPurchases);
-          renderSearches(searches);
+          renderSearches(allSearches);
           renderApiKeys(orderedApiKeys);
           renderOwnedKeys(orderedPurchases);
         } catch (error) {
