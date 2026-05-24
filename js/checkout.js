@@ -8,16 +8,22 @@ const Checkout = (function () {
     purchaseHistory: 'agentversePurchaseHistory'
   };
 
-  const BACKEND_URL = window.location.hostname === '127.0.0.1' || 
-                      (window.location.hostname === 'localhost' && window.location.port !== '3000') ||
-                      window.location.hostname === 'infiniteagent.netlify.app'
-    ? 'http://localhost:3000' 
-    : '';
+  const API_BASE_URL = (function () {
+    if (window.AGENTVERSE_API_BASE_URL && typeof window.AGENTVERSE_API_BASE_URL === 'string') {
+      return window.AGENTVERSE_API_BASE_URL.replace(/\/+$/, '');
+    }
+
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return `${window.location.protocol}//${window.location.hostname}:3000`;
+    }
+
+    return window.location.origin;
+  })();
 
   const API_ENDPOINTS = {
-    config: BACKEND_URL + '/api/config',
-    createOrder: BACKEND_URL + '/api/create-order',
-    verifyPayment: BACKEND_URL + '/api/verify-payment'
+    config: API_BASE_URL + '/api/config',
+    createOrder: API_BASE_URL + '/api/create-order',
+    verifyPayment: API_BASE_URL + '/api/verify-payment'
   };
 
   let modalOverlay = null;
