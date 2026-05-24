@@ -232,6 +232,10 @@ app.get('/', (req, res) => {
 
 app.use(express.static(publicDirectory));
 
-app.listen(PORT, () => {
-  console.log(`AgentVerse server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`AgentVerse server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

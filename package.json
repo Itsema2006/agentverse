@@ -8,6 +8,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "firebase": "^12.12.1",
-    "razorpay": "^2.9.6"
+    "razorpay": "^2.9.6",
+    "serverless-http": "^4.0.0"
   }
 }
