@@ -701,7 +701,9 @@
           
           Checkout.open({
             name: name,
-            price: price
+            price: price,
+            type: 'subscription',
+            description: 'Your subscription will be activated after your payment is completed.'
           });
         });
       });

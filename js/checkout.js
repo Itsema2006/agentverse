@@ -610,7 +610,11 @@ const Checkout = (function () {
       document.getElementById('generatedKey').textContent = newKey;
       const keyContainer = document.querySelector('.api-key-container');
       if (keyContainer) {
-        keyContainer.style.display = 'block';
+        if (currentItem && currentItem.type === 'subscription') {
+          keyContainer.style.display = 'none';
+        } else {
+          keyContainer.style.display = 'block';
+        }
       }
       
       window.dispatchEvent(new Event('storage'));
