@@ -376,6 +376,69 @@
       white-space: nowrap;
     }
 
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 12px;
+    }
+
+    .activity-box {
+      border: 1px solid #fde2d2;
+      border-radius: 14px;
+      background: #fffaf6;
+      padding: 14px;
+    }
+
+    .activity-box h3 {
+      font-family: "Manrope", sans-serif;
+      font-size: 16px;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .activity-box p {
+      margin-bottom: 10px;
+    }
+
+    .activity-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .activity-list li {
+      border: 1px solid #fde2d2;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 10px 12px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .activity-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #7c2d12;
+      word-break: break-word;
+    }
+
+    .activity-meta {
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .activity-time {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
     .empty {
       border: 1px dashed #fdba74;
       border-radius: 12px;
@@ -415,6 +478,10 @@
 
     @media (max-width: 980px) {
       .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .activity-grid {
         grid-template-columns: 1fr;
       }
 
@@ -547,6 +614,23 @@
         <ul class="keys-list" id="keysList"></ul>
         <div class="status" id="keysStatus"></div>
       </article>
+
+      <article class="panel" style="grid-column: 1 / -1;">
+        <h2>Global Activity</h2>
+        <p>Live view of purchases and searches saved in Firestore across all users.</p>
+        <div class="activity-grid">
+          <div class="activity-box">
+            <h3>Purchase History</h3>
+            <p>Latest saved purchase entries across the platform.</p>
+            <ul class="activity-list" id="purchaseHistoryList"></ul>
+          </div>
+          <div class="activity-box">
+            <h3>Recent Searches</h3>
+            <p>Latest saved search terms across the platform.</p>
+            <ul class="activity-list" id="recentSearchList"></ul>
+          </div>
+        </div>
+      </article>
     </section>
 
     <div id="footer-placeholder"></div>
@@ -558,7 +642,7 @@
   <script type="module">
     import { auth, db } from './js/firebase_config.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { collection, collectionGroup, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     var SETTINGS_KEYS = {
       pricing: 'agentversePricingConfig',
@@ -686,6 +770,168 @@
           };
         } catch (error) {
           return { label: 'Docs', url: 'docs.html' };
+        }
+      }
+
+      function getEntryTimestamp(item) {
+        if (!item) {
+          return 0;
+        }
+
+        var value = item.createdAt || item.purchasedAt || item.timestamp || item.updatedAt;
+
+        if (value && typeof value.toDate === 'function') {
+          value = value.toDate();
+        }
+
+        if (value instanceof Date && !isNaN(value.getTime())) {
+          return value.getTime();
+        }
+
+        var parsed = value ? new Date(value) : null;
+        return parsed && !isNaN(parsed.getTime()) ? parsed.getTime() : 0;
+      }
+
+      function sortLatestFirst(items) {
+        return items.slice().sort(function (left, right) {
+          return getEntryTimestamp(right) - getEntryTimestamp(left);
+        });
+      }
+
+      function formatEntryTime(item) {
+        var timestamp = item && (item.purchasedAt || item.createdAt || item.timestamp || item.updatedAt);
+
+        if (timestamp && typeof timestamp.toDate === 'function') {
+          timestamp = timestamp.toDate();
+        }
+
+        if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
+          return timestamp.toLocaleString();
+        }
+
+        var parsed = timestamp ? new Date(timestamp) : null;
+        return parsed && !isNaN(parsed.getTime()) ? parsed.toLocaleString() : 'Unknown time';
+      }
+
+      function renderPurchaseHistory(items) {
+        var list = document.getElementById('purchaseHistoryList');
+        if (!list) {
+          return;
+        }
+
+        list.innerHTML = '';
+
+        if (!items.length) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No purchase history found yet.';
+          list.appendChild(empty);
+          return;
+        }
+
+        items.slice(0, 12).forEach(function (item) {
+          var row = document.createElement('li');
+
+          var title = document.createElement('div');
+          title.className = 'activity-title';
+          title.textContent = item.itemName || 'Purchase Item';
+
+          var meta = document.createElement('div');
+          meta.className = 'activity-meta';
+
+          var amount = document.createElement('span');
+          amount.textContent = item.amount != null ? '$' + item.amount : 'Amount pending';
+
+          var payment = document.createElement('span');
+          payment.textContent = item.paymentMethod || 'N/A';
+
+          var source = document.createElement('span');
+          source.textContent = item.source || 'Unknown source';
+
+          var user = document.createElement('span');
+          user.textContent = item.userEmail || item.userId || 'User unknown';
+
+          var time = document.createElement('div');
+          time.className = 'activity-time';
+          time.textContent = formatEntryTime(item);
+
+          meta.appendChild(amount);
+          meta.appendChild(payment);
+          meta.appendChild(source);
+          meta.appendChild(user);
+
+          row.appendChild(title);
+          row.appendChild(meta);
+          row.appendChild(time);
+          list.appendChild(row);
+        });
+      }
+
+      function renderRecentSearches(items) {
+        var list = document.getElementById('recentSearchList');
+        if (!list) {
+          return;
+        }
+
+        list.innerHTML = '';
+
+        if (!items.length) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No recent searches found yet.';
+          list.appendChild(empty);
+          return;
+        }
+
+        items.slice(0, 16).forEach(function (item) {
+          var row = document.createElement('li');
+
+          var title = document.createElement('div');
+          title.className = 'activity-title';
+          title.textContent = item.term || 'Search term unavailable';
+
+          var meta = document.createElement('div');
+          meta.className = 'activity-meta';
+
+          var source = document.createElement('span');
+          source.textContent = item.source || 'Unknown source';
+
+          var user = document.createElement('span');
+          user.textContent = item.userEmail || item.userId || 'User unknown';
+
+          var time = document.createElement('div');
+          time.className = 'activity-time';
+          time.textContent = formatEntryTime(item);
+
+          meta.appendChild(source);
+          meta.appendChild(user);
+
+          row.appendChild(title);
+          row.appendChild(meta);
+          row.appendChild(time);
+          list.appendChild(row);
+        });
+      }
+
+      async function loadGlobalActivity() {
+        try {
+          const [purchaseSnap, searchSnap] = await Promise.all([
+            getDocs(query(collectionGroup(db, 'purchaseHistory'))),
+            getDocs(query(collectionGroup(db, 'recentSearches')))
+          ]);
+
+          const purchases = [];
+          purchaseSnap.forEach(d => purchases.push({ id: d.id, ...d.data() }));
+
+          const searches = [];
+          searchSnap.forEach(d => searches.push({ id: d.id, ...d.data() }));
+
+          renderPurchaseHistory(sortLatestFirst(purchases));
+          renderRecentSearches(sortLatestFirst(searches));
+        } catch (error) {
+          console.error('Error loading global activity:', error);
+          renderPurchaseHistory([]);
+          renderRecentSearches([]);
         }
       }
 
@@ -863,6 +1109,7 @@
       document.getElementById('docsLabel').value = docs.label;
       document.getElementById('docsUrl').value = docs.url;
       renderKeys();
+      loadGlobalActivity();
 
       // Start a realtime listener so admin sees new keys immediately
       try {
@@ -879,6 +1126,20 @@
         console.warn('Could not start realtime listener for apiKeys in admin view', e);
       }
 
+      try {
+        const qPurchaseRealtime = query(collectionGroup(db, 'purchaseHistory'));
+        onSnapshot(qPurchaseRealtime, function () {
+          loadGlobalActivity();
+        });
+
+        const qSearchRealtime = query(collectionGroup(db, 'recentSearches'));
+        onSnapshot(qSearchRealtime, function () {
+          loadGlobalActivity();
+        });
+      } catch (e) {
+        console.warn('Could not start realtime listener for global activity in admin view', e);
+      }
+
       document.getElementById('savePricingBtn').addEventListener('click', async function () {
         var pricing = {
           starter: { month: readNumber('starterMonth'), year: readNumber('starterYear') },
@@ -892,6 +1153,7 @@
         }
 
         try {
+          loadGlobalActivity();
           await setDoc(doc(db, 'config', 'pricing'), pricing);
           localStorage.setItem(SETTINGS_KEYS.pricing, JSON.stringify(pricing));
           bumpConfigVersion();
@@ -1060,6 +1322,7 @@
           document.getElementById('apiKeyPrice').value = '';
           document.getElementById('paymentMethod').value = '';
           renderKeys();
+          loadGlobalActivity();
           showStatus('keysStatus', 'API key option added with price and payment method.', 'ok');
           showSuccessToast('Changes added successfully.');
         }).catch((error) => {

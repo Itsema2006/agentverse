@@ -973,7 +973,17 @@ Load More Agents
         await addDoc(collection(db, 'users', syncState.uid, 'recentSearches'), {
             term: normalized,
             source: 'browse',
+            userId: syncState.uid,
+            userEmail: auth.currentUser && auth.currentUser.email ? auth.currentUser.email : null,
             createdAt: serverTimestamp()
+        });
+
+        await addDoc(collection(db, 'logs', 'recentSearches', 'records'), {
+            term: normalized,
+            source: 'browse',
+            userId: syncState.uid,
+            userEmail: auth.currentUser && auth.currentUser.email ? auth.currentUser.email : null,
+            timestamp: serverTimestamp()
         });
     }
 
@@ -988,7 +998,20 @@ Load More Agents
             paymentMethod: entry.paymentMethod || 'N/A',
             source: entry.source || 'Unknown',
             purchasedAt: entry.purchasedAt ? new Date(entry.purchasedAt) : serverTimestamp(),
+            userId: syncState.uid,
+            userEmail: auth.currentUser && auth.currentUser.email ? auth.currentUser.email : null,
             createdAt: serverTimestamp()
+        });
+
+        await addDoc(collection(db, 'logs', 'purchases', 'records'), {
+            itemName: entry.itemName || 'Unknown Item',
+            amount: entry.amount ?? null,
+            paymentMethod: entry.paymentMethod || 'N/A',
+            source: entry.source || 'Unknown',
+            purchasedAt: entry.purchasedAt ? new Date(entry.purchasedAt) : serverTimestamp(),
+            userId: syncState.uid,
+            userEmail: auth.currentUser && auth.currentUser.email ? auth.currentUser.email : null,
+            timestamp: serverTimestamp()
         });
     }
 
