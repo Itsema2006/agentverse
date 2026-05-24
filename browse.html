@@ -1422,17 +1422,14 @@ Load More Agents
 
                 const description = document.createElement('p');
                 description.className = 'text-on-surface-variant text-sm leading-relaxed';
-                description.textContent = item.description || 'No description provided';
-
-                const keyUrl = document.createElement('p');
-                keyUrl.className = 'text-on-surface-variant text-sm leading-relaxed break-all';
-                keyUrl.textContent = item.keyUrl || item.key || 'No key available';
+                description.textContent = item.description || '';
 
                 headingWrap.appendChild(name);
                 headingWrap.appendChild(badgeRow);
                 headingWrap.appendChild(meta);
-                headingWrap.appendChild(description);
-                headingWrap.appendChild(keyUrl);
+                if (description.textContent) {
+                    headingWrap.appendChild(description);
+                }
 
                 const price = document.createElement('span');
                 price.className = 'text-xs text-on-surface-variant font-mono';
