@@ -30,13 +30,22 @@ path="index.html"
     -webkit-font-smoothing: antialiased;
   }
 
-  /* THREE.JS CANVAS */
-  #three-canvas {
-    position: fixed;
+  /* INFINITY LOOP CANVAS */
+  .hero-visual {
+    position: absolute;
     top: 0; right: 0;
-    width: 100vw; height: 100vh;
-    z-index: 1;
+    width: 55%;
+    height: 100%;
+    z-index: 5;
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #infinity-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   /* NAV */
@@ -290,6 +299,24 @@ path="index.html"
     overflow: hidden;
   }
 
+  @media (max-width: 900px) {
+    .hero-visual {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-top: 20px;
+    }
+    #hero {
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 600px) {
+    .hero-visual {
+      height: 320px;
+    }
+  }
+
   /* Gradient overlays */
   .hero-gradient-top {
     position: absolute; top: 0; left: 0; right: 0; height: 200px;
@@ -537,7 +564,6 @@ path="index.html"
     .stat-item { flex: 1 1 140px; }
     #features { padding: 72px 20px 84px; }
     .feature-card { padding: 28px 22px; }
-    /* footer { padding: 30px 24px; flex-direction: column; gap: 12px; } */
   }
   @media (max-width: 600px) {
     .features-grid { grid-template-columns: 1fr; }
@@ -563,9 +589,6 @@ path="index.html"
 </style>
 </head>
 <body>
-
-<!-- THREE.JS CANVAS -->
-<canvas id="three-canvas"></canvas>
 
 <!-- NAV -->
 <nav>
@@ -634,6 +657,10 @@ path="index.html"
       </div>
     </div>
   </div>
+
+  <div class="hero-visual">
+    <canvas id="infinity-canvas"></canvas>
+  </div>
 </section>
 
 <!-- FEATURES -->
@@ -680,7 +707,7 @@ path="index.html"
 <!-- FOOTER -->
 <div id="footer-placeholder"></div>
 
-<!-- THREE.JS 3D BOT -->
+<!-- THREE.JS INFINITY LOOP -->
 <script type="importmap">
 {
   "imports": {
@@ -692,672 +719,443 @@ path="index.html"
 <script type="module">
 import * as THREE from 'three';
 
-// ——— SETUP ———
-const canvas = document.getElementById('three-canvas');
+const container = document.querySelector('.hero-visual');
+const canvas = document.getElementById('infinity-canvas');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+renderer.toneMappingExposure = 1.4;
+
+function updateSize() {
+  if (!container) return;
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 0, 18);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
+camera.position.set(0, 1.5, 12);
+camera.lookAt(0, 0, 0);
 
-// ——— MOUSE TRACKING ———
+updateSize();
+
+scene.add(new THREE.AmbientLight(0xfff5eb, 0.7));
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+keyLight.position.set(4, 8, 10);
+scene.add(keyLight);
+
+const warmLight = new THREE.PointLight(0xff7a18, 3, 25);
+warmLight.position.set(-4, 3, 6);
+scene.add(warmLight);
+
+const pinkLight = new THREE.PointLight(0xd946ef, 1.5, 20);
+pinkLight.position.set(4, -2, 5);
+scene.add(pinkLight);
+
+const violetLight = new THREE.PointLight(0x8b5cf6, 1.2, 18);
+violetLight.position.set(0, 4, 8);
+scene.add(violetLight);
+
+const blueLight = new THREE.PointLight(0x60a5fa, 0.8, 15);
+blueLight.position.set(-3, -3, -4);
+scene.add(blueLight);
+
 const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
 window.addEventListener('mousemove', (e) => {
   mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
   mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
 });
 
-// ——— SCROLL TRACKING ———
-let scrollProgress = 0;
-window.addEventListener('scroll', () => {
-  const heroEl = document.getElementById('hero');
-  scrollProgress = Math.min(1, window.scrollY / (heroEl.offsetHeight * 0.8));
-});
+const loopGroup = new THREE.Group();
+loopGroup.position.set(1.5, 0, 0);
+scene.add(loopGroup);
 
-// ——— LIGHTING ———
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+const pedestalGroup = new THREE.Group();
+pedestalGroup.position.set(1.5, -2.2, 0);
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-keyLight.position.set(5, 8, 10);
-scene.add(keyLight);
+const pedMat = new THREE.MeshStandardMaterial({ color: 0xfff0e5, roughness: 0.15, metalness: 0.1 });
+const cyl1 = new THREE.Mesh(new THREE.CylinderGeometry(4.8, 5.0, 0.3, 64), pedMat);
+cyl1.position.y = -0.3;
+pedestalGroup.add(cyl1);
+const cyl2 = new THREE.Mesh(new THREE.CylinderGeometry(4.0, 4.2, 0.4, 64), pedMat);
+cyl2.position.y = 0.05;
+pedestalGroup.add(cyl2);
+const cyl3 = new THREE.Mesh(new THREE.CylinderGeometry(3.8, 3.9, 0.1, 64), pedMat);
+cyl3.position.y = 0.3;
+pedestalGroup.add(cyl3);
+const accent = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.8, 0.8, 0.15, 32),
+  new THREE.MeshStandardMaterial({ color: 0xff8c42, roughness: 0.2, metalness: 0.5 })
+);
+accent.position.set(2.2, 0.35, 1.5);
+pedestalGroup.add(accent);
+scene.add(pedestalGroup);
 
-const orangeLight = new THREE.PointLight(0xF97316, 4, 30);
-orangeLight.position.set(-4, 4, 8);
-scene.add(orangeLight);
-
-const blueLight = new THREE.PointLight(0x3B82F6, 2, 25);
-blueLight.position.set(5, -3, 6);
-scene.add(blueLight);
-
-const cyanLight = new THREE.PointLight(0x06B6D4, 1.5, 20);
-cyanLight.position.set(0, 5, 10);
-scene.add(cyanLight);
-
-const rimLight = new THREE.PointLight(0xEC4899, 1.5, 20);
-rimLight.position.set(-3, -2, -5);
-scene.add(rimLight);
-
-// ——— BOT GROUP ———
-const botGroup = new THREE.Group();
-botGroup.position.set(9, 0.3, 0);
-scene.add(botGroup);
-
-// Materials
-const bodyMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
-  metalness: 0.1,
-  roughness: 0.15,
-  envMapIntensity: 0.5,
-});
-
-const darkMat = new THREE.MeshStandardMaterial({
-  color: 0x1a1a2e,
-  metalness: 0.6,
-  roughness: 0.2,
-});
-
-const orangeGlowMat = new THREE.MeshStandardMaterial({
-  color: 0xF97316,
-  emissive: 0xF97316,
-  emissiveIntensity: 0.8,
-  metalness: 0.3,
-  roughness: 0.1,
-});
-
-const cyanGlowMat = new THREE.MeshStandardMaterial({
-  color: 0x06B6D4,
-  emissive: 0x06B6D4,
-  emissiveIntensity: 0.6,
-  metalness: 0.3,
-  roughness: 0.1,
-});
-
-const glassMat = new THREE.MeshStandardMaterial({
-  color: 0x1a1a3e,
-  metalness: 0.9,
-  roughness: 0.05,
-  transparent: true,
-  opacity: 0.85,
-});
-
-// ——— HEAD (rounded cube) ———
-const headGroup = new THREE.Group();
-headGroup.position.y = 1.8;
-botGroup.add(headGroup);
-
-const headGeo = new THREE.BoxGeometry(2.2, 1.8, 2, 8, 8, 8);
-// Round the cube vertices
-const headPos = headGeo.attributes.position;
-const headVec = new THREE.Vector3();
-for (let i = 0; i < headPos.count; i++) {
-  headVec.set(headPos.getX(i), headPos.getY(i), headPos.getZ(i));
-  const len = headVec.length();
-  const scale = 1 + (1.45 / len - 1) * 0.35;
-  headVec.multiplyScalar(Math.min(scale, 1.08));
-  headPos.setXYZ(i, headVec.x, headVec.y, headVec.z);
-}
-headGeo.computeVertexNormals();
-
-const headMesh = new THREE.Mesh(headGeo, bodyMat);
-headGroup.add(headMesh);
-
-// Face screen (visor)
-const visorGeo = new THREE.BoxGeometry(1.8, 1.0, 0.15, 4, 4, 1);
-const visorPos = visorGeo.attributes.position;
-for (let i = 0; i < visorPos.count; i++) {
-  headVec.set(visorPos.getX(i), visorPos.getY(i), visorPos.getZ(i));
-  const lx = Math.abs(headVec.x) / 0.9;
-  const ly = Math.abs(headVec.y) / 0.5;
-  const edge = Math.max(lx, ly);
-  if (edge > 0.8) {
-    const s = 0.92;
-    headVec.x *= s;
-    headVec.y *= s;
+class LemniscateCurve extends THREE.Curve {
+  constructor(scale = 3.2) {
+    super();
+    this.scale2 = scale;
+  }
+  getPoint(t, optionalTarget = new THREE.Vector3()) {
+    const a = this.scale2;
+    const angle = t * Math.PI * 2;
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+    const denom = 1 + sin * sin;
+    const x = (a * cos) / denom;
+    const y = (a * sin * cos) / denom;
+    const z = Math.sin(angle * 2) * 0.6;
+    return optionalTarget.set(x, y, z);
   }
 }
-visorGeo.computeVertexNormals();
 
-const visorMesh = new THREE.Mesh(visorGeo, glassMat);
-visorMesh.position.set(0, 0.05, 1.0);
-headGroup.add(visorMesh);
-
-// Eyes
-const eyeGeo = new THREE.SphereGeometry(0.14, 16, 16);
-const leftEye = new THREE.Mesh(eyeGeo, orangeGlowMat);
-leftEye.position.set(-0.38, 0.12, 1.1);
-leftEye.scale.set(1, 1.2, 0.5);
-headGroup.add(leftEye);
-
-const rightEye = new THREE.Mesh(eyeGeo, orangeGlowMat);
-rightEye.position.set(0.38, 0.12, 1.1);
-rightEye.scale.set(1, 1.2, 0.5);
-headGroup.add(rightEye);
-
-// Eye glow point lights
-const leftEyeLight = new THREE.PointLight(0xF97316, 0.5, 3);
-leftEyeLight.position.copy(leftEye.position);
-headGroup.add(leftEyeLight);
-
-const rightEyeLight = new THREE.PointLight(0xF97316, 0.5, 3);
-rightEyeLight.position.copy(rightEye.position);
-headGroup.add(rightEyeLight);
-
-// Antenna
-const antennaGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
-const antenna = new THREE.Mesh(antennaGeo, darkMat);
-antenna.position.set(0, 1.2, 0);
-headGroup.add(antenna);
-
-const antennaTipGeo = new THREE.SphereGeometry(0.1, 16, 16);
-const antennaTip = new THREE.Mesh(antennaTipGeo, orangeGlowMat);
-antennaTip.position.set(0, 1.55, 0);
-headGroup.add(antennaTip);
-
-const antennaTipLight = new THREE.PointLight(0xF97316, 1, 4);
-antennaTipLight.position.set(0, 1.65, 0);
-headGroup.add(antennaTipLight);
-
-// Ear panels
-const earGeo = new THREE.BoxGeometry(0.15, 0.6, 0.6, 2, 2, 2);
-const leftEar = new THREE.Mesh(earGeo, darkMat);
-leftEar.position.set(-1.2, 0.05, 0);
-headGroup.add(leftEar);
-
-const rightEar = leftEar.clone();
-rightEar.position.set(1.2, 0.05, 0);
-headGroup.add(rightEar);
-
-const earGlowGeo = new THREE.BoxGeometry(0.16, 0.3, 0.3);
-const leftEarGlow = new THREE.Mesh(earGlowGeo, cyanGlowMat);
-leftEarGlow.position.set(-1.28, 0.05, 0);
-headGroup.add(leftEarGlow);
-
-const rightEarGlow = new THREE.Mesh(earGlowGeo, cyanGlowMat);
-rightEarGlow.position.set(1.28, 0.05, 0);
-headGroup.add(rightEarGlow);
-
-// ——— NECK ———
-const neckGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.4, 12);
-const neck = new THREE.Mesh(neckGeo, darkMat);
-neck.position.set(0, 0.65, 0);
-botGroup.add(neck);
-
-// ——— BODY (torso) ———
-const bodyGroup = new THREE.Group();
-botGroup.add(bodyGroup);
-
-const torsoGeo = new THREE.BoxGeometry(2.4, 2.2, 1.8, 6, 6, 6);
-const torsoPos = torsoGeo.attributes.position;
-for (let i = 0; i < torsoPos.count; i++) {
-  headVec.set(torsoPos.getX(i), torsoPos.getY(i), torsoPos.getZ(i));
-  const len = headVec.length();
-  const scale = 1 + (1.85 / len - 1) * 0.3;
-  headVec.multiplyScalar(Math.min(scale, 1.06));
-  torsoPos.setXYZ(i, headVec.x, headVec.y, headVec.z);
-}
-torsoGeo.computeVertexNormals();
-
-const torsoMesh = new THREE.Mesh(torsoGeo, bodyMat);
-torsoMesh.position.y = -0.6;
-bodyGroup.add(torsoMesh);
-
-// Chest panel (core)
-const chestPanelGeo = new THREE.BoxGeometry(1.2, 0.8, 0.15, 3, 3, 1);
-const chestPanel = new THREE.Mesh(chestPanelGeo, darkMat);
-chestPanel.position.set(0, -0.3, 0.93);
-bodyGroup.add(chestPanel);
-
-// Core energy circle
-const coreGeo = new THREE.TorusGeometry(0.25, 0.06, 16, 32);
-const coreMesh = new THREE.Mesh(coreGeo, orangeGlowMat);
-coreMesh.position.set(0, -0.3, 1.02);
-bodyGroup.add(coreMesh);
-
-const coreInnerGeo = new THREE.SphereGeometry(0.15, 16, 16);
-const coreInner = new THREE.Mesh(coreInnerGeo, orangeGlowMat);
-coreInner.position.set(0, -0.3, 1.02);
-bodyGroup.add(coreInner);
-
-const coreLight = new THREE.PointLight(0xF97316, 2, 5);
-coreLight.position.set(0, -0.3, 1.5);
-bodyGroup.add(coreLight);
-
-// Belly accent lines
-for (let i = 0; i < 3; i++) {
-  const lineGeo = new THREE.BoxGeometry(0.8 - i * 0.15, 0.04, 0.12);
-  const lineMesh = new THREE.Mesh(lineGeo, cyanGlowMat.clone());
-  lineMesh.material.emissiveIntensity = 0.4;
-  lineMesh.position.set(0, -0.85 - i * 0.18, 0.93);
-  bodyGroup.add(lineMesh);
-}
-
-// ——— ARMS ———
-function createArm(side) {
-  const armGroup = new THREE.Group();
-  
-  // Shoulder joint
-  const shoulderGeo = new THREE.SphereGeometry(0.28, 16, 16);
-  const shoulder = new THREE.Mesh(shoulderGeo, darkMat);
-  armGroup.add(shoulder);
-  
-  // Upper arm
-  const upperGeo = new THREE.CylinderGeometry(0.18, 0.15, 1.0, 10);
-  const upper = new THREE.Mesh(upperGeo, bodyMat);
-  upper.position.y = -0.6;
-  armGroup.add(upper);
-  
-  // Elbow joint
-  const elbowGeo = new THREE.SphereGeometry(0.18, 12, 12);
-  const elbow = new THREE.Mesh(elbowGeo, darkMat);
-  elbow.position.y = -1.15;
-  armGroup.add(elbow);
-  
-  // Forearm
-  const foreGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.85, 10);
-  const fore = new THREE.Mesh(foreGeo, bodyMat);
-  fore.position.y = -1.65;
-  armGroup.add(fore);
-  
-  // Hand
-  const handGeo = new THREE.SphereGeometry(0.18, 12, 12);
-  const hand = new THREE.Mesh(handGeo, darkMat);
-  hand.position.y = -2.15;
-  hand.scale.set(1, 0.7, 0.8);
-  armGroup.add(hand);
-  
-  // Glow accent on shoulder
-  const accentGeo = new THREE.TorusGeometry(0.25, 0.03, 8, 16);
-  const accent = new THREE.Mesh(accentGeo, side === 1 ? orangeGlowMat : cyanGlowMat);
-  accent.rotation.x = Math.PI / 2;
-  accent.position.y = -0.1;
-  armGroup.add(accent);
-  
-  armGroup.position.set(side * 1.55, -0.1, 0);
-  return armGroup;
-}
-
-const leftArm = createArm(-1);
-bodyGroup.add(leftArm);
-const rightArm = createArm(1);
-bodyGroup.add(rightArm);
-
-// ——— FLOATING ORBITAL RINGS ———
-const orbitGroup = new THREE.Group();
-botGroup.add(orbitGroup);
-
-const orbitalRings = [];
-for (let i = 0; i < 3; i++) {
-  const radius = 3.2 + i * 0.8;
-  const ringGeo = new THREE.TorusGeometry(radius, 0.015, 8, 120);
-  const color = [0xF97316, 0x06B6D4, 0xEC4899][i];
-  const ringMat = new THREE.MeshBasicMaterial({
-    color,
-    transparent: true,
-    opacity: 0.25 - i * 0.05,
-  });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  ring.rotation.x = Math.PI / (2.5 + i * 0.5);
-  ring.rotation.z = i * 0.4;
-  orbitGroup.add(ring);
-  orbitalRings.push(ring);
-}
-
-// ——— FLOATING DATA NODES on orbits ———
-const dataNodes = [];
-for (let i = 0; i < 8; i++) {
-  const nodeGeo = new THREE.OctahedronGeometry(0.12, 0);
-  const color = [0xF97316, 0x06B6D4, 0xEC4899, 0x8B5CF6][i % 4];
-  const nodeMat = new THREE.MeshStandardMaterial({
-    color,
-    emissive: color,
-    emissiveIntensity: 0.8,
-    metalness: 0.5,
-    roughness: 0.1,
-  });
-  const node = new THREE.Mesh(nodeGeo, nodeMat);
-  node.userData = {
-    angle: (i / 8) * Math.PI * 2,
-    radius: 3.2 + (i % 3) * 0.8,
-    speed: 0.3 + Math.random() * 0.2,
-    yOff: (Math.random() - 0.5) * 0.5,
-    tiltX: Math.PI / (2.5 + (i % 3) * 0.5),
-    tiltZ: (i % 3) * 0.4,
-  };
-  
-  // Node glow
-  const glowGeo = new THREE.SphereGeometry(0.2, 8, 8);
-  const glowMat = new THREE.MeshBasicMaterial({
-    color,
-    transparent: true,
-    opacity: 0.15,
-  });
-  const glow = new THREE.Mesh(glowGeo, glowMat);
-  node.add(glow);
-  
-  orbitGroup.add(node);
-  dataNodes.push(node);
-}
-
-// ——— CONNECTING LINES from nodes to bot ———
-const connectionLines = [];
-dataNodes.forEach((node, i) => {
-  const geo = new THREE.BufferGeometry();
-  const positions = new Float32Array(6);
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const color = [0xF97316, 0x06B6D4, 0xEC4899, 0x8B5CF6][i % 4];
-  const mat = new THREE.LineBasicMaterial({
-    color,
-    transparent: true,
-    opacity: 0.08,
-  });
-  const line = new THREE.Line(geo, mat);
-  orbitGroup.add(line);
-  connectionLines.push(line);
-});
-
-// ——— FLOATING AGENT CARDS ———
-const agentCards = [];
-const cardData = [
-  { icon: '🤖', title: 'CodePilot', cat: 'Development', color: 0xF97316 },
-  { icon: '📊', title: 'DataMind', cat: 'Analytics', color: 0x3B82F6 },
-  { icon: '🎨', title: 'DesignAI', cat: 'Creative', color: 0xEC4899 },
-  { icon: '🔐', title: 'SecureBot', cat: 'Security', color: 0x06B6D4 },
+const curve = new LemniscateCurve(3.5);
+const TUBE_SEGMENTS = 256;
+const TUBE_RADIUS = 0.18;
+const colorStops = [
+  new THREE.Color(0xff7a18),
+  new THREE.Color(0xffad6e),
+  new THREE.Color(0xf472b6),
+  new THREE.Color(0xa78bfa),
+  new THREE.Color(0x93c5fd),
+  new THREE.Color(0xf472b6),
+  new THREE.Color(0xff7a18),
 ];
 
-function createCardTexture(data) {
-  const cv = document.createElement('canvas');
-  cv.width = 240; cv.height = 120;
-  const ctx = cv.getContext('2d');
-  
-  ctx.fillStyle = 'rgba(15, 15, 25, 0.9)';
-  const r = 14;
-  ctx.beginPath();
-  ctx.moveTo(r, 0); ctx.lineTo(cv.width - r, 0);
-  ctx.quadraticCurveTo(cv.width, 0, cv.width, r);
-  ctx.lineTo(cv.width, cv.height - r);
-  ctx.quadraticCurveTo(cv.width, cv.height, cv.width - r, cv.height);
-  ctx.lineTo(r, cv.height);
-  ctx.quadraticCurveTo(0, cv.height, 0, cv.height - r);
-  ctx.lineTo(0, r);
-  ctx.quadraticCurveTo(0, 0, r, 0);
-  ctx.closePath(); ctx.fill();
+const tubeGeo = new THREE.TubeGeometry(curve, TUBE_SEGMENTS, TUBE_RADIUS, 24, true);
+const tubeColors = [];
+const radialSegments = 25;
+for (let i = 0; i < tubeGeo.attributes.position.count; i++) {
+  const segIndex = Math.floor(i / radialSegments);
+  const t = segIndex / TUBE_SEGMENTS;
+  const gradT = t * (colorStops.length - 1);
+  const idx = Math.floor(gradT);
+  const frac = gradT - idx;
+  const c1 = colorStops[Math.min(idx, colorStops.length - 1)];
+  const c2 = colorStops[Math.min(idx + 1, colorStops.length - 1)];
+  const color = new THREE.Color().lerpColors(c1, c2, frac);
+  tubeColors.push(color.r, color.g, color.b);
+}
+tubeGeo.setAttribute('color', new THREE.Float32BufferAttribute(tubeColors, 3));
 
-  const cr = (data.color >> 16) & 255;
-  const cg = (data.color >> 8) & 255;
-  const cb = data.color & 255;
-  ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, 0.5)`;
-  ctx.lineWidth = 1.5; ctx.stroke();
-  
-  const grad = ctx.createLinearGradient(0, 0, cv.width, 0);
-  grad.addColorStop(0, 'transparent');
-  grad.addColorStop(0.5, `rgba(${cr}, ${cg}, ${cb}, 0.6)`);
-  grad.addColorStop(1, 'transparent');
-  ctx.strokeStyle = grad; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(20, 1); ctx.lineTo(cv.width - 20, 1); ctx.stroke();
-  
-  ctx.font = '28px serif'; ctx.fillText(data.icon, 16, 44);
-  ctx.fillStyle = '#ffffff'; ctx.font = '600 14px Inter, sans-serif'; ctx.fillText(data.title, 16, 72);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '400 11px Inter, sans-serif'; ctx.fillText(data.cat, 16, 92);
-  
-  ctx.fillStyle = '#22C55E'; ctx.beginPath(); ctx.arc(16, 108, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '400 10px Inter, sans-serif'; ctx.fillText('Active', 24, 112);
+const tubeMat = new THREE.MeshPhysicalMaterial({
+  vertexColors: true,
+  metalness: 0,
+  roughness: 0.1,
+  transmission: 0.9,
+  thickness: 0.5,
+  transparent: true,
+  opacity: 1.0,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0,
+  envMapIntensity: 1.2,
+  side: THREE.DoubleSide,
+});
+const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+loopGroup.add(tubeMesh);
 
-  const tex = new THREE.CanvasTexture(cv);
-  tex.minFilter = THREE.LinearFilter;
-  return tex;
+const innerTubeGeo = new THREE.TubeGeometry(curve, TUBE_SEGMENTS, TUBE_RADIUS * 0.55, 12, true);
+const innerColors = [];
+for (let i = 0; i < innerTubeGeo.attributes.position.count; i++) {
+  const segIndex = Math.floor(i / 13);
+  const t = segIndex / TUBE_SEGMENTS;
+  const gradT = t * (colorStops.length - 1);
+  const idx = Math.floor(gradT);
+  const frac = gradT - idx;
+  const c1 = colorStops[Math.min(idx, colorStops.length - 1)];
+  const c2 = colorStops[Math.min(idx + 1, colorStops.length - 1)];
+  const color = new THREE.Color().lerpColors(c1, c2, frac);
+  innerColors.push(color.r, color.g, color.b);
+}
+innerTubeGeo.setAttribute('color', new THREE.Float32BufferAttribute(innerColors, 3));
+const innerTubeMat = new THREE.MeshBasicMaterial({
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.35,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const innerTubeMesh = new THREE.Mesh(innerTubeGeo, innerTubeMat);
+loopGroup.add(innerTubeMesh);
+
+const orbitGeo = new THREE.BufferGeometry();
+const orbitPos = new Float32Array(101 * 3);
+for (let i = 0; i <= 100; i++) {
+  const t = i / 100 * Math.PI * 2;
+  orbitPos[i * 3] = Math.cos(t) * 4.5;
+  orbitPos[i * 3 + 1] = Math.sin(t * 2) * 0.5;
+  orbitPos[i * 3 + 2] = Math.sin(t) * 2.5;
+}
+orbitGeo.setAttribute('position', new THREE.BufferAttribute(orbitPos, 3));
+const orbitMat = new THREE.LineDashedMaterial({
+  color: 0xf472b6,
+  dashSize: 0.15,
+  gapSize: 0.15,
+  transparent: true,
+  opacity: 0.5,
+});
+const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+orbitLine.computeLineDistances();
+loopGroup.add(orbitLine);
+
+const agents = [
+  { name: 'ChatGPT', sub: 'AI Agent', color: 0x10a37f, icon: '🤖' },
+  { name: 'Claude', sub: 'AI Agent', color: 0xd97757, icon: '🧠' },
+  { name: 'Gemini', sub: 'AI Agent', color: 0x1b73e8, icon: '✨' },
+  { name: 'Copilot', sub: 'AI Agent', color: 0xeab308, icon: '💻' },
+  { name: 'Code Interpreter', sub: 'AI Agent', color: 0x8b5cf6, icon: '</>' },
+];
+
+const agentNodes = [];
+for (let i = 0; i < agents.length; i++) {
+  const agent = agents[i];
+  const nodeGroup = new THREE.Group();
+  const t = i / agents.length;
+
+  const bubble = new THREE.Mesh(
+    new THREE.SphereGeometry(0.35, 24, 24),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      metalness: 0.1,
+      roughness: 0.05,
+      transmission: 0.9,
+      thickness: 0.4,
+      transparent: true,
+      opacity: 0.65,
+      clearcoat: 1.0,
+      envMapIntensity: 1.5,
+    })
+  );
+  nodeGroup.add(bubble);
+
+  const core = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 16, 16),
+    new THREE.MeshStandardMaterial({
+      color: agent.color,
+      emissive: agent.color,
+      emissiveIntensity: 0.8,
+      metalness: 0.2,
+      roughness: 0.2,
+    })
+  );
+  nodeGroup.add(core);
+
+  const iconCv = document.createElement('canvas');
+  iconCv.width = 128;
+  iconCv.height = 128;
+  const iconCtx = iconCv.getContext('2d');
+  iconCtx.font = '70px sans-serif';
+  iconCtx.textAlign = 'center';
+  iconCtx.textBaseline = 'middle';
+  iconCtx.fillText(agent.icon, 64, 70);
+
+  const iconSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(iconCv), depthTest: false, transparent: true }));
+  iconSprite.scale.set(0.3, 0.3, 1);
+  nodeGroup.add(iconSprite);
+
+  const labelCv = document.createElement('canvas');
+  labelCv.width = 400;
+  labelCv.height = 120;
+  const labelCtx = labelCv.getContext('2d');
+  labelCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  labelCtx.beginPath();
+  labelCtx.roundRect(20, 20, 360, 80, 40);
+  labelCtx.fill();
+  labelCtx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+  labelCtx.lineWidth = 2;
+  labelCtx.stroke();
+  labelCtx.fillStyle = '#111111';
+  labelCtx.font = 'bold 28px Inter, sans-serif';
+  labelCtx.textAlign = 'center';
+  labelCtx.textBaseline = 'bottom';
+  labelCtx.fillText(agent.name, 200, 62);
+  labelCtx.fillStyle = '#666666';
+  labelCtx.font = '20px Inter, sans-serif';
+  labelCtx.textBaseline = 'top';
+  labelCtx.fillText(agent.sub, 200, 68);
+
+  const labelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(labelCv), depthTest: false, transparent: true }));
+  labelSprite.scale.set(1.6, 0.48, 1);
+  labelSprite.position.set(0.9, 0.2, 0);
+  nodeGroup.add(labelSprite);
+
+  const nodeLight = new THREE.PointLight(agent.color, 0.8, 4);
+  nodeGroup.add(nodeLight);
+
+  nodeGroup.userData = { t, speed: 0.003 + Math.random() * 0.002, coreRef: core, bubbleRef: bubble, lightRef: nodeLight };
+  loopGroup.add(nodeGroup);
+  agentNodes.push(nodeGroup);
 }
 
-cardData.forEach((data, i) => {
-  const tex = createCardTexture(data);
-  const aspect = 240 / 120;
-  const cardH = 1.1;
-  const cardW = cardH * aspect;
-  const geo = new THREE.PlaneGeometry(cardW, cardH);
-  const mat = new THREE.MeshBasicMaterial({
-    map: tex, transparent: true, opacity: 0.85,
-    side: THREE.DoubleSide, depthWrite: false,
-  });
-  const mesh = new THREE.Mesh(geo, mat);
-  
-  const angle = (i / cardData.length) * Math.PI * 2 + Math.PI * 0.25;
-  mesh.userData = {
-    angle,
-    radius: 5.5,
-    speed: 0.12 + Math.random() * 0.05,
-    bobSpeed: 0.5 + Math.random() * 0.3,
-    bobAmount: 0.2,
-    yOffset: (i - 1.5) * 1.2,
-  };
-  
-  orbitGroup.add(mesh);
-  agentCards.push(mesh);
-});
-
-
-// ——— BACKGROUND PARTICLES ———
-const particleCount = 500;
-const pGeo = new THREE.BufferGeometry();
-const pPos = new Float32Array(particleCount * 3);
-const pVel = new Float32Array(particleCount * 3);
-
-for (let i = 0; i < particleCount; i++) {
-  pPos[i * 3] = (Math.random() - 0.5) * 50;
-  pPos[i * 3 + 1] = (Math.random() - 0.5) * 30;
-  pPos[i * 3 + 2] = (Math.random() - 0.5) * 30 - 5;
-  pVel[i * 3] = (Math.random() - 0.5) * 0.003;
-  pVel[i * 3 + 1] = (Math.random() - 0.5) * 0.003;
-  pVel[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
+const TRAIL_COUNT = 120;
+const trailGeo = new THREE.BufferGeometry();
+const trailPositions = new Float32Array(TRAIL_COUNT * 3);
+const trailColors = new Float32Array(TRAIL_COUNT * 3);
+const trailData = [];
+for (let i = 0; i < TRAIL_COUNT; i++) {
+  const t = i / TRAIL_COUNT;
+  const pt = curve.getPoint(t);
+  trailPositions[i * 3] = pt.x;
+  trailPositions[i * 3 + 1] = pt.y;
+  trailPositions[i * 3 + 2] = pt.z;
+  const gradT = t * (colorStops.length - 1);
+  const idx = Math.floor(gradT);
+  const frac = gradT - idx;
+  const c1 = colorStops[Math.min(idx, colorStops.length - 1)];
+  const c2 = colorStops[Math.min(idx + 1, colorStops.length - 1)];
+  const col = new THREE.Color().lerpColors(c1, c2, frac);
+  trailColors[i * 3] = col.r;
+  trailColors[i * 3 + 1] = col.g;
+  trailColors[i * 3 + 2] = col.b;
+  trailData.push({ t, speed: 0.008 + Math.random() * 0.004 });
 }
-pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-
-const pMat = new THREE.PointsMaterial({
-  color: 0xF97316, size: 0.05, transparent: true, opacity: 0.3,
-  sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
+trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+trailGeo.setAttribute('color', new THREE.BufferAttribute(trailColors, 3));
+const trailMat = new THREE.PointsMaterial({
+  size: 0.05,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.6,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+  sizeAttenuation: true,
 });
-const particles = new THREE.Points(pGeo, pMat);
-scene.add(particles);
+const trailParticles = new THREE.Points(trailGeo, trailMat);
+loopGroup.add(trailParticles);
 
-const p2Geo = pGeo.clone();
-const p2Mat = new THREE.PointsMaterial({
-  color: 0x06B6D4, size: 0.035, transparent: true, opacity: 0.25,
-  sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
-});
-const particles2 = new THREE.Points(p2Geo, p2Mat);
-particles2.position.z = -3;
-scene.add(particles2);
-
-
-// ——— ORB PARTICLES around bot ———
-const orbPCount = 150;
-const orbPGeo = new THREE.BufferGeometry();
-const orbPPos = new Float32Array(orbPCount * 3);
-const orbPData = [];
-
-for (let i = 0; i < orbPCount; i++) {
-  const theta = Math.random() * Math.PI * 2;
-  const phi = Math.acos(2 * Math.random() - 1);
-  const r = 2 + Math.random() * 2.5;
-  orbPPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-  orbPPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-  orbPPos[i * 3 + 2] = r * Math.cos(phi);
-  orbPData.push({ theta, phi, r, speed: 0.08 + Math.random() * 0.15 });
+const AMBIENT_COUNT = 200;
+const ambGeo = new THREE.BufferGeometry();
+const ambPos = new Float32Array(AMBIENT_COUNT * 3);
+const ambCol = new Float32Array(AMBIENT_COUNT * 3);
+const ambData = [];
+for (let i = 0; i < AMBIENT_COUNT; i++) {
+  ambPos[i * 3] = (Math.random() - 0.5) * 14;
+  ambPos[i * 3 + 1] = (Math.random() - 0.5) * 10;
+  ambPos[i * 3 + 2] = (Math.random() - 0.5) * 6 - 1;
+  const c = colorStops[Math.floor(Math.random() * colorStops.length)];
+  ambCol[i * 3] = c.r;
+  ambCol[i * 3 + 1] = c.g;
+  ambCol[i * 3 + 2] = c.b;
+  ambData.push({ vx: (Math.random() - 0.5) * 0.003, vy: (Math.random() - 0.5) * 0.003, phase: Math.random() * Math.PI * 2 });
 }
-orbPGeo.setAttribute('position', new THREE.BufferAttribute(orbPPos, 3));
+ambGeo.setAttribute('position', new THREE.BufferAttribute(ambPos, 3));
+ambGeo.setAttribute('color', new THREE.BufferAttribute(ambCol, 3));
+const ambMat = new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
+const ambParticles = new THREE.Points(ambGeo, ambMat);
+scene.add(ambParticles);
 
-const orbPMat = new THREE.PointsMaterial({
-  color: 0xFDBA74, size: 0.04, transparent: true, opacity: 0.6,
-  blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
-});
-const orbParticles = new THREE.Points(orbPGeo, orbPMat);
-botGroup.add(orbParticles);
+const arrowGroup = new THREE.Group();
+for (let i = 0; i < 12; i++) {
+  const t = i / 12;
+  const pt = curve.getPoint(t);
+  const tangent = curve.getTangent(t);
+  const arrowShape = new THREE.Shape();
+  arrowShape.moveTo(-0.12, -0.06);
+  arrowShape.lineTo(0, 0.06);
+  arrowShape.lineTo(0.12, -0.06);
+  const arrowGeo = new THREE.ShapeGeometry(arrowShape);
+  const gradT = t * (colorStops.length - 1);
+  const idx = Math.floor(gradT);
+  const frac = gradT - idx;
+  const ac1 = colorStops[Math.min(idx, colorStops.length - 1)];
+  const ac2 = colorStops[Math.min(idx + 1, colorStops.length - 1)];
+  const arrowColor = new THREE.Color().lerpColors(ac1, ac2, frac);
+  const arrowMat = new THREE.MeshBasicMaterial({ color: arrowColor, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
+  const arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
+  arrowMesh.position.copy(pt);
+  const quaternion = new THREE.Quaternion();
+  const matrix = new THREE.Matrix4();
+  matrix.lookAt(new THREE.Vector3(0, 0, 0), tangent, new THREE.Vector3(0, 0, 1));
+  quaternion.setFromRotationMatrix(matrix);
+  arrowMesh.quaternion.copy(quaternion);
+  arrowMesh.rotateX(Math.PI / 2);
+  arrowMesh.userData = { baseT: t, matRef: arrowMat };
+  arrowGroup.add(arrowMesh);
+}
+loopGroup.add(arrowGroup);
 
-
-// ——— ANIMATION LOOP ———
 const clock = new THREE.Clock();
-
 function animate() {
   const t = clock.getElapsedTime();
-  
-  // Smooth mouse
   mouse.x += (mouse.tx - mouse.x) * 0.04;
   mouse.y += (mouse.ty - mouse.y) * 0.04;
 
-  // Camera
-  camera.position.x = mouse.x * 1.5;
-  camera.position.y = mouse.y * 0.8 + 0.5;
-  const scrollZoom = 18 - scrollProgress * 5;
-  camera.position.z += (scrollZoom - camera.position.z) * 0.05;
-  camera.lookAt(9, 0.3, 0);
+  loopGroup.rotation.x = Math.sin(t * 0.2) * 0.1 + mouse.y * 0.15;
+  loopGroup.rotation.y = t * 0.08 + mouse.x * 0.15;
+  loopGroup.rotation.z = Math.sin(t * 0.15) * 0.05;
+  loopGroup.position.y = Math.sin(t * 0.5) * 0.15;
 
-  // ——— BOT HEAD ANIMATION ———
-  // Head looks toward mouse
-  const headTargetY = mouse.x * 0.3;
-  const headTargetX = -mouse.y * 0.15;
-  headGroup.rotation.y += (headTargetY - headGroup.rotation.y) * 0.05;
-  headGroup.rotation.x += (headTargetX - headGroup.rotation.x) * 0.05;
-  
-  // Subtle idle bob
-  headGroup.position.y = 1.8 + Math.sin(t * 1.5) * 0.05;
-
-  // Eye pulsing
-  const eyePulse = 0.6 + Math.sin(t * 3) * 0.3;
-  leftEye.material.emissiveIntensity = eyePulse;
-  rightEye.material.emissiveIntensity = eyePulse;
-  leftEyeLight.intensity = 0.3 + Math.sin(t * 3) * 0.2;
-  rightEyeLight.intensity = 0.3 + Math.sin(t * 3) * 0.2;
-  
-  // Antenna tip pulse
-  antennaTip.material.emissiveIntensity = 0.5 + Math.sin(t * 4) * 0.5;
-  antennaTipLight.intensity = 0.5 + Math.sin(t * 4) * 0.5;
-
-  // ——— BODY BREATHING ———
-  const breathe = Math.sin(t * 1.2) * 0.015;
-  torsoMesh.scale.set(1, 1 + breathe, 1);
-  
-  // Core pulse
-  const corePulse = 0.5 + Math.sin(t * 2) * 0.4;
-  coreInner.material.emissiveIntensity = corePulse;
-  coreMesh.material.emissiveIntensity = corePulse * 0.8;
-  coreLight.intensity = 1 + Math.sin(t * 2) * 1;
-  coreMesh.rotation.z = t * 0.5;
-
-  // ——— ARM ANIMATION ———
-  leftArm.rotation.z = Math.sin(t * 0.8) * 0.08 + 0.05;
-  leftArm.rotation.x = Math.sin(t * 0.6 + 1) * 0.06;
-  rightArm.rotation.z = Math.sin(t * 0.8 + Math.PI) * 0.08 - 0.05;
-  rightArm.rotation.x = Math.sin(t * 0.6 + Math.PI + 1) * 0.06;
-
-  // ——— ORBITAL RINGS ———
-  orbitalRings.forEach((ring, i) => {
-    ring.rotation.z += (0.003 + i * 0.001) * (i % 2 === 0 ? 1 : -1);
-    ring.material.opacity = (0.2 - i * 0.04) + Math.sin(t * 0.5 + i) * 0.05;
-  });
-
-  // ——— DATA NODES ———
-  dataNodes.forEach((node, i) => {
+  agentNodes.forEach((node) => {
     const ud = node.userData;
-    ud.angle += ud.speed * 0.008;
-    
-    const cosT = Math.cos(ud.tiltX);
-    const sinT = Math.sin(ud.tiltX);
-    const x = Math.cos(ud.angle) * ud.radius;
-    const rawY = Math.sin(ud.angle) * ud.radius;
-    const y = rawY * cosT + ud.yOff;
-    const z = rawY * sinT;
-    
-    node.position.set(
-      x * Math.cos(ud.tiltZ) - z * Math.sin(ud.tiltZ),
-      y + Math.sin(t * 0.8 + i) * 0.1,
-      x * Math.sin(ud.tiltZ) + z * Math.cos(ud.tiltZ)
-    );
-    
-    node.rotation.x = t * 2 + i;
-    node.rotation.y = t * 1.5 + i;
-    
-    // Update connection line
-    const line = connectionLines[i];
-    const lp = line.geometry.attributes.position.array;
-    lp[0] = 0; lp[1] = 0; lp[2] = 0;
-    lp[3] = node.position.x;
-    lp[4] = node.position.y;
-    lp[5] = node.position.z;
-    line.geometry.attributes.position.needsUpdate = true;
-    line.material.opacity = 0.04 + Math.sin(t * 0.8 + i * 0.5) * 0.04;
+    ud.t = (ud.t + ud.speed * 0.5) % 1;
+    const angle = ud.t * Math.PI * 2;
+    const x = Math.cos(angle) * 4.5;
+    const z = Math.sin(angle) * 2.5;
+    const y = Math.sin(angle * 2) * 0.5;
+    node.position.set(x, y, z);
+    node.lookAt(camera.position);
+    const pulse = 0.8 + Math.sin(t * 3 + ud.t * Math.PI * 4) * 0.4;
+    ud.coreRef.material.emissiveIntensity = pulse;
+    ud.lightRef.intensity = 0.3 + pulse * 0.3;
+    ud.bubbleRef.scale.setScalar(1 + Math.sin(t * 2 + ud.t * Math.PI * 6) * 0.06);
   });
 
-  // ——— AGENT CARDS ———
-  agentCards.forEach((card, i) => {
-    const ud = card.userData;
-    ud.angle += ud.speed * 0.006;
-    const x = Math.cos(ud.angle) * ud.radius;
-    const z = Math.sin(ud.angle) * ud.radius * 0.4;
-    const y = ud.yOffset + Math.sin(t * ud.bobSpeed + i) * ud.bobAmount;
-    card.position.set(x, y, z);
-    card.lookAt(camera.position.x - 9, camera.position.y - 0.3, camera.position.z);
-    const depth = (z + ud.radius) / (ud.radius * 2);
-    card.material.opacity = 0.3 + depth * 0.55;
+  const tp = trailParticles.geometry.attributes.position.array;
+  const tc = trailParticles.geometry.attributes.color.array;
+  for (let i = 0; i < TRAIL_COUNT; i++) {
+    trailData[i].t = (trailData[i].t + trailData[i].speed * 0.5) % 1;
+    const pt = curve.getPoint(trailData[i].t);
+    tp[i * 3] = pt.x + Math.sin(t * 4 + i) * 0.03;
+    tp[i * 3 + 1] = pt.y + Math.cos(t * 3 + i * 0.5) * 0.03;
+    tp[i * 3 + 2] = pt.z + Math.sin(t * 2 + i * 0.3) * 0.02;
+    const gradT = trailData[i].t * (colorStops.length - 1);
+    const idx = Math.floor(gradT);
+    const frac = gradT - idx;
+    const tc1 = colorStops[Math.min(idx, colorStops.length - 1)];
+    const tc2 = colorStops[Math.min(idx + 1, colorStops.length - 1)];
+    const tcol = new THREE.Color().lerpColors(tc1, tc2, frac);
+    tc[i * 3] = tcol.r;
+    tc[i * 3 + 1] = tcol.g;
+    tc[i * 3 + 2] = tcol.b;
+  }
+  trailParticles.geometry.attributes.position.needsUpdate = true;
+  trailParticles.geometry.attributes.color.needsUpdate = true;
+  trailMat.opacity = 0.45 + Math.sin(t * 0.8) * 0.15;
+
+  const ap = ambParticles.geometry.attributes.position.array;
+  for (let i = 0; i < AMBIENT_COUNT; i++) {
+    ap[i * 3] += ambData[i].vx;
+    ap[i * 3 + 1] += ambData[i].vy + Math.sin(t * 0.3 + ambData[i].phase) * 0.0005;
+    if (ap[i * 3] > 7) ap[i * 3] = -7;
+    if (ap[i * 3] < -7) ap[i * 3] = 7;
+    if (ap[i * 3 + 1] > 5) ap[i * 3 + 1] = -5;
+    if (ap[i * 3 + 1] < -5) ap[i * 3 + 1] = 5;
+  }
+  ambParticles.geometry.attributes.position.needsUpdate = true;
+
+  arrowGroup.children.forEach((arrow) => {
+    const wave = Math.sin(t * 2 - arrow.userData.baseT * Math.PI * 4);
+    arrow.userData.matRef.opacity = 0.15 + wave * 0.15;
   });
 
-  // ——— BACKGROUND PARTICLES ———
-  const pp = particles.geometry.attributes.position.array;
-  for (let i = 0; i < particleCount; i++) {
-    pp[i * 3] += pVel[i * 3];
-    pp[i * 3 + 1] += pVel[i * 3 + 1] + Math.sin(t * 0.5 + i * 0.1) * 0.0003;
-    if (pp[i * 3] > 25) pp[i * 3] = -25;
-    if (pp[i * 3] < -25) pp[i * 3] = 25;
-    if (pp[i * 3 + 1] > 15) pp[i * 3 + 1] = -15;
-    if (pp[i * 3 + 1] < -15) pp[i * 3 + 1] = 15;
-  }
-  particles.geometry.attributes.position.needsUpdate = true;
-  particles2.rotation.y = t * 0.01;
+  warmLight.position.x = -4 + Math.sin(t * 0.3) * 1.5;
+  warmLight.position.y = 3 + Math.cos(t * 0.2) * 1;
+  pinkLight.position.x = 4 + Math.cos(t * 0.25) * 1.5;
+  violetLight.position.y = 4 + Math.sin(t * 0.35) * 1.5;
 
-  // ——— ORB PARTICLES ———
-  const op = orbParticles.geometry.attributes.position.array;
-  for (let i = 0; i < orbPCount; i++) {
-    const d = orbPData[i];
-    d.theta += d.speed * 0.01;
-    const r = d.r + Math.sin(t * 0.5 + i) * 0.1;
-    op[i * 3] = r * Math.sin(d.phi) * Math.cos(d.theta);
-    op[i * 3 + 1] = r * Math.sin(d.phi) * Math.sin(d.theta);
-    op[i * 3 + 2] = r * Math.cos(d.phi);
-  }
-  orbParticles.geometry.attributes.position.needsUpdate = true;
-
-  // ——— BOT GROUP mouse response ———
-  botGroup.rotation.y += (mouse.x * 0.12 - botGroup.rotation.y + Math.PI * 0.02) * 0.03;
-  botGroup.rotation.x += (mouse.y * 0.06 - botGroup.rotation.x) * 0.03;
-  
-  // Floating bob
-  botGroup.position.y = 0.3 + Math.sin(t * 0.8) * 0.15;
-
-  // ——— LIGHTS DRIFT ———
-  orangeLight.position.x = -4 + Math.sin(t * 0.3) * 2;
-  orangeLight.position.y = 4 + Math.cos(t * 0.2) * 1;
-  blueLight.position.x = 5 + Math.cos(t * 0.25) * 2;
-  cyanLight.position.y = 5 + Math.sin(t * 0.35) * 2;
-
-  // Ear glow pulse
-  leftEarGlow.material.emissiveIntensity = 0.4 + Math.sin(t * 2.5) * 0.3;
-  rightEarGlow.material.emissiveIntensity = 0.4 + Math.sin(t * 2.5 + Math.PI) * 0.3;
+  innerTubeMat.opacity = 0.28 + Math.sin(t * 1.2) * 0.1;
+  tubeMat.opacity = 0.78 + Math.sin(t * 0.8) * 0.06;
 
   renderer.render(scene, camera);
 }
 
 renderer.setAnimationLoop(animate);
+window.addEventListener('resize', updateSize);
 
-// ——— RESIZE ———
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-});
-
-// ——— SCROLL-BASED CONTENT FADE ———
 const heroContent = document.querySelector('.hero-content');
 window.addEventListener('scroll', () => {
   const y = window.scrollY;
