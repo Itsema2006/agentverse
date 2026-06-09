@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="navbar.css">
   <style>
     :root {
       --bg: #fff8f3;
@@ -46,54 +47,7 @@
       padding-bottom: 30px;
     }
 
-    .top {
-      margin-top: 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(100, 116, 139, 0.15);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--accent);
-      font-family: "Manrope", sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-
-    .brand svg {
-      width: 28px;
-      height: 28px;
-    }
-
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .chip {
-      border-radius: 999px;
-      border: 1px solid #fdba74;
-      background: #fff7ed;
-      color: #9a3412;
-      padding: 7px 11px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+    /* OLD NAV STYLES REMOVED - STYLED BY navbar.css */
 
     .btn {
       border: none;
@@ -497,29 +451,37 @@
     /* Shared Footer styles now in footer.css */
   </style>
 </head>
-<body>
+<body class="has-navbar">
   <div class="wrap">
-    <header class="top">
-      <a class="brand" href="index.html">
-        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <rect width="28" height="28" rx="7" fill="url(#adminLogoGradient)"></rect>
-          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
-          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+    <!-- TopNavBar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">
+        <svg viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="7" fill="url(#adminLogoGradient)"/>
+          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"/>
+          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/>
           <defs>
             <linearGradient id="adminLogoGradient" x1="0" y1="0" x2="28" y2="28">
-              <stop stop-color="#F97316"></stop>
-              <stop offset="1" stop-color="#EA580C"></stop>
+              <stop stop-color="#F97316"/>
+              <stop offset="1" stop-color="#EA580C"/>
             </linearGradient>
           </defs>
         </svg>
-        AgentVerse Admin
+        <span>AgentVerse</span>
       </a>
-      <div class="top-right">
-        <span class="chip">Admin Session</span>
-        <a class="btn alt btn-link" href="index.html">Main Screen</a>
-        <button class="btn alt" id="logoutBtn" type="button">Logout</button>
+      <div class="navbar-links">
+        <a href="index.html" id="navHomeBtn">Home</a>
+        <a href="browse.html" id="navExploreBtn">Explore</a>
+        <a href="pricing.html" id="navPricingBtn">Pricing</a>
+        <a href="docs.html" id="docsLink">Docs</a>
+        <a href="about.html" id="navAboutBtn">About</a>
+        <a href="login.html" class="navbar-auth" id="navSignInBtn">Sign In</a>
+        <a href="login.html?tab=register" class="navbar-cta" id="navRegisterBtn">Register</a>
+        <a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
+        <a href="admin.html" id="navAdminLink" style="display: none;" class="active">Admin</a>
+        <a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
       </div>
-    </header>
+    </nav>
 
     <section class="hero">
       <h1>Admin Control Center</h1>
@@ -641,6 +603,7 @@
 
   <script type="module">
     import { auth, db } from './js/firebase_config.js';
+    import { syncNav } from './js/firebase-auth.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import { collection, collectionGroup, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -665,6 +628,7 @@
 
     // Verify with Firebase
     onAuthStateChanged(auth, (user) => {
+      syncNav(user);
       console.log('[Admin] Auth state changed:', user ? user.email : 'No user');
       
       if (user) {
@@ -1332,12 +1296,15 @@
       });
 
 
-    document.getElementById('logoutBtn').addEventListener('click', function () {
-      auth.signOut().then(() => {
-        localStorage.removeItem(SETTINGS_KEYS.adminSession);
-        window.location.href = 'index.html';
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function () {
+        auth.signOut().then(() => {
+          localStorage.removeItem(SETTINGS_KEYS.adminSession);
+          window.location.href = 'index.html';
+        });
       });
-    });
+    }
   </script>
 <script src="js/footer.js"></script>
 </body>

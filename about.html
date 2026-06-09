@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="navbar.css">
   <style>
     :root {
       --bg: #fff8f3;
@@ -34,63 +35,7 @@
 
     .wrap { width: min(1100px, 92vw); margin: 0 auto; }
 
-    .top {
-      width: min(1120px, 94vw);
-      margin: 16px auto 0;
-      position: sticky;
-      top: 12px;
-      z-index: 40;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.75);
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--accent);
-      font-family: "Manrope", sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-
-    .brand svg { width: 28px; height: 28px; }
-
-    .top-links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    .top-links a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 600;
-      transition: color 160ms ease, transform 160ms ease;
-    }
-
-    .top-links a:hover {
-      color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .top-links a.active {
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 2px;
-    }
+    /* OLD NAV STYLES REMOVED - STYLED BY navbar.css */
 
     .cta {
       border: 1px solid rgba(234, 88, 12, 0.28);
@@ -254,65 +199,44 @@
       .stats { grid-template-columns: repeat(2, 1fr); }
     }
 
-    @media (max-width: 760px) {
-      .top {
-        border-radius: 16px;
-        padding: 12px;
-        flex-wrap: wrap;
-      }
-
-      .brand { font-size: 18px; }
-
-      .top-links {
-        width: 100%;
-        justify-content: flex-start;
-        gap: 12px;
-        padding-top: 8px;
-        border-top: 1px solid rgba(194, 65, 12, 0.14);
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .top-links a { white-space: nowrap; }
-
-      .cta {
-        margin-left: auto;
-        font-size: 12px;
-        padding: 8px 12px;
-      }
+    /* OLD NAV RESPONSIVE REMOVED */
 
       .hero { padding: 18px; }
       .stats { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-<body>
+<body class="has-navbar">
   <div class="wrap">
-    <header class="top">
-      <a class="brand" href="index.html">
-        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <rect width="28" height="28" rx="7" fill="url(#aboutLogoGradient)"></rect>
-          <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
-          <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
-          <defs>
-            <linearGradient id="aboutLogoGradient" x1="0" y1="0" x2="28" y2="28">
-              <stop stop-color="#F97316"></stop>
-              <stop offset="1" stop-color="#EA580C"></stop>
-            </linearGradient>
-          </defs>
-        </svg>
-        AgentVerse
-      </a>
-      <nav class="top-links">
-        <a href="index.html">Home</a>
-        <a href="browse.html">Explore</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="docs.html">Docs</a>
-        <a href="about.html" class="active">About</a>
-      </nav>
-      <a href="login.html?tab=register" class="cta">Start Free Trial</a>
-    </header>
+  <!-- TopNavBar -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">
+      <svg viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="7" fill="url(#aboutLogoGradient)"/>
+        <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"/>
+        <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/>
+        <defs>
+          <linearGradient id="aboutLogoGradient" x1="0" y1="0" x2="28" y2="28">
+            <stop stop-color="#F97316"/>
+            <stop offset="1" stop-color="#EA580C"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span>AgentVerse</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html" id="navHomeBtn">Home</a>
+      <a href="browse.html" id="navExploreBtn">Explore</a>
+      <a href="pricing.html" id="navPricingBtn">Pricing</a>
+      <a href="docs.html" id="docsLink">Docs</a>
+      <a href="about.html" id="navAboutBtn" class="active">About</a>
+      <a href="login.html" class="navbar-auth" id="navSignInBtn">Sign In</a>
+      <a href="login.html?tab=register" class="navbar-cta" id="navRegisterBtn">Register</a>
+      <a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
+      <a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
+      <a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
+    </div>
+  </nav>
 
     <section class="hero">
       <span class="eyebrow">About AgentVerse</span>
@@ -365,6 +289,20 @@
   <section class="wrap">
     <div id="footer-placeholder"></div>
   </section>
+  <script type="module">
+    import { auth } from './js/firebase_config.js';
+    import { syncNav } from './js/firebase-auth.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+    // Hide all auth-dependent nav items immediately to prevent wrong-state flash.
+    ['navSignInBtn', 'navRegisterBtn', 'navDashboardLink', 'navAdminLink', 'navSignOutBtn']
+      .forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+    onAuthStateChanged(auth, (user) => syncNav(user));
+  </script>
   <script src="js/footer.js"></script>
 </body>
 </html>

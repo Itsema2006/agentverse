@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="footer.css">
+<link rel="stylesheet" href="navbar.css">
 <link rel="stylesheet" href="checkout.css">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -372,98 +373,10 @@
             animation: slideInLeft 0.6s ease-out 0.25s both;
         }
 
-        .nav {
-            width: min(1120px, 94vw);
-            margin: 16px auto 0;
-            position: sticky;
-            top: 12px;
-            z-index: 40;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.75);
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-        }
-
-        .brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            color: #ea580c;
-            font-family: "Manrope", sans-serif;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            text-decoration: none;
-        }
-
-        .brand svg {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        .links {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-
-        .links a {
-            text-decoration: none;
-            color: #646d79;
-            font-size: 14px;
-            font-weight: 600;
-            transition: color 160ms ease, transform 160ms ease;
-        }
-
-        .links a:hover {
-            color: #ea580c;
-            transform: translateY(-1px);
-        }
-
-        .links a.active {
-            color: #ea580c;
-            border-bottom: 2px solid #ea580c;
-            padding-bottom: 2px;
-        }
+        /* OLD NAV STYLES REMOVED - STYLED BY navbar.css */
 
         @media (max-width: 740px) {
-            .nav {
-                border-radius: 16px;
-                flex-wrap: wrap;
-                padding: 12px;
-            }
-
-            .nav a:hover {
-                transform: none;
-            }
-
-            .links {
-                order: 3;
-                width: 100%;
-                justify-content: flex-start;
-                gap: 12px;
-                padding-top: 8px;
-                border-top: 1px solid rgba(194, 65, 12, 0.14);
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .links a {
-                white-space: nowrap;
-            }
-
-            .brand {
-                font-size: 18px;
-            }
+            /* OLD NAV RESPONSIVE REMOVED */
         }
 
         @media (max-width: 900px) {
@@ -627,28 +540,7 @@
         }
 
         @media (max-width: 480px) {
-            .nav {
-                padding: 10px;
-            }
-
-            .brand {
-                font-size: 16px;
-                gap: 8px;
-            }
-
-            .brand svg {
-                width: 24px;
-                height: 24px;
-            }
-
-            .links {
-                gap: 10px;
-                padding-top: 10px;
-            }
-
-            .links a {
-                font-size: 13px;
-            }
+            /* OLD NAV MOBILE REMOVED */
 
             .mb-10 .flex.items-end.justify-between {
                 gap: 0.7rem;
@@ -708,35 +600,36 @@
         /* Shared Footer styles now in footer.css */
     </style>
 </head>
-<body class="bg-surface text-on-background min-h-screen">
+<body class="bg-surface text-on-background min-h-screen has-navbar">
 <!-- TopNavBar -->
-<header class="nav">
-<a href="index.html" class="brand">
-<svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-<rect width="28" height="28" rx="7" fill="url(#browseLogoGradient)"></rect>
-<path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
-<path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
-<defs>
-<linearGradient id="browseLogoGradient" x1="0" y1="0" x2="28" y2="28">
-<stop stop-color="#F97316"></stop>
-<stop offset="1" stop-color="#EA580C"></stop>
-</linearGradient>
-</defs>
-</svg>
-AgentVerse
-</a>
-<nav class="links">
-<a href="index.html">Home</a>
-<a href="browse.html" class="active">Explore</a>
-<a href="pricing.html">Pricing</a>
-<a href="docs.html" id="docsLink">Docs</a>
-<a href="login.html" class="nav-auth" id="navSignInBtn">Sign In</a>
-<a href="login.html?tab=register" class="nav-cta" id="navRegisterBtn">Register</a>
-<a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
-<a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
-<a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo">
+    <svg viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="7" fill="url(#browseLogoGradient)"/>
+      <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"/>
+      <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/>
+      <defs>
+        <linearGradient id="browseLogoGradient" x1="0" y1="0" x2="28" y2="28">
+          <stop stop-color="#F97316"/>
+          <stop offset="1" stop-color="#EA580C"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span>AgentVerse</span>
+  </a>
+  <div class="navbar-links">
+    <a href="index.html" id="navHomeBtn">Home</a>
+    <a href="browse.html" id="navExploreBtn" class="active">Explore</a>
+    <a href="pricing.html" id="navPricingBtn">Pricing</a>
+    <a href="docs.html" id="docsLink">Docs</a>
+    <a href="about.html" id="navAboutBtn">About</a>
+    <a href="login.html" class="navbar-auth" id="navSignInBtn">Sign In</a>
+    <a href="login.html?tab=register" class="navbar-cta" id="navRegisterBtn">Register</a>
+    <a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
+    <a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
+    <a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
+  </div>
 </nav>
-</header>
 <main class="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-12 gap-8">
 <!-- Sidebar Navigation (Filters) -->
 <aside class="col-span-3">

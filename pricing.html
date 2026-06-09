@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="navbar.css">
   <link rel="stylesheet" href="checkout.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
   <style>
@@ -46,67 +47,7 @@
       margin: 0 auto;
     }
 
-    .nav {
-      width: min(1120px, 94vw);
-      margin: 16px auto 0;
-      position: sticky;
-      top: 12px;
-      z-index: 40;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.75);
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(100, 109, 121, 0.13);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--orange);
-      font-family: "Manrope", sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      text-decoration: none;
-    }
-
-    .brand svg {
-      width: 28px;
-      height: 28px;
-      flex-shrink: 0;
-    }
-
-    .links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    .links a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 600;
-      transition: color 160ms ease, transform 160ms ease;
-    }
-
-    .links a:hover {
-      color: var(--orange);
-      transform: translateY(-1px);
-    }
-
-    .links a.active {
-      color: var(--orange);
-      border-bottom: 2px solid var(--orange);
-      padding-bottom: 2px;
-    }
+    /* OLD NAV STYLES REMOVED - STYLED BY navbar.css */
 
     .cta {
       border: 1px solid rgba(234, 88, 12, 0.28);
@@ -396,31 +337,7 @@
         width: 94vw;
       }
 
-      .nav {
-        border-radius: 16px;
-        flex-wrap: wrap;
-        padding: 12px;
-      }
-
-      .links {
-        order: 3;
-        width: 100%;
-        justify-content: flex-start;
-        gap: 12px;
-        padding-top: 8px;
-        border-top: 1px solid rgba(194, 65, 12, 0.14);
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .links a {
-        white-space: nowrap;
-      }
-
-      .brand {
-        font-size: 18px;
-      }
+      /* OLD NAV RESPONSIVE REMOVED */
 
       .cta {
         margin-left: auto;
@@ -460,35 +377,36 @@
     }
   </style>
 </head>
-<body>
-  <header class="nav">
-    <a href="index.html" class="brand">
-      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <rect width="28" height="28" rx="7" fill="url(#priceLogoGradient)"></rect>
-        <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"></path>
-        <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"></path>
+<body class="has-navbar">
+  <!-- TopNavBar -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">
+      <svg viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="7" fill="url(#priceLogoGradient)"/>
+        <path d="M8 14l4-6 4 6-4 6z" fill="rgba(255,255,255,0.9)"/>
+        <path d="M14 10l4 4-4 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/>
         <defs>
           <linearGradient id="priceLogoGradient" x1="0" y1="0" x2="28" y2="28">
-            <stop stop-color="#F97316"></stop>
-            <stop offset="1" stop-color="#EA580C"></stop>
+            <stop stop-color="#F97316"/>
+            <stop offset="1" stop-color="#EA580C"/>
           </linearGradient>
         </defs>
       </svg>
-      AgentVerse
+      <span>AgentVerse</span>
     </a>
-
-    <nav class="links">
-      <a href="index.html">Home</a>
-      <a href="browse.html">Explore</a>
-      <a class="active" href="pricing.html">Pricing</a>
+    <div class="navbar-links">
+      <a href="index.html" id="navHomeBtn">Home</a>
+      <a href="browse.html" id="navExploreBtn">Explore</a>
+      <a href="pricing.html" id="navPricingBtn" class="active">Pricing</a>
       <a href="docs.html" id="docsLink">Docs</a>
-      <a href="login.html" class="nav-auth" id="navSignInBtn">Sign In</a>
-      <a href="login.html?tab=register" class="nav-cta" id="navRegisterBtn">Register</a>
+      <a href="about.html" id="navAboutBtn">About</a>
+      <a href="login.html" class="navbar-auth" id="navSignInBtn">Sign In</a>
+      <a href="login.html?tab=register" class="navbar-cta" id="navRegisterBtn">Register</a>
       <a href="dashboard.html" id="navDashboardLink" style="display: none;">Dashboard</a>
       <a href="admin.html" id="navAdminLink" style="display: none;">Admin</a>
       <a href="#" id="navSignOutBtn" style="display: none;">Sign Out</a>
-    </nav>
-  </header>
+    </div>
+  </nav>
 
   <main class="wrap">
     <section class="hero">
@@ -593,8 +511,19 @@
   </main>
 
   <script type="module">
-    import { db } from './js/firebase_config.js';
+    import { auth, db } from './js/firebase_config.js';
+    import { syncNav } from './js/firebase-auth.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    // Hide all auth-dependent nav items immediately to prevent wrong-state flash.
+    ['navSignInBtn', 'navRegisterBtn', 'navDashboardLink', 'navAdminLink', 'navSignOutBtn']
+      .forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+    onAuthStateChanged(auth, (user) => syncNav(user));
 
     (function () {
       var SETTINGS_KEYS = {

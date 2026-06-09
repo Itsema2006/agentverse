@@ -1,0 +1,165 @@
+/* UNIFIED NAVBAR STYLING */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+  transition: background 0.3s;
+  font-family: 'Inter', -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+.navbar * {
+  box-sizing: border-box;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  color: #111;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.navbar-logo svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.navbar-logo span {
+  background: linear-gradient(135deg, #F97316, #EA580C);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.navbar-links a {
+  white-space: nowrap;
+  color: rgba(17, 17, 17, 0.7);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: color 0.25s;
+}
+
+.navbar-links a:hover {
+  color: #F97316;
+}
+
+.navbar-links a.active {
+  color: #F97316;
+}
+
+.navbar-auth {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  background: rgba(255, 255, 255, 0.5);
+  color: rgba(17, 17, 17, 0.8) !important;
+  transition: all 0.25s !important;
+}
+
+.navbar-auth:hover {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.45);
+  color: #EA580C !important;
+}
+
+.navbar-cta {
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #EA580C !important;
+  font-weight: 600 !important;
+  transition: all 0.25s !important;
+}
+
+.navbar-cta:hover {
+  background: rgba(249, 115, 22, 0.2) !important;
+  border-color: rgba(249, 115, 22, 0.5) !important;
+  color: #111 !important;
+}
+
+/* Page Spacing for Fixed Navbar */
+body.has-navbar {
+  padding-top: 80px !important;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 900px) {
+  .navbar {
+    padding: 12px 16px;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .navbar-logo {
+    font-size: 18px;
+  }
+  
+  .navbar-logo svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .navbar-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    overflow-x: auto;
+    max-width: 66vw;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .navbar-links::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .navbar-links a {
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(249, 115, 22, 0.12);
+  }
+  
+  .navbar-auth,
+  .navbar-cta {
+    padding: 7px 11px;
+  }
+  
+  body.has-navbar {
+    padding-top: 60px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar-links {
+    max-width: 58vw;
+  }
+}
