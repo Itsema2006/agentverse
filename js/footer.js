@@ -30,8 +30,8 @@
       <div class="footer-col">
         <h4>Company</h4>
         <a href="about.html">About Us</a>
-        <a href="#">Security</a>
-        <a href="#">Privacy Policy</a>
+        <a href="security.html">Security</a>
+        <a href="privacy.html">Privacy Policy</a>
       </div>
       <div class="footer-col">
         <h4>Support</h4>

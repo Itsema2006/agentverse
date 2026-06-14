@@ -573,9 +573,10 @@ print("Result:", response["output"])</pre>
     <div id="footer-placeholder"></div>
   </section>
   <script type="module">
-    import { auth } from './js/firebase_config.js';
+    import { auth, db } from './js/firebase_config.js';
     import { syncNav } from './js/firebase-auth.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import { collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     // Hide all auth-dependent nav items immediately to prevent wrong-state flash.
     ['navSignInBtn', 'navRegisterBtn', 'navDashboardLink', 'navAdminLink', 'navSignOutBtn']
@@ -585,6 +586,74 @@ print("Result:", response["output"])</pre>
       });
 
     onAuthStateChanged(auth, (user) => syncNav(user));
+
+    async function loadDynamicDocs() {
+      try {
+        const q = query(collection(db, 'docsKeyPoints'), orderBy('createdAt', 'asc'));
+        const querySnapshot = await getDocs(q);
+        
+        const contentContainer = document.querySelector('.content');
+        const tocList = document.querySelector('.toc ul');
+        
+        if (!contentContainer || !tocList) return;
+        
+        let sectionNum = 7;
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const id = docSnap.id;
+          const heading = data.heading || '';
+          const subheading = data.subheading || '';
+          const paragraph = data.paragraph || '';
+          
+          // Add to TOC
+          const tocLi = document.createElement('li');
+          const tocA = document.createElement('a');
+          tocA.href = `#custom-doc-${id}`;
+          tocA.textContent = `${sectionNum}. ${heading}`;
+          tocLi.appendChild(tocA);
+          tocList.appendChild(tocLi);
+          
+          // Add to Content
+          const article = document.createElement('article');
+          article.className = 'section-card';
+          article.id = `custom-doc-${id}`;
+          
+          const h2 = document.createElement('h2');
+          h2.textContent = `${sectionNum}. ${heading}`;
+          article.appendChild(h2);
+          
+          if (subheading) {
+            const h3 = document.createElement('h3');
+            h3.style.color = '#7c2d12';
+            h3.style.fontSize = '15px';
+            h3.style.fontWeight = '700';
+            h3.style.marginTop = '10px';
+            h3.style.marginBottom = '6px';
+            h3.style.fontFamily = '"Manrope", sans-serif';
+            h3.textContent = subheading;
+            article.appendChild(h3);
+          }
+          
+          if (paragraph) {
+            const p = document.createElement('p');
+            p.style.whiteSpace = 'pre-wrap';
+            p.style.color = 'var(--muted)';
+            p.style.fontSize = '14px';
+            p.style.lineHeight = '1.65';
+            p.style.marginBottom = '10px';
+            p.textContent = paragraph;
+            article.appendChild(p);
+          }
+          
+          contentContainer.appendChild(article);
+          sectionNum++;
+        });
+      } catch (error) {
+        console.warn('Error loading dynamic docs:', error);
+      }
+    }
+
+    loadDynamicDocs();
   </script>
 <script src="js/footer.js"></script>
 </body>

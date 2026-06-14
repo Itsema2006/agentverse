@@ -518,23 +518,28 @@
         <div class="status" id="pricingStatus"></div>
       </article>
 
-      <article class="panel">
-        <h2>Docs Handling</h2>
-        <p>Set docs URL and nav label used across pages.</p>
-        <div class="rows">
-          <div class="field" style="grid-template-columns: 1fr;">
-            <label>Docs Label</label>
-            <input id="docsLabel" type="text" placeholder="Docs" />
+      <article class="panel" style="grid-column: 1 / -1;">
+        <h2>Documentation Key Points Manager</h2>
+        <p>Define custom documentation pages/sections that will dynamically show up on the Docs page.</p>
+        <div class="key-form" style="grid-template-columns: 1fr 1fr; gap: 12px; align-items: start;">
+          <div style="display: grid; gap: 4px;">
+            <label style="font-size: 11px; font-weight: 800; color: #9a3412; text-transform: uppercase;">Heading</label>
+            <input id="docPointHeading" type="text" placeholder="e.g. Node.js Integration" />
           </div>
-          <div class="field" style="grid-template-columns: 1fr;">
-            <label>Docs URL</label>
-            <input id="docsUrl" type="url" placeholder="https://docs.example.com" />
+          <div style="display: grid; gap: 4px;">
+            <label style="font-size: 11px; font-weight: 800; color: #9a3412; text-transform: uppercase;">Subheading</label>
+            <input id="docPointSubheading" type="text" placeholder="e.g. Install npm packages" />
           </div>
+          <div style="display: grid; gap: 4px; grid-column: 1 / -1;">
+            <label style="font-size: 11px; font-weight: 800; color: #9a3412; text-transform: uppercase;">Paragraph / Key Points Content</label>
+            <textarea id="docPointParagraph" placeholder="Write the main documentation paragraph content or key points here..." style="font-family: inherit; font-size: 14px; min-height: 120px;"></textarea>
+          </div>
+          <button class="btn" id="addDocPointBtn" type="button" style="grid-column: 1 / -1; margin-top: 6px;">Add Documentation Key Point</button>
         </div>
-        <div class="actions">
-          <button class="btn" id="saveDocsBtn" type="button">Save Docs Config</button>
-        </div>
-        <div class="status" id="docsStatus"></div>
+        <div class="status" id="docPointsStatus"></div>
+        
+        <h3 style="margin-top: 24px; margin-bottom: 8px; font-size: 16px; font-family: 'Manrope', sans-serif;">Active Key Points</h3>
+        <ul class="keys-list" id="docPointsList" style="max-height: 400px;"></ul>
       </article>
 
       <article class="panel" style="grid-column: 1 / -1;">
@@ -584,6 +589,14 @@
           <div class="activity-box">
             <h3>Purchase History</h3>
             <p>Latest saved purchase entries across the platform.</p>
+            <div id="purchaseMetrics" style="display: flex; gap: 16px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; padding: 10px; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: #9a3412;">
+              <div>Today's Sales: <span id="todayCount">0</span></div>
+              <div>Today's Revenue: <span id="todayRevenue">$0.00</span></div>
+            </div>
+            <div class="purchase-filters" style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
+              <button type="button" class="btn filter-btn" id="filterTodayBtn" style="padding: 6px 12px; font-size: 12px; height: auto; cursor: pointer;">Today's Purchases</button>
+              <button type="button" class="btn alt filter-btn" id="filterAllBtn" style="padding: 6px 12px; font-size: 12px; height: auto; cursor: pointer;">All Purchases</button>
+            </div>
             <ul class="activity-list" id="purchaseHistoryList"></ul>
           </div>
           <div class="activity-box">
@@ -721,22 +734,6 @@
         return Number.isFinite(value) && value > 0 ? Math.round(value) : 0;
       }
 
-      function getDocsConfig() {
-        try {
-          var raw = localStorage.getItem(SETTINGS_KEYS.docs);
-          if (!raw) {
-            return { label: 'Docs', url: 'docs.html' };
-          }
-          var parsed = JSON.parse(raw);
-          return {
-            label: parsed && parsed.label ? String(parsed.label) : 'Docs',
-            url: parsed && parsed.url ? String(parsed.url) : 'docs.html'
-          };
-        } catch (error) {
-          return { label: 'Docs', url: 'docs.html' };
-        }
-      }
-
       function getEntryTimestamp(item) {
         if (!item) {
           return 0;
@@ -777,6 +774,9 @@
         return parsed && !isNaN(parsed.getTime()) ? parsed.toLocaleString() : 'Unknown time';
       }
 
+      let allPurchases = [];
+      let purchaseFilterMode = 'today';
+
       function renderPurchaseHistory(items) {
         var list = document.getElementById('purchaseHistoryList');
         if (!list) {
@@ -788,7 +788,9 @@
         if (!items.length) {
           var empty = document.createElement('div');
           empty.className = 'empty';
-          empty.textContent = 'No purchase history found yet.';
+          empty.textContent = purchaseFilterMode === 'today' 
+            ? 'No purchases recorded today yet.' 
+            : 'No purchase history found yet.';
           list.appendChild(empty);
           return;
         }
@@ -829,6 +831,47 @@
           row.appendChild(time);
           list.appendChild(row);
         });
+      }
+
+      function updatePurchaseMetricsAndList() {
+        const sorted = sortLatestFirst(allPurchases);
+        
+        // Calculate today's metrics
+        let todayCount = 0;
+        let todayRevenue = 0;
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const endOfToday = startOfToday + 24 * 60 * 60 * 1000;
+
+        sorted.forEach(item => {
+          const t = getEntryTimestamp(item);
+          if (t >= startOfToday && t < endOfToday) {
+            todayCount++;
+            const amt = Number(item.amount);
+            if (Number.isFinite(amt)) {
+              todayRevenue += amt;
+            }
+          }
+        });
+
+        // Update metrics DOM
+        const countEl = document.getElementById('todayCount');
+        const revEl = document.getElementById('todayRevenue');
+        if (countEl) countEl.textContent = todayCount;
+        if (revEl) revEl.textContent = '$' + todayRevenue.toFixed(2);
+
+        // Filter items based on selected mode
+        let filteredItems = [];
+        if (purchaseFilterMode === 'today') {
+          filteredItems = sorted.filter(item => {
+            const t = getEntryTimestamp(item);
+            return t >= startOfToday && t < endOfToday;
+          });
+        } else {
+          filteredItems = sorted;
+        }
+
+        renderPurchaseHistory(filteredItems);
       }
 
       function renderRecentSearches(items) {
@@ -884,17 +927,18 @@
             getDocs(query(collectionGroup(db, 'recentSearches')))
           ]);
 
-          const purchases = [];
-          purchaseSnap.forEach(d => purchases.push({ id: d.id, ...d.data() }));
+          allPurchases = [];
+          purchaseSnap.forEach(d => allPurchases.push({ id: d.id, ...d.data() }));
 
           const searches = [];
           searchSnap.forEach(d => searches.push({ id: d.id, ...d.data() }));
 
-          renderPurchaseHistory(sortLatestFirst(purchases));
+          updatePurchaseMetricsAndList();
           renderRecentSearches(sortLatestFirst(searches));
         } catch (error) {
           console.error('Error loading global activity:', error);
-          renderPurchaseHistory([]);
+          allPurchases = [];
+          updatePurchaseMetricsAndList();
           renderRecentSearches([]);
         }
       }
@@ -1065,15 +1109,167 @@
         });
       }
 
+      let docPointsList = [];
+
+      async function fetchDocPoints() {
+        try {
+          const q = query(collection(db, 'docsKeyPoints'), orderBy('createdAt', 'asc'));
+          const snap = await getDocs(q);
+          docPointsList = [];
+          snap.forEach(d => {
+            docPointsList.push({ id: d.id, ...d.data() });
+          });
+          return docPointsList;
+        } catch (error) {
+          console.error("Error fetching doc key points:", error);
+          return [];
+        }
+      }
+
+      async function renderDocPoints() {
+        var listEl = document.getElementById('docPointsList');
+        if (!listEl) return;
+
+        var points = await fetchDocPoints();
+        listEl.innerHTML = '';
+
+        if (points.length === 0) {
+          var empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = 'No documentation key points added yet.';
+          listEl.appendChild(empty);
+          return;
+        }
+
+        points.forEach(function (item) {
+          var li = document.createElement('li');
+          li.style.flexDirection = 'column';
+          li.style.alignItems = 'stretch';
+          li.style.gap = '8px';
+          li.style.border = '1px solid #fde2d2';
+          li.style.borderRadius = '12px';
+          li.style.background = '#fffaf6';
+          li.style.padding = '12px';
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+
+          var headerRow = document.createElement('div');
+          headerRow.style.display = 'flex';
+          headerRow.style.justifyContent = 'space-between';
+          headerRow.style.alignItems = 'center';
+
+          var title = document.createElement('div');
+          title.style.fontWeight = 'bold';
+          title.style.fontSize = '14px';
+          title.style.color = '#7c2d12';
+          title.style.fontFamily = '"Manrope", sans-serif';
+          title.textContent = item.heading || 'Untitled Section';
+
+          var removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'btn alt';
+          removeBtn.textContent = 'Delete';
+          removeBtn.style.padding = '4px 8px';
+          removeBtn.style.fontSize = '11px';
+          removeBtn.addEventListener('click', async function () {
+            try {
+              if (item.id) {
+                await deleteDoc(doc(db, 'docsKeyPoints', item.id));
+                await renderDocPoints();
+                showStatus('docPointsStatus', 'Documentation key point deleted.', 'warn');
+              }
+            } catch (error) {
+              console.error("Error deleting key point:", error);
+              showStatus('docPointsStatus', 'Failed to delete key point.', 'warn');
+            }
+          });
+
+          headerRow.appendChild(title);
+          headerRow.appendChild(removeBtn);
+
+          li.appendChild(headerRow);
+
+          if (item.subheading) {
+            var sub = document.createElement('div');
+            sub.style.fontSize = '12px';
+            sub.style.color = 'var(--muted)';
+            sub.style.fontWeight = '600';
+            sub.textContent = item.subheading;
+            li.appendChild(sub);
+          }
+
+          if (item.paragraph) {
+            var content = document.createElement('p');
+            content.style.fontSize = '13px';
+            content.style.color = 'var(--text)';
+            content.style.whiteSpace = 'pre-wrap';
+            content.style.marginTop = '4px';
+            content.style.lineHeight = '1.5';
+            content.textContent = item.paragraph;
+            li.appendChild(content);
+          }
+
+          listEl.appendChild(li);
+        });
+      }
+
+      document.getElementById('addDocPointBtn').addEventListener('click', async function () {
+        var heading = document.getElementById('docPointHeading').value.trim();
+        var subheading = document.getElementById('docPointSubheading').value.trim();
+        var paragraph = document.getElementById('docPointParagraph').value.trim();
+
+        if (!heading || !paragraph) {
+          showStatus('docPointsStatus', 'Heading and Paragraph are required.', 'warn');
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, 'docsKeyPoints'), {
+            heading: heading,
+            subheading: subheading,
+            paragraph: paragraph,
+            createdAt: serverTimestamp()
+          });
+          
+          document.getElementById('docPointHeading').value = '';
+          document.getElementById('docPointSubheading').value = '';
+          document.getElementById('docPointParagraph').value = '';
+
+          await renderDocPoints();
+          showStatus('docPointsStatus', 'Documentation key point added.', 'ok');
+          showSuccessToast('Changes added successfully.');
+        } catch (error) {
+          console.error("Error adding doc point:", error);
+          showStatus('docPointsStatus', 'Failed to add key point.', 'error');
+        }
+      });
+
       fetchPricing().then(pricing => {
         setPricingFields(pricing);
       });
 
-      var docs = getDocsConfig();
-      document.getElementById('docsLabel').value = docs.label;
-      document.getElementById('docsUrl').value = docs.url;
       renderKeys();
+      renderDocPoints();
       loadGlobalActivity();
+
+      const filterTodayBtn = document.getElementById('filterTodayBtn');
+      const filterAllBtn = document.getElementById('filterAllBtn');
+
+      if (filterTodayBtn && filterAllBtn) {
+        filterTodayBtn.addEventListener('click', function () {
+          purchaseFilterMode = 'today';
+          filterTodayBtn.className = 'btn filter-btn';
+          filterAllBtn.className = 'btn alt filter-btn';
+          updatePurchaseMetricsAndList();
+        });
+
+        filterAllBtn.addEventListener('click', function () {
+          purchaseFilterMode = 'all';
+          filterTodayBtn.className = 'btn alt filter-btn';
+          filterAllBtn.className = 'btn filter-btn';
+          updatePurchaseMetricsAndList();
+        });
+      }
 
       // Start a realtime listener so admin sees new keys immediately
       try {
@@ -1088,6 +1284,20 @@
         });
       } catch (e) {
         console.warn('Could not start realtime listener for apiKeys in admin view', e);
+      }
+
+      // Start a realtime listener for doc points
+      try {
+        const qDocPointsRealtime = query(collection(db, 'docsKeyPoints'), orderBy('createdAt', 'asc'));
+        onSnapshot(qDocPointsRealtime, function () {
+          try {
+            renderDocPoints();
+          } catch (e) {
+            console.warn('Error re-rendering doc points from realtime snapshot', e);
+          }
+        });
+      } catch (e) {
+        console.warn('Could not start realtime listener for docsKeyPoints', e);
       }
 
       try {
@@ -1127,16 +1337,6 @@
           console.error("Failed to save pricing", e);
           showStatus('pricingStatus', 'Failed to save pricing to cloud.', 'error');
         }
-      });
-
-      document.getElementById('saveDocsBtn').addEventListener('click', function () {
-        var label = document.getElementById('docsLabel').value.trim() || 'Docs';
-        var url = document.getElementById('docsUrl').value.trim() || 'docs.html';
-
-        localStorage.setItem(SETTINGS_KEYS.docs, JSON.stringify({ label: label, url: url }));
-        bumpConfigVersion();
-        showStatus('docsStatus', 'Docs settings saved.', 'ok');
-        showSuccessToast('Changes added successfully.');
       });
 
       var addKeyBtn = document.getElementById('addKeyBtn');

@@ -13,7 +13,8 @@ import { auth, db, googleProvider } from './firebase_config.js';
 import {
   doc,
   serverTimestamp,
-  setDoc
+  setDoc,
+  getDoc
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
@@ -75,6 +76,48 @@ async function tryUpsertUserProfile(user, name = '') {
           }
 }
 
+async function syncDocsLink() {
+  const docsLink = document.getElementById('docsLink');
+  if (!docsLink) return;
+
+  // 1. Immediately apply cached configuration from localStorage to avoid flashes
+  try {
+    const cached = localStorage.getItem('agentverseDocsConfig');
+    if (cached) {
+      const config = JSON.parse(cached);
+      if (config.label && config.label.trim()) {
+        docsLink.textContent = config.label.trim();
+      }
+      if (config.url && config.url.trim()) {
+        docsLink.href = config.url.trim();
+      }
+    }
+  } catch (e) {
+    console.warn('Could not read cached docs config:', e);
+  }
+
+  // 2. Fetch fresh configuration from Firestore
+  try {
+    const docRef = doc(db, 'config', 'docs');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const config = docSnap.data();
+      if (config.label && config.label.trim()) {
+        docsLink.textContent = config.label.trim();
+      }
+      if (config.url && config.url.trim()) {
+        docsLink.href = config.url.trim();
+      }
+      localStorage.setItem('agentverseDocsConfig', JSON.stringify({
+        label: config.label.trim(),
+        url: config.url.trim()
+      }));
+    }
+  } catch (e) {
+    console.warn('Could not sync docs config from Firestore:', e);
+  }
+}
+
 export function syncNav(user) {
   const adminLink     = document.getElementById('navAdminLink');
   const dashboardLink = document.getElementById('navDashboardLink');
@@ -107,6 +150,9 @@ export function syncNav(user) {
       });
     };
   }
+
+  // Fetch and apply dynamic docs config
+  syncDocsLink();
 }
 export function initFirebaseAuth({ switchTab, onLoginSuccess }) {
   const notice = document.getElementById('notice');

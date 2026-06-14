@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentVerse — Privacy Policy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="footer.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --orange-50: #FFF7ED;
+      --orange-100: #FFEDD5;
+      --orange-200: #FED7AA;
+      --orange-300: #FDBA74;
+      --orange-400: #FB923C;
+      --orange-500: #F97316;
+      --orange-600: #EA580C;
+      --gray-50: #FAFAFA;
+      --gray-100: #F5F5F5;
+      --gray-200: #E5E5E5;
+      --gray-300: #D4D4D4;
+      --gray-400: #A3A3A3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --gray-700: #404040;
+      --gray-800: #262626;
+      --gray-900: #171717;
+      --radius: 16px;
+      --radius-lg: 24px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-glow: 0 8px 32px rgba(249,115,22,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FFFFFF;
+      color: var(--gray-800);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 1px 12px rgba(0,0,0,0.06); }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--gray-900);
+    }
+    .nav-logo svg { flex-shrink: 0; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-600);
+      padding: 8px 16px;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { color: var(--gray-900); background: var(--gray-50); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-ghost {
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-700);
+      background: none;
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-ghost:hover { border-color: var(--gray-300); background: var(--gray-50); }
+
+    .btn-primary {
+      padding: 9px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--orange-500);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--orange-600); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+
+    .nav-mobile-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* ========== HERO ========== */
+    .hero {
+      padding-top: 130px;
+      padding-bottom: 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: -120px; right: -160px;
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, rgba(253,186,116,0.04) 35%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-bg-2 {
+      position: absolute;
+      top: 60px; left: -120px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(249,115,22,0.035) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      align-items: center;
+      gap: 32px;
+      position: relative;
+    }
+
+    .hero-content { z-index: 2; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px 6px 8px;
+      background: var(--orange-50);
+      border: 1px solid var(--orange-200);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange-600);
+      margin-bottom: 22px;
+    }
+    .hero-badge .dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--orange-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-badge .dot svg { width: 12px; height: 12px; }
+
+    .hero h1 {
+      font-size: clamp(42px, 5.5vw, 68px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--gray-900);
+      margin-bottom: 18px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--orange-500), var(--orange-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--gray-500);
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 28px;
+    }
+
+    .hero-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 22px;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .hero-meta-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--orange-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-meta-text .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-400);
+    }
+    .hero-meta-text .value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    /* Hero Illustration */
+    .hero-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      margin-top: -10px;
+    }
+
+    .hero-illustration {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    /* Layered ambient glows */
+    .hero-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -52%);
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, rgba(249,115,22,0.13) 0%, rgba(253,186,116,0.07) 40%, transparent 68%);
+      border-radius: 50%;
+      animation: glowPulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -52%);
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(249,115,22,0.05) 0%, rgba(253,186,116,0.025) 40%, transparent 68%);
+      border-radius: 50%;
+      animation: glowPulse 9s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+    .hero-glow-3 {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -52%);
+      width: 680px; height: 680px;
+      background: radial-gradient(circle, rgba(249,115,22,0.02) 0%, transparent 55%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Ambient floating blobs */
+    .ambient-blob {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(50px);
+      opacity: 0.4;
+    }
+    .blob-1 {
+      width: 100px; height: 100px;
+      background: rgba(249,115,22,0.1);
+      top: 12%; right: 8%;
+      animation: blobDrift1 16s ease-in-out infinite;
+    }
+    .blob-2 {
+      width: 70px; height: 70px;
+      background: rgba(253,186,116,0.12);
+      bottom: 18%; left: 10%;
+      animation: blobDrift2 13s ease-in-out infinite;
+    }
+    .blob-3 {
+      width: 50px; height: 50px;
+      background: rgba(249,115,22,0.06);
+      top: 55%; right: 18%;
+      animation: blobDrift1 18s ease-in-out infinite reverse;
+    }
+
+    @keyframes blobDrift1 {
+      0%, 100% { transform: translate(0, 0); }
+      33% { transform: translate(-8px, -12px); }
+      66% { transform: translate(6px, 8px); }
+    }
+    @keyframes blobDrift2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(10px, -8px); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { transform: translate(-50%, -52%) scale(1); opacity: 1; }
+      50% { transform: translate(-50%, -52%) scale(1.05); opacity: 0.65; }
+    }
+
+    /* Shield image — deep edge masking for seamless blend */
+    .shield-image {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 440px;
+      height: auto;
+      animation: shieldFloat 8s ease-in-out infinite, shieldFadeIn 1.2s ease both 0.4s;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.6s ease;
+      filter: drop-shadow(0 12px 36px rgba(249,115,22,0.14));
+      -webkit-mask-image: radial-gradient(ellipse 78% 80% at 50% 46%, black 48%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.15) 72%, transparent 82%);
+      mask-image: radial-gradient(ellipse 78% 80% at 50% 46%, black 48%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.15) 72%, transparent 82%);
+    }
+    .shield-image:hover {
+      transform: translateY(-6px) scale(1.02);
+      filter: drop-shadow(0 18px 44px rgba(249,115,22,0.22));
+    }
+
+    /* Shimmer overlay */
+    .shield-shimmer {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -52%);
+      width: 380px; height: 380px;
+      z-index: 3;
+      pointer-events: none;
+      border-radius: 50%;
+      background: linear-gradient(
+        135deg,
+        transparent 35%,
+        rgba(255,255,255,0.04) 46%,
+        rgba(255,255,255,0.08) 50%,
+        rgba(255,255,255,0.04) 54%,
+        transparent 65%
+      );
+      animation: shimmerMove 8s ease-in-out infinite;
+      opacity: 0.7;
+    }
+    @keyframes shimmerMove {
+      0%, 100% { transform: translate(-50%, -52%) rotate(0deg); opacity: 0.5; }
+      50% { transform: translate(-50%, -52%) rotate(6deg); opacity: 0.8; }
+    }
+
+    /* Soft shadow beneath */
+    .shield-shadow {
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px; height: 20px;
+      background: radial-gradient(ellipse, rgba(249,115,22,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 1;
+      filter: blur(10px);
+      animation: shadowPulse 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes shadowPulse {
+      0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.6; }
+      50% { transform: translateX(-50%) scaleX(1.1); opacity: 0.35; }
+    }
+
+    @keyframes shieldFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes shieldFadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ========== NAV ROW ========== */
+    .nav-row-section {
+      padding: 0 0 20px;
+      position: relative;
+    }
+    .nav-row-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+    }
+
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 28px 0;
+      flex-wrap: wrap;
+    }
+
+    .nav-row a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-600);
+      text-decoration: none;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+    .nav-row a:hover {
+      border-color: var(--orange-300);
+      background: var(--orange-50);
+      color: var(--orange-600);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-row a svg { flex-shrink: 0; }
+
+    /* ========== TIMELINE ========== */
+    .timeline-section {
+      padding: 60px 0 80px;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 32px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--orange-200), var(--orange-100), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 90px;
+      margin-bottom: 44px;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .timeline-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .timeline-number {
+      position: absolute;
+      left: 8px;
+      top: 24px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange-500), var(--orange-400));
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(249,115,22,0.25);
+      z-index: 2;
+    }
+
+    .timeline-dot-ring {
+      position: absolute;
+      left: 4px;
+      top: 20px;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(249,115,22,0.15);
+      z-index: 1;
+    }
+
+    .timeline-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 36px 40px;
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .timeline-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(180deg, var(--orange-400), var(--orange-200));
+      border-radius: 0 4px 4px 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .timeline-card:hover {
+      border-color: var(--orange-200);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    .timeline-card:hover::before { opacity: 1; }
+
+    .timeline-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .timeline-card-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: var(--orange-50);
+      border: 1px solid var(--orange-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .timeline-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 12px;
+    }
+
+    .timeline-card p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--gray-500);
+    }
+
+    .timeline-card ul {
+      margin-top: 16px;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .timeline-card ul li {
+      font-size: 14px;
+      color: var(--gray-600);
+      padding-left: 24px;
+      position: relative;
+    }
+    .timeline-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--orange-300);
+    }
+
+    .card-arrow {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .timeline-card:hover .card-arrow {
+      background: var(--orange-500);
+      border-color: var(--orange-500);
+    }
+    .timeline-card:hover .card-arrow svg path { stroke: #fff; }
+
+    /* ========== CTA ========== */
+    .cta-section {
+      padding: 40px 0 80px;
+    }
+
+    .cta-card {
+      background: linear-gradient(135deg, var(--orange-50) 0%, #FFF 50%, var(--orange-50) 100%);
+      border: 1px solid var(--orange-200);
+      border-radius: var(--radius-lg);
+      padding: 52px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(249,115,22,0.08), transparent);
+      border-radius: 50%;
+    }
+
+    .cta-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      position: relative;
+    }
+
+    .cta-icon {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--orange-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cta-text h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+    .cta-text p {
+      font-size: 15px;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .btn-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #fff;
+      border: 1px solid var(--orange-200);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--orange-600);
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+    .btn-email:hover { background: var(--orange-50); box-shadow: var(--shadow-sm); }
+
+    .btn-contact {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--orange-500);
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-contact:hover { background: var(--orange-600); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+      .hero { padding-top: 120px; padding-bottom: 48px; }
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        text-align: center;
+      }
+      .hero-desc { margin-left: auto; margin-right: auto; }
+      .hero-meta { display: inline-flex; }
+      .hero-visual { order: -1; max-width: 360px; margin: 0 auto; margin-top: 0; }
+      .hero-illustration { max-width: 360px; padding: 16px; }
+      .shield-image { max-width: 300px; }
+      .hero-glow { width: 260px; height: 260px; }
+      .hero-glow-2 { width: 360px; height: 360px; }
+      .hero-glow-3 { width: 440px; height: 440px; }
+      .shield-shimmer { width: 280px; height: 280px; }
+      .shield-shadow { width: 140px; }
+      .ambient-blob { display: none; }
+      .cta-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 32px;
+      }
+      .cta-left { flex-direction: column; align-items: center; }
+      .cta-actions { flex-direction: column; width: 100%; }
+      .btn-email, .btn-contact { width: 100%; justify-content: center; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: flex; }
+      .nav-actions .btn-ghost { display: none; }
+      .hero { padding-top: 100px; padding-bottom: 36px; }
+      .hero-inner { gap: 24px; }
+      .hero-badge { margin-bottom: 16px; }
+      .hero h1 { margin-bottom: 14px; }
+      .hero-desc { margin-bottom: 22px; font-size: 15px; }
+      .nav-row { gap: 8px; }
+      .nav-row a { padding: 10px 16px; font-size: 13px; }
+      .timeline-line { left: 22px; }
+      .timeline-item { padding-left: 64px; }
+      .timeline-number { left: 0; width: 44px; height: 44px; font-size: 14px; }
+      .timeline-dot-ring { left: -4px; top: 16px; }
+      .timeline-card { padding: 28px 24px; }
+      .timeline-card h3 { font-size: 18px; }
+      .shield-image { max-width: 240px; }
+      .hero-glow { width: 200px; height: 200px; }
+      .hero-glow-2 { width: 280px; height: 280px; }
+      .hero-glow-3 { display: none; }
+      .shield-shimmer { width: 220px; height: 220px; }
+      .shield-shadow { width: 120px; bottom: 18%; }
+    }
+
+    /* ========== ANIMATIONS ========== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="mainNav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#F97316"/>
+          <path d="M10 22L16 10L22 22" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="18" r="2.5" fill="#fff"/>
+        </svg>
+        AgentVerse
+      </a>
+      <div class="nav-links">
+        <a href="browse.html">Explore</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="docs.html">Docs</a>
+        <a href="about.html">About</a>
+      </div>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-ghost">Sign In</a>
+        <a href="register.html" class="btn-primary">Register</a>
+      </div>
+      <button class="nav-mobile-btn" onclick="document.querySelector('.nav-links').classList.toggle('show')" aria-label="Menu">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-bg-2"></div>
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <div class="hero-badge fade-up">
+            <span class="dot">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            Your Privacy, Our Priority
+          </div>
+          <h1 class="fade-up delay-1">Privacy<br><span>Policy</span></h1>
+          <p class="hero-desc fade-up delay-2">At AgentVerse, we value your trust. This Privacy Policy explains how we collect, use, protect, and respect your information across our platform.</p>
+          <div class="hero-meta fade-up delay-3">
+            <div class="hero-meta-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="hero-meta-text">
+              <div class="label">Effective Date</div>
+              <div class="value">May 5, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual fade-up delay-2">
+          <div class="hero-illustration">
+            <div class="hero-glow-3"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-glow"></div>
+            <div class="ambient-blob blob-1"></div>
+            <div class="ambient-blob blob-2"></div>
+            <div class="ambient-blob blob-3"></div>
+            <img src="assets/privacy-shield.png" alt="Privacy & Security Shield" class="shield-image" />
+            <div class="shield-shimmer"></div>
+            <div class="shield-shadow"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAV ROW -->
+  <section class="nav-row-section">
+    <div class="container">
+      <div class="nav-row fade-up">
+        <a href="#scope">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Scope
+        </a>
+        <a href="#data">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          Data
+        </a>
+        <a href="#usage">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Security
+        </a>
+        <a href="#rights">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Rights
+        </a>
+        <a href="#contact-cta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Contact
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="timeline-section">
+    <div class="container">
+      <div class="timeline">
+        <div class="timeline-line"></div>
+
+        <!-- 01 Scope -->
+        <div class="timeline-item" id="scope">
+          <div class="timeline-dot-ring"></div>
+          <div class="timeline-number">01</div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <div class="timeline-card-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div class="card-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="#A3A3A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <h3>Scope of This Policy</h3>
+            <p>This Privacy Policy applies to all interactions with AgentVerse, including website usage, AI agent interactions, support requests, integrations, and user dashboards.</p>
+            <ul>
+              <li>Web application and API usage</li>
+              <li>AI agent conversations and training data</li>
+              <li>Customer support interactions</li>
+              <li>Third-party integrations and plugins</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 02 Information -->
+        <div class="timeline-item" id="data">
+          <div class="timeline-dot-ring"></div>
+          <div class="timeline-number">02</div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <div class="timeline-card-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              </div>
+              <div class="card-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="#A3A3A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <h3>Information We Collect</h3>
+            <p>We collect information you provide directly and data collected automatically to provide, improve, and secure our services.</p>
+            <ul>
+              <li>Account details: name, email, organization</li>
+              <li>Usage data: feature interactions, session logs</li>
+              <li>Device info: browser type, OS, IP address</li>
+              <li>Cookies and tracking technologies</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 03 Usage -->
+        <div class="timeline-item" id="usage">
+          <div class="timeline-dot-ring"></div>
+          <div class="timeline-number">03</div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <div class="timeline-card-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="card-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="#A3A3A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <h3>How We Use Your Information</h3>
+            <p>Your information helps us deliver and improve our platform, provide support, run analytics, and ensure security.</p>
+            <ul>
+              <li>Delivering and maintaining our AI services</li>
+              <li>Personalizing your dashboard experience</li>
+              <li>Running platform analytics and diagnostics</li>
+              <li>Communicating updates and product changes</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 04 Security -->
+        <div class="timeline-item" id="security">
+          <div class="timeline-dot-ring"></div>
+          <div class="timeline-number">04</div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <div class="timeline-card-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+              </div>
+              <div class="card-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="#A3A3A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <h3>Data Security</h3>
+            <p>We implement industry-standard safeguards to protect your data and continuously monitor for threats and vulnerabilities.</p>
+            <ul>
+              <li>AES-256 encryption at rest and in transit</li>
+              <li>Regular third-party security audits</li>
+              <li>SOC 2 Type II compliance</li>
+              <li>Real-time threat monitoring and alerting</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 05 Rights -->
+        <div class="timeline-item" id="rights">
+          <div class="timeline-dot-ring"></div>
+          <div class="timeline-number">05</div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <div class="timeline-card-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="card-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="#A3A3A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <h3>Your Rights & Choices</h3>
+            <p>You have control over your data. You can access, update, or request deletion of your information at any time.</p>
+            <ul>
+              <li>Access and download your personal data</li>
+              <li>Correct inaccurate information</li>
+              <li>Request complete data deletion</li>
+              <li>Opt out of marketing communications</li>
+              <li>Manage cookie preferences</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact-cta">
+    <div class="container">
+      <div class="cta-card fade-up">
+        <div class="cta-left">
+          <div class="cta-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="cta-text">
+            <h3>Questions about privacy?</h3>
+            <p>We're here to help. Reach out to our privacy team if you have any questions or requests.</p>
+          </div>
+        </div>
+        <div class="cta-actions">
+          <a href="mailto:privacy@agentverse.ai" class="btn-email">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            privacy@agentverse.ai
+          </a>
+          <a href="mailto:support@agentverse.ai" class="btn-contact">
+            Contact Us
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div id="footer-placeholder"></div>
+
+  <script src="js/footer.js"></script>
+  <script>
+    // Scroll-based nav shadow
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -40px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe fade-up elements
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Observe timeline items with staggered delay
+    document.querySelectorAll('.timeline-item').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 0.12}s`;
+      observer.observe(el);
+    });
+
+    // Smooth scroll for nav-row anchors
+    document.querySelectorAll('.nav-row a').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          const y = target.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
